@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from mesa import Model
 
@@ -22,13 +22,34 @@ class Environment(Model):
         self.packages = packages
 
         # Create self.grid with grid_height rows and grid_width columns
-        grid = [[EMPTY_CELL for _ in range(self.grid_width)] for _ in range(self.grid_height)]
+        self.grid = [[EMPTY_CELL for _ in range(self.grid_width)] for _ in range(self.grid_height)]
+        self.update_grid()
     
+
+    def _update_entity_position(self, entity: Union[Agent, Obstacle, Package]) -> None:
+        if entity.id not in self.grid[entity.position.x][entity.position.y]:
+            if isinstance(entity, Obstacle):
+                if entity.duration == 0:
+                    # The Obstacle does not appear anymore. Remove it from the grid.
+                    del self.grid[entity.position.x][entity.position.y][entity.id]
+            elif entity.id in self.grid[entity.previous_position.x][entity.previous_position.y]:
+                # The entity (Agent or Package) has moved to another cell. Remove it from the previous cell, and update the grid with its new position.
+                del self.grid[entity.previous_position.x][entity.previous_position.y][entity.id]
+            self.grid[entity.position.x][entity.position.y][entity.id] = entity
+
 
     def update_grid(self) -> None:
         """ Updates the grid of the environment."""
-        pass
+        # Dynamic entities that move: Agents & Packages
+        for agent in self.agents:
+            self._update_entity_position(agent)
+        
+        for package in self.packages:
+            self._update_entity_position(package)
 
+        for obstacle in self.obstacles:
+            self._update_entity_position(obstacle)
+        
 
 
 class Perception:
