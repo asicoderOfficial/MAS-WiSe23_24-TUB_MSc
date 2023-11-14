@@ -3,9 +3,9 @@ from src.utils.position import Position
 
 
 class Obstacle:
-    def __init__(self, id: str, top_left_corner: Position, width: int, height: int) -> None:
+    def __init__(self, id: str, position: Position, width: int, height: int) -> None:
         self.id = id
-        self.top_left_corner = top_left_corner
+        self.position = position
         self.width = width
         self.height = height
 
