@@ -1,20 +1,15 @@
-from typing import Union
-
-import mesa
+from mesa import Agent as MesaAgent
 
 from src.utils.position import Position
-from src.environment.package import Package
-from src.agents.perception import Perception
 
 
-class Agent(mesa.Agent):
+class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
 
-    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception) -> None:
+    def __init__(self, id: str, position: Position, package_id: str) -> None:
         self.id = id
         self.position = position
-        self.package = package
-        self.perception = perception
+        self.package_id = package_id
 
     
     def step(self) -> None:
