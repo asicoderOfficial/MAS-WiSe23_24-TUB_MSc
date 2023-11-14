@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "MAS_GroupG_WiSe23_24"
+version = "0.1.0"
+description = ""
+authors = ["Asier Serrano Aramburu <asier.tub@gmail.com>", "Maxim Popov <maxim.popov@campus.tu-berlin.de>", "Omadbek Meliev <omadbek95@gmail.com>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.10.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
