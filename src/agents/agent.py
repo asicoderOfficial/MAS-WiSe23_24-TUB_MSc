@@ -10,8 +10,15 @@ class Agent(MesaAgent):
         self.id = id
         self.position = position
         self.package_id = package_id
+        self.previous_position = position
 
     
     def step(self) -> None:
         """ Method called at each iteration of the simulation."""
-        pass
+        self.previous_position = self.position
+        self.move()
+    
+
+    def move(self) -> None:
+        """ Moves the agent."""
+        self.position = Position(self.position.x + 1)
