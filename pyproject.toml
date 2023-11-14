@@ -8,6 +8,7 @@ packages = []
 
 [tool.poetry.dependencies]
 python = "^3.10.6"
+Mesa = "^2.1.4"
 
 
 [build-system]
