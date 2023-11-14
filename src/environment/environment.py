@@ -8,6 +8,7 @@ from src.environment.package import Package
 from src.environment.package_point import PackagePoint
 from src.environment.obstacle import Obstacle
 from src.utils.position import Position
+from src.utils.objects_parser import object_to_dict
 from src.constants.environment import EMPTY_CELL
 
 
@@ -35,7 +36,7 @@ class Environment(Model):
             elif entity.id in self.grid[entity.previous_position.x][entity.previous_position.y]:
                 # The entity (Agent or Package) has moved to another cell. Remove it from the previous cell, and update the grid with its new position.
                 del self.grid[entity.previous_position.x][entity.previous_position.y][entity.id]
-            self.grid[entity.position.x][entity.position.y][entity.id] = entity
+            self.grid[entity.position.x][entity.position.y][entity.id] = object_to_dict(entity)
 
 
     def update_grid(self) -> None:
