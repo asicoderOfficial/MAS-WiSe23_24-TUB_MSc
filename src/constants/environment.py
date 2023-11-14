@@ -1,7 +1,7 @@
 
 EMPTY_CELL = {
-    'agents' : [],
-    'package_points' : [],
-    'obstacles' : [],
-    'packages' : []
+    'agents' : {},
+    'obstacles' : {},
+    'package_points' : {},
+    'packages' : {}
 }
