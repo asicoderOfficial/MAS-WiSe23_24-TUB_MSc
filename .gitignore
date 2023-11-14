@@ -1,0 +1,11 @@
+# Folders
+**/__pycache__/
+**/data/
+**/logs/
+**/plots/
+
+# File types
+**/.env
+**/.yml
+**/.yaml
+**/.csv
