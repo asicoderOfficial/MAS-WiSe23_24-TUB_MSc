@@ -34,8 +34,8 @@ class Environment(Model):
         previous_packages_positions = {package.id: package.position for package in self.packages.values()}
         for _, agent_object in self.agents.items():
             agent_object.step()
-            if self.packages[agent_object.package_id].position == agent_object.position:
-                # The agent is carrying the package. So wherever the agent goes, the package goes too.
+            if agent_object.package_id:
+                # The agent package_id != '', so the agent is carrying the package. So wherever the agent goes, the package goes too.
                 self.packages[agent_object.package_id].step(agent_object.position)
         
         for _, obstacle_object in self.obstacles.items():
@@ -44,7 +44,7 @@ class Environment(Model):
         self.update_grid(previous_agents_positions, previous_packages_positions)
 
 
-    def _update_entity_position(self, entity: Union[Agent, Obstacle, Package], previous_position: Position) -> None:
+    def _update_entity_position(self, entity: Union[Agent, Package], previous_position: Position) -> None:
         entity_key = next((value for key, value in ENTITIES_TO_KEYS.items() if isinstance(entity, key)), None)
         current_position_cell = self.grid[entity.position.x][entity.position.y][entity_key]
         if entity.id not in current_position_cell:
