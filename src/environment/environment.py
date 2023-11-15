@@ -28,7 +28,7 @@ class Environment(Model):
         self.init_grid()
 
 
-    def step(self) -> None:
+    def step(self, current_iteration: int) -> None:
         """ Method called at each iteration of the simulation."""
         previous_agents_positions = {agent.id: agent.position for agent in self.agents.values()}
         previous_packages_positions = {package.id: package.position for package in self.packages.values()}
@@ -41,7 +41,7 @@ class Environment(Model):
         for _, obstacle_object in self.obstacles.items():
             obstacle_object.step()
         
-        self.update_grid(previous_agents_positions, previous_packages_positions)
+        self.update_grid(previous_agents_positions, previous_packages_positions, current_iteration)
 
 
     def _update_entity_position(self, entity: Union[Agent, Package], previous_position: Position) -> None:
@@ -56,7 +56,7 @@ class Environment(Model):
         self.grid[entity.position.x][entity.position.y][entity_key][entity.id] = object_to_dict(entity)
 
 
-    def update_grid(self, previous_agents_positions: dict, previous_packages_positions: dict) -> None:
+    def update_grid(self, previous_agents_positions: dict, previous_packages_positions: dict, current_iteration: int) -> None:
         """ Updates the grid of the environment."""
         # Dynamic entities that move: Agents & Packages
         for agent_id, agent_object in self.agents.items():
@@ -70,6 +70,9 @@ class Environment(Model):
             if obstacle_object.iterations_left == 0:
                 # The object has to disappear from the grid.
                 del self.grid[obstacle_object.position.x][obstacle_object.position.y][ENTITIES_TO_KEYS[Obstacle]][obstacle_id]
+            elif current_iteration == obstacle_object.starting_iteration:
+                # The object has to appear in the grid now.
+                self.grid[obstacle_object.position.x][obstacle_object.position.y][ENTITIES_TO_KEYS[Obstacle]][obstacle_id] = object_to_dict(obstacle_object)
             
 
     def init_grid(self) -> None:
