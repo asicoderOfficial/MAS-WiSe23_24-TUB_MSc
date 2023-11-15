@@ -8,7 +8,13 @@ class Obstacle:
         self.position = position
         self.width = width
         self.height = height
-        self.duration = duration
+        self.iterations_left = duration
+
+
+    def step(self) -> None:
+        """ Method called at each iteration of the simulation."""
+        if self.iterations_left > 0:
+            self.iterations_left -= 1
 
 
     def is_in(self, position: Position) -> bool:
