@@ -7,6 +7,7 @@ from src.utils.position import Position
 from src.environment.package import Package
 from src.environment.package_point import PackagePoint
 from src.agents.perception import Perception
+from src.constants.environment import OBSTACLE_KEY, PACKAGE_POINT_KEY
 
 
 class Agent(MesaAgent):
@@ -63,10 +64,10 @@ class Agent(MesaAgent):
            chosen_new_position.y < 0 or chosen_new_position.y >= len(perception[0]):
             return False
         # Check if the chosen position is occupied by an obstacle.
-        if perception[chosen_new_position.x][chosen_new_position.y]['obstacles']:
+        if perception[chosen_new_position.x][chosen_new_position.y][OBSTACLE_KEY]:
             return False
         # Check if the chosen position is occupied by a package point.
-        if perception[chosen_new_position.x][chosen_new_position.y]['package_points']:
+        if perception[chosen_new_position.x][chosen_new_position.y][PACKAGE_POINT_KEY]:
             return False
 
         return True        

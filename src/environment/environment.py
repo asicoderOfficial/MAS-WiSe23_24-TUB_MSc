@@ -10,7 +10,7 @@ from src.environment.package_point import PackagePoint
 from src.environment.obstacle import Obstacle
 from src.utils.position import Position
 from src.utils.objects_parser import object_to_dict
-from src.constants.environment import EMPTY_CELL, ENTITIES_TO_KEYS
+from src.constants.environment import EMPTY_CELL, ENTITIES_TO_KEYS, AGENT_KEY, PACKAGE_KEY, OBSTACLE_KEY, PACKAGE_POINT_KEY
 
 
 class Environment(Model):
@@ -92,7 +92,7 @@ class Environment(Model):
         matrix_grid = []
         if mode == 'dijkstra':
             return [
-                [0 if self.grid[i][j]['package_points'] or self.grid[i][j]['obstacles'] else 1
+                [0 if self.grid[i][j][PACKAGE_POINT_KEY] or self.grid[i][j][OBSTACLE_KEY] else 1
                 for j in range(self.grid_width)]
                 for i in range(self.grid_height)
             ]
@@ -100,13 +100,13 @@ class Environment(Model):
             for i in range(self.grid_height):
                 column = []
                 for j in range(self.grid_width):
-                    if self.grid[i][j]['package_points']:
+                    if self.grid[i][j][PACKAGE_POINT_KEY]:
                         column.append('x')
-                    elif self.grid[i][j]['obstacles']:
+                    elif self.grid[i][j][OBSTACLE_KEY]:
                         column.append('o')
-                    elif self.grid[i][j]['packages']:
+                    elif self.grid[i][j][PACKAGE_KEY]:
                         column.append('p')
-                    elif self.grid[i][j]['agents']:
+                    elif self.grid[i][j][AGENT_KEY]:
                         column.append('a')
                     else:
                         column.append(' ')
