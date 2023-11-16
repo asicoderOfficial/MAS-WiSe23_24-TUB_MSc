@@ -32,7 +32,7 @@ class Perception:
         
         for i in range(max(0, agent_position.x - agent_position.y), min(len(environment_grid), agent_position.x + self.n_cells_around + 1)):
             row = []
-            for j in range(max(0, agent_position.y - self.n_cells_around), min(len(environment_grid)[0], agent_position.y + self.n_cells_around + 1)):
+            for j in range(max(0, agent_position.y - self.n_cells_around), min(len(environment_grid[0]), agent_position.y + self.n_cells_around + 1)):
                 row.append(environment_grid[i][j])
             visible_submatrix.append(row)
         

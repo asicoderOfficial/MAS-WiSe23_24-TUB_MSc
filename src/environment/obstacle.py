@@ -69,6 +69,8 @@ class Obstacle:
                     if environment_grid[i][j][entity_id]:
                         return False
 
+        return True
+
     
     def determine_position(self, environment_grid: list) -> Position:
         """ Determines the position of the obstacle in the environment.
