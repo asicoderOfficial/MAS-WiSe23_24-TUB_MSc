@@ -5,7 +5,25 @@ from src.utils.position import Position
 
 
 class Obstacle:
+    """ Dynamic obstacle in the environment."""
     def __init__(self, id: str, position: Position, width: int, height: int, starting_iteration: int, duration:int, position_determination:str='random') -> None:
+        """ Constructor.
+
+        Args:
+            id (str): ID to identify the obstacle.
+            position (Position): Position of the obstacle in the environment. 
+                It is determined initially by the code that runs the experiment.
+                However, as the obstacle appears at starting_iteration, it may happen that the position is not valid anymore, so this could be changed automatically by then.
+                Once the agent is created, it will not move until it disappears.
+            width (int): Width of the obstacle.
+            height (int): Height of the obstacle.
+            starting_iteration (int): Iteration in which the obstacle appears in the environment.
+            duration (int): Number of iterations the obstacle will be in the environment.
+            position_determination (str, optional): How to determine the position automatically. Defaults to 'random'.
+        
+        Returns:
+            None
+        """        
         self.id = id
         self.position = position
         self.width = width
@@ -16,7 +34,14 @@ class Obstacle:
 
 
     def step(self, current_iteration: int) -> None:
-        """ Method called at each iteration of the simulation."""
+        """ The obstacle iterations left are updated.
+
+        Args:
+            current_iteration (int): The current iteration of the experiment.
+        
+        Returns:
+            None
+        """        
         if self.iterations_left >= 0 and current_iteration >= self.starting_iteration:
             self.iterations_left -= 1
 
@@ -27,6 +52,16 @@ class Obstacle:
 
     
     def _is_position_valid(self, environment_grid: list, x: int, y: int) -> bool:
+        """ Checks if the position is valid for the obstacle in the environment to be placed.
+
+        Args:
+            environment_grid (list): The current state of the environment.
+            x (int): The top left x coordinate of the obstacle where it would be placed.
+            y (int): The top left y coordinate of the obstacle where it would be placed.
+
+        Returns:
+            bool: True if the position is valid, False otherwise.
+        """        
         environment_grid_keys = environment_grid[x][y].keys()
         for i in range(x, x + self.width):
             for j in range(y, y + self.height):
@@ -36,8 +71,18 @@ class Obstacle:
 
     
     def determine_position(self, environment_grid: list) -> Position:
-        """ Determines the position of the obstacle in the environment."""
-        if not self.position:
+        """ Determines the position of the obstacle in the environment.
+
+        Args:
+            environment_grid (list): The current state of the environment.
+
+        Raises:
+            Exception: If no valid position exists for the obstacle in the environment.
+
+        Returns:
+            Position: The position of the obstacle in the environment.
+        """        
+        if not self._is_position_valid(environment_grid, self.position.x, self.position.y):
             if self.position_determination == 'random':
                 is_position_valid = False
                 maximum_random_tries = 100
