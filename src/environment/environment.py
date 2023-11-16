@@ -14,8 +14,22 @@ from src.constants.environment import EMPTY_CELL, ENTITIES_TO_KEYS, AGENT_KEY, P
 
 
 class Environment(Model):
+    """ The environment where the agents interact."""
     def __init__(self, grid_height: int, grid_width: int, agents: List[Agent], \
                  package_points: List[PackagePoint], obstacles: List[Obstacle], packages: List[Package]) -> None:
+        """ Constructor.
+
+        Args:
+            grid_height (int): Height of the grid (number of rows)
+            grid_width (int): Width of the grid (number of columns)
+            agents (List[Agent]): Agents in the environment.
+            package_points (List[PackagePoint]): Package points in the environment.
+            obstacles (List[Obstacle]): Obstacles in the environment.
+            packages (List[Package]): Packages in the environment.
+        
+        Returns:
+            None
+        """        
         self.grid_height = grid_height
         self.grid_width = grid_width
         self.agents = {agent.id: agent for agent in agents}
@@ -29,7 +43,14 @@ class Environment(Model):
 
 
     def step(self, current_iteration: int) -> None:
-        """ Method called at each iteration of the simulation."""
+        """ Main method of the environment. It is called every iteration.
+
+        Args:
+            current_iteration (int): The current iteration of the experiment.
+        
+        Returns:
+            None 
+        """        
         previous_agents_positions = {agent.id: agent.position for agent in self.agents.values()}
         previous_packages_positions = {package.id: package.position for package in self.packages.values()}
         for _, agent_object in self.agents.items():
@@ -45,6 +66,15 @@ class Environment(Model):
 
 
     def _update_entity_position(self, entity: Union[Agent, Package], previous_position: Position) -> None:
+        """ Updates the position of an entity in the grid.
+
+        Args:
+            entity (Union[Agent, Package]): The dynamic entity to update its position (Agent or Package)
+            previous_position (Position): The previous position of the entity.
+        
+        Returns:
+            None 
+        """        
         entity_key = next((value for key, value in ENTITIES_TO_KEYS.items() if isinstance(entity, key)), None)
         current_position_cell = self.grid[entity.position.x][entity.position.y][entity_key]
         if entity.id not in current_position_cell:
@@ -57,7 +87,13 @@ class Environment(Model):
 
 
     def update_grid(self, previous_agents_positions: dict, previous_packages_positions: dict, current_iteration: int) -> None:
-        """ Updates the grid of the environment."""
+        """ Updates the grid with the new positions of the dynamic entities.
+
+        Args:
+            previous_agents_positions (dict): The positions the agents had at the previous iteration.
+            previous_packages_positions (dict): The positions the packages had at the previous iteration.
+            current_iteration (int): The current iteration of the experiment.
+        """        
         # Dynamic entities that move: Agents & Packages
         for agent_id, agent_object in self.agents.items():
             self._update_entity_position(agent_object, previous_agents_positions[agent_id])
@@ -77,6 +113,9 @@ class Environment(Model):
             
 
     def init_grid(self) -> None:
+        """ Initializes the grid with the static entities (Package Points, Obstacles and Packages).
+        Called only once, at the beginning of the experiment.
+        """        
         for entity in [self.agents, self.package_points, self.packages]:
             for entity_key, entity_object in entity.items():
                 type_key = next((value for key, value in ENTITIES_TO_KEYS.items() if isinstance(entity_object, key)), None)
@@ -89,6 +128,14 @@ class Environment(Model):
 
 
     def grid_as_matrix(self, mode:str='dijkstra') -> List[List]:
+        """ Convert the grid to a matrix of dimensions self.grid_height x self.grid_width.
+
+        Args:
+            mode (str, optional): How to create the matrix, depending on the purpose. Defaults to 'dijkstra'.
+
+        Returns:
+            List[List]: The grid as a matrix.
+        """        
         matrix_grid = []
         if mode == 'dijkstra':
             return [
