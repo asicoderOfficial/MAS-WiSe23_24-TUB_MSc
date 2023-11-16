@@ -33,13 +33,13 @@ class Environment(Model):
         previous_agents_positions = {agent.id: agent.position for agent in self.agents.values()}
         previous_packages_positions = {package.id: package.position for package in self.packages.values()}
         for _, agent_object in self.agents.items():
-            agent_object.step()
+            agent_object.step(self.grid)
             if agent_object.package.id:
                 # The agent package_id != '', so the agent is carrying the package. So wherever the agent goes, the package goes too.
                 self.packages[agent_object.package.id].step(agent_object.position)
         
         for _, obstacle_object in self.obstacles.items():
-            obstacle_object.step()
+            obstacle_object.step(current_iteration)
         
         self.update_grid(previous_agents_positions, previous_packages_positions, current_iteration)
 
@@ -67,40 +67,50 @@ class Environment(Model):
         
         # Dynamic entities that do not move, but can disappear: Obstacles
         for obstacle_id, obstacle_object in self.obstacles.items():
-            if obstacle_object.iterations_left == 0:
+            if obstacle_object.iterations_left == -1 and obstacle_id in self.grid[obstacle_object.position.x][obstacle_object.position.y][ENTITIES_TO_KEYS[Obstacle]]:
                 # The object has to disappear from the grid.
                 del self.grid[obstacle_object.position.x][obstacle_object.position.y][ENTITIES_TO_KEYS[Obstacle]][obstacle_id]
             elif current_iteration == obstacle_object.starting_iteration:
                 # The object has to appear in the grid now.
+                obstacle_object.determine_position(self.grid)
                 self.grid[obstacle_object.position.x][obstacle_object.position.y][ENTITIES_TO_KEYS[Obstacle]][obstacle_id] = object_to_dict(obstacle_object)
             
 
     def init_grid(self) -> None:
-        for entity in [self.agents, self.package_points, self.obstacles, self.packages]:
+        for entity in [self.agents, self.package_points, self.packages]:
             for entity_key, entity_object in entity.items():
                 type_key = next((value for key, value in ENTITIES_TO_KEYS.items() if isinstance(entity_object, key)), None)
                 self.grid[entity_object.position.x][entity_object.position.y][type_key][entity_key] = object_to_dict(entity_object).copy()
-
-
-    def grid_as_matrix(self) -> List[List]:
-        matrix_grid = []
-        for i in range(self.grid_height):
-            column = []
-            for j in range(self.grid_width):
-                if self.grid[i][j]['package_points'] or self.grid[i][j]['obstacles']:
-                    column.append(0)
-                else:
-                    column.append(1)
-            matrix_grid.append(column)
         
-        return matrix_grid
+        for obstacle_key, obstacle_object in self.obstacles.items():
+            if obstacle_object.starting_iteration == 1:
+                obstacle_object.determine_position(self.grid)
+                self.grid[obstacle_object.position.x][obstacle_object.position.y][ENTITIES_TO_KEYS[Obstacle]][obstacle_key] = object_to_dict(obstacle_object).copy()
 
 
-class Perception:
-    def __init__(self, n_cells_around:int) -> None:
-        self.n_cells_around = n_cells_around
-    
+    def grid_as_matrix(self, mode:str='dijkstra') -> List[List]:
+        matrix_grid = []
+        if mode == 'dijkstra':
+            return [
+                [0 if self.grid[i][j]['package_points'] or self.grid[i][j]['obstacles'] else 1
+                for j in range(self.grid_width)]
+                for i in range(self.grid_height)
+            ]
+        if mode == 'visualization':
+            for i in range(self.grid_height):
+                column = []
+                for j in range(self.grid_width):
+                    if self.grid[i][j]['package_points']:
+                        column.append('x')
+                    elif self.grid[i][j]['obstacles']:
+                        column.append('o')
+                    elif self.grid[i][j]['packages']:
+                        column.append('p')
+                    elif self.grid[i][j]['agents']:
+                        column.append('a')
+                    else:
+                        column.append(' ')
+                matrix_grid.append(column)
 
-    def percept(self, agent_position: Position, environment: Environment) -> Environment:
-        """ Returns the list of packages in the agent's perception."""
-        pass
+            return matrix_grid
+        
