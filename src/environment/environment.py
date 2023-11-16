@@ -82,6 +82,20 @@ class Environment(Model):
                 self.grid[entity_object.position.x][entity_object.position.y][type_key][entity_key] = object_to_dict(entity_object).copy()
 
 
+    def grid_as_matrix(self) -> List[List]:
+        matrix_grid = []
+        for i in range(self.grid_height):
+            column = []
+            for j in range(self.grid_width):
+                if self.grid[i][j]['package_points'] or self.grid[i][j]['obstacles']:
+                    column.append(0)
+                else:
+                    column.append(1)
+            matrix_grid.append(column)
+        
+        return matrix_grid
+
+
 class Perception:
     def __init__(self, n_cells_around:int) -> None:
         self.n_cells_around = n_cells_around
