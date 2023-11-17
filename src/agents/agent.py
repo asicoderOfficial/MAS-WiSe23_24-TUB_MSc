@@ -2,6 +2,8 @@ from typing import Union, List
 from copy import deepcopy
 
 from mesa import Agent as MesaAgent
+from constants.environment import PACKAGE_KEY
+from environment.environment import Environment
 
 from src.utils.position import Position
 from src.environment.package import Package
@@ -12,12 +14,14 @@ from src.agents.perception import Perception
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
 
-    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception) -> None:
+    def __init__(self, id: str, position: Position, origin: Union[Position, None], package: Union[Package, None], perception: Perception) -> None:
         """ Constructor.
 
         Args:
             id (str): The ID to identify the agent.
             position (Position): The position of the agent in the environment.
+            origin (Union[Position, None]): Origin position of agent (assigned home), where agent should return if it is not carrying package. 
+                                            If not defined, agent will return to first encountered package point
             package (Union[Package, None]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
             perception (Perception): The subgrid the agent is currently perceiving.
         
@@ -26,15 +30,16 @@ class Agent(MesaAgent):
         """        
         self.id = id
         self.position = position
+        self.origin = origin
         self.package = package
         self.perception = perception
 
     
-    def step(self, environment_grid: List[List]) -> None:
+    def step(self, environment: Environment) -> None:
         """ The agent performs an action.
 
         Args:
-            environment_grid (List[List]): The current state of the environment.
+            environment (Environment): The current state of the environment.
         
         Returns:
             None 
@@ -43,8 +48,9 @@ class Agent(MesaAgent):
         # TODO: Determine which action to perform (pick package, deliver package or move)
         # TODO: Determine movement with algorithm (Dijkstra, pheromones, etc.)
         # By now, the agent only moves down for demonstration purposes.
+        perception = self.perception.percept(self.position, environment )
+       
         chosen_new_position = Position(self.position.x + 1, self.position.y)
-        perception = self.perception.percept(self.position, environment_grid)
         self.move(chosen_new_position, perception)
     
 
@@ -105,7 +111,7 @@ class Agent(MesaAgent):
         self.package = package
 
 
-    def deliver_package(self, package: Package, package_point: PackagePoint) -> None:
+    def deliver_package(self, package: Package, package_point: PackagePoint) -> bool:
         """ Action of the agent: deliver a package.
 
         Args:
@@ -113,7 +119,9 @@ class Agent(MesaAgent):
             package_point (PackagePoint): The package point the agent wants to deliver the package to.
 
         Returns:
-            None
+            bool: True if delivery was successful
         """        
+        # TODO: logic for case of intermidiate point/end point
         package.position = deepcopy(package_point.position)
         self.package = None
+        return True
