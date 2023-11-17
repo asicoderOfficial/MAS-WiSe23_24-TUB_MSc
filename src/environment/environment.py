@@ -66,7 +66,7 @@ class Environment(Model):
 
 
     def _update_entity_position(self, entity: Union[Agent, Package], previous_position: Position) -> None:
-        """ Updates the position of an entity in the grid.
+        """ Updates the position of an entity in the grid, based on entity's internal position
 
         Args:
             entity (Union[Agent, Package]): The dynamic entity to update its position (Agent or Package)
