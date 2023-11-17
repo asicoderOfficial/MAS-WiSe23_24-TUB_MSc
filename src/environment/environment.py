@@ -55,7 +55,7 @@ class Environment(Model):
         previous_packages_positions = {package.id: package.position for package in self.packages.values()}
         for _, agent_object in self.agents.items():
             agent_object.step(self.grid)
-            if agent_object.package.id:
+            if agent_object.package:
                 # The agent package_id != '', so the agent is carrying the package. So wherever the agent goes, the package goes too.
                 self.packages[agent_object.package.id].step(agent_object.position)
         
