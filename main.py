@@ -9,7 +9,7 @@ from src.environment.environment import Environment
 # Environment elements
 starting_package = Package('p1', Position(1, 2), Position(1, 2), 10)
 
-starting_package_point = PackagePoint('pp1', Position(1, 1))
+starting_package_point = PackagePoint('pp1', Position(1, 1), "end-point")
 
 starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 2, 2)
 
@@ -19,7 +19,7 @@ a = Agent('a', starting_position, starting_package, Perception(1))
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
 environment = Environment(5, 5, [a], [starting_package_point], [starting_obstacle], [starting_package])
-
+a.djistra_algo(environment.grid_height, environment.grid_width, environment.grid_as_matrix())
 m = environment.grid_as_matrix()
 print('Initial state')
 for i in range(len(m)):

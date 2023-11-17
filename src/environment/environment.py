@@ -161,3 +161,11 @@ class Environment(Model):
 
             return matrix_grid
         
+    def get_grid_width(self) -> int:
+        """Getter method for grid_width."""
+        return self.grid_width
+
+    def get_grid_height(self) -> int:
+        """Getter method for grid_height."""
+        return self.grid_height
+        

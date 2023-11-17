@@ -8,6 +8,7 @@ from src.environment.package import Package
 from src.environment.package_point import PackagePoint
 from src.agents.perception import Perception
 
+from src.agents.dijkstra import Dijkstra
 
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
@@ -46,7 +47,6 @@ class Agent(MesaAgent):
         chosen_new_position = Position(self.position.x + 1, self.position.y)
         perception = self.perception.percept(self.position, environment_grid)
         self.move(chosen_new_position, perception)
-    
 
     def can_move_to(self, chosen_new_position: Position, perception: List[List]) -> bool:
         """ Checks if the agent can move to the chosen position.
@@ -103,6 +103,9 @@ class Agent(MesaAgent):
         if self.package:
             raise Exception(f'The agent is already carrying a package with id: {self.package.id}')
         self.package = package
+
+    def djistra_algo(self, height: int, width: int, matrix):
+        Dijkstra.dijkstra_path(self, height, width, matrix)
 
 
     def deliver_package(self, package: Package, package_point: PackagePoint) -> None:
