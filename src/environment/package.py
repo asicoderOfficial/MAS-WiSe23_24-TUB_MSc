@@ -17,14 +17,14 @@ class Package:
             None
         """        
         self.id = id
-        self.position = position
+        self.pos = position
         self.destination = destination
         self.max_iterations_to_deliver = max_iterations_to_deliver
         self.iterations = 0
         self.is_delayed = False
     
 
-    def step(self, new_position: Position) -> None:
+    def step(self, new_position: Position, grid) -> None:
         """ The package position and internal state are updated.
 
         Args:
@@ -33,7 +33,7 @@ class Package:
         Returns:
             None
         """        
-        self.position = new_position
+        grid.move_agent(self, new_position)
         self.iterations += 1
         if self.iterations >= self.max_iterations_to_deliver:
             self.is_delayed = True
