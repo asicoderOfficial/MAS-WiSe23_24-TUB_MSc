@@ -3,6 +3,7 @@ from typing import List
 
 from mesa import Model
 from mesa.space import MultiGrid
+from agents.pheromone_agent import Pheromone
 
 from src.agents.agent import Agent
 from src.environment.package import Package
@@ -127,6 +128,7 @@ class Environment(Model):
                 for j in range(self.grid_width):
                     cell = ''
                     if self.grid._grid[i][j]:
+                        cell_entities = []
                         for entity in self.grid._grid[i][j]:
                             if isinstance(entity, PackagePoint):
                                 cell += 'x'
@@ -138,7 +140,7 @@ class Environment(Model):
                                 cell += 'a'
                         column.append(cell)
                     else:
-                        column.append(' ')
+                        column.append([' '])
                 matrix_grid.append(column)
 
         return matrix_grid
