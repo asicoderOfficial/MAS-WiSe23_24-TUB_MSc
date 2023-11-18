@@ -1,4 +1,3 @@
-from constants.environment import PACKAGE_POINT_END
 from src.agents.agent import Agent
 from src.agents.perception import Perception
 from src.utils.position import Position
@@ -10,9 +9,9 @@ from src.environment.environment import Environment
 # Environment elements
 starting_package = Package('p1', Position(1, 2), Position(1, 2), 10)
 
-starting_package_point = PackagePoint('pp1', Position(1, 1), PACKAGE_POINT_END)
+starting_package_point = PackagePoint('pp1', Position(1, 1), Position(2, 2))
 
-starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 2, 2)
+starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
 
 starting_position = Position(0, 0)
 a = Agent('a', starting_position, starting_package, Perception(1))
