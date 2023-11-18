@@ -16,3 +16,6 @@ class Position:
         """
         return abs(self.x - another_position.x) + abs(self.y - another_position.y)
         
+    def __iter__(self):
+        yield self.x
+        yield self.y
