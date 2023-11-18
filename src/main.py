@@ -1,3 +1,4 @@
+from agents.pheromone_agent import PheromoneAgent
 from src.agents.agent import Agent
 from src.agents.perception import Perception
 from src.utils.position import Position
@@ -28,7 +29,7 @@ a = Agent('a', starting_position, starting_package, Perception(1))
 #environment = Environment(5, 5, [a], [], [], [])
 environment = Environment(5, 5, [a], [starting_package_point, end_package_point], [starting_obstacle], [starting_package])
 
-m = environment.grid_as_matrix()
+m = environment.grid_as_matrix(mode='visualization')
 print('Initial state')
 for i in range(len(m)):
     print(m[i])

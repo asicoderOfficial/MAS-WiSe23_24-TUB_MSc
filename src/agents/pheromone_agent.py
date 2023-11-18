@@ -16,39 +16,48 @@ class Pheromone:
 class PheromoneAgent(Agent):
     def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception) -> None:
         super().__init__(id, position, package, perception)
+        self.previous_destination = None
         
     def step(self, grid) -> None:
         visible_cells = self.perception.percept(self.pos, grid)
        
         if self.package:
-            # Delivering package
+            # Delivering package, drop pheromones of the previous point and move to destination
             # TODO: get correct pheromone for intermediate points
             search_pheromone_id = str(self.package.destination)
-            pheromone_direction = self.get_pheromone_direction(visible_cells, search_pheromone_id)
-            if pheromone_direction != (0,0):
-                direction = pheromone_direction
-            else:
-                # TODO: Use random movement or direction to destination?
-                vector_to_destination = (self.package.destination.x - self.pos.x, self.package.destination.y - self.pos.y)
-                # Normalize direction
-                if vector_to_destination != (0,0): 
-                    if abs(vector_to_destination[0]) > abs(vector_to_destination[1]):
-                        direction = (int(vector_to_destination[0] / abs(vector_to_destination[0])), 0)
-                    else:
-                        direction = (0, int(vector_to_destination[1] / abs(vector_to_destination[1])))
+            drop_pheromone_id = str(self.origin)
+            destination = self.package.destination
+        else:
+            # TODO: Manage roaming and picking up packages in case of greedy agent
+            search_pheromone_id = str(self.origin)
+            drop_pheromone_id = str(self.previous_destination) if self.previous_destination is not None else None
+            
+        pheromone_direction = self.get_pheromone_direction(visible_cells, search_pheromone_id)
+        if pheromone_direction != (0,0):
+            direction = pheromone_direction
+        else:
+            # Go in direction of destination
+            # TODO: Use random movement or direction to destination?
+            vector_to_destination = (destination.x - self.pos.x, destination.y - self.pos.y)
+            # Normalize direction
+            if vector_to_destination != (0,0): 
+                if abs(vector_to_destination[0]) > abs(vector_to_destination[1]):
+                    direction = (int(vector_to_destination[0] / abs(vector_to_destination[0])), 0)
                 else:
-                    direction = vector_to_destination
-       
+                    direction = (0, int(vector_to_destination[1] / abs(vector_to_destination[1])))
+            else:
+                direction = vector_to_destination
+    
+        chosen_new_position = self.pos + direction
+        # Handle obstacles if there are any
+        # Try different directions until there are no options
+        possible_directions = self.get_available_moves(visible_cells, grid)
+        while any([isinstance(entity, Obstacle) for entity in visible_cells[chosen_new_position.to_tuple()]]) and len(possible_directions) > 0:
+            direction = random.choice(possible_directions)
             chosen_new_position = self.pos + direction
-            # Handle obstacles if there are any
-            # Try different directions until there are no options
-            possible_directions = self.get_available_moves(visible_cells, grid)
-            while any([isinstance(entity, Obstacle) for entity in visible_cells[chosen_new_position.to_tuple()]]) and len(possible_directions) > 0:
-                direction = random.choice(possible_directions)
-                chosen_new_position = self.pos + direction
 
-            self.drop_pheromone(str(self.origin), grid)
-            self.move(chosen_new_position, visible_cells, grid)
+        self.drop_pheromone(drop_pheromone_id, grid)
+        self.move(chosen_new_position, visible_cells, grid)
         
     def get_pheromone_direction(self, visible_cells, pheromone_id):
         
