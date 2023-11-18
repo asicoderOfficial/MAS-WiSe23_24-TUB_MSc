@@ -1,6 +1,4 @@
-from msilib.schema import Environment
 from typing import List
-from constants.environment import OBSTACLE_KEY, PACKAGE_KEY, PACKAGE_POINT_KEY
 
 
 from src.utils.position import Position
@@ -23,7 +21,7 @@ class Perception:
         self.visible_package_points = []
     
 
-    def percept(self, agent_position: Position, environment: Environment) -> List[List]:
+    def percept(self, agent_position: Position, grid) -> List[List]:
         """ The agent perceives the environment.
 
         Args:
@@ -33,18 +31,9 @@ class Perception:
         Returns:
             List[List]: The subgrid the agent can perceive.
         """        
-        visible_submatrix = []
+        visible_cells_positions = grid.get_neighborhood(agent_position, moore=True, include_center=True, radius=self.n_cells_around)
+        visible_cells_entities = {}
+        for cell_position in visible_cells_positions:
+            visible_cells_entities[cell_position] = grid.get_cell_list_contents(cell_position)
         
-        for i in range(max(0, agent_position.x - agent_position.y), min(len(environment.grid), agent_position.x + self.n_cells_around + 1)):
-            row = []
-            for j in range(max(0, agent_position.y - self.n_cells_around), min(len(environment.grid[0]), agent_position.y + self.n_cells_around + 1)):
-                row.append(environment.grid[i][j])
-                if environment.grid[i][j][PACKAGE_KEY] != {}:
-                    self.visible_packages.append(environment.packages[environment.grid[i][j][PACKAGE_KEY]["id"]])
-                if environment.grid[i][j][PACKAGE_POINT_KEY] != {}:
-                    self.visible_package_points.append(environment.packages[environment.grid[i][j][PACKAGE_POINT_KEY]["id"]])
-                if environment.grid[i][j][OBSTACLE_KEY] != {}:
-                    self.visible_obstacles.append(environment.packages[environment.grid[i][j][OBSTACLE_KEY]["id"]])
-            visible_submatrix.append(row)
-        
-        return visible_submatrix
+        return visible_cells_entities
