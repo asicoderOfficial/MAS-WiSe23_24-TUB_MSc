@@ -15,6 +15,6 @@ class PackagePoint:
             max_simultaneous_packages_storage (float, optional): Maximum number of packages that can be stored simultaneously. Defaults to float('inf').
         """        
         self.id = id
-        self.position = position
+        self.pos = position
         self.max_simultaneous_packages_storage = max_simultaneous_packages_storage
         self.point_type = point_type
