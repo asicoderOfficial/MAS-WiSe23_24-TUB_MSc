@@ -53,6 +53,10 @@ class Agent(MesaAgent):
         chosen_new_position = Position(self.pos.x + 1, self.pos.y)
         self.move(chosen_new_position, perception, grid)
     
+    def get_available_moves(self, perception: List[List], grid):
+        available_moves = [(1,0), (0,1), (-1,0), (0,-1)] # add (0,0) for staying in place?
+        return [move for move in available_moves if self.can_move_to(self.pos + move, perception, grid.width, grid.height)]
+            
 
     def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:
         """ Checks if the agent can move to the chosen position.
