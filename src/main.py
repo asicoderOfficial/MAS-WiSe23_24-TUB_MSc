@@ -1,4 +1,3 @@
-from agents.pheromone_agent import PheromoneAgent
 from src.agents.agent import Agent
 from src.agents.perception import Perception
 from src.utils.position import Position

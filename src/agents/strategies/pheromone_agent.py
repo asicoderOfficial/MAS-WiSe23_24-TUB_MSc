@@ -1,5 +1,5 @@
 from random import shuffle
-from typing import Union
+from typing import List, Union
 from src.agents.perception import Perception
 from src.environment.package import Package
 from src.environment.obstacle import Obstacle
@@ -13,24 +13,22 @@ class Pheromone:
         self.pos = pos
         self.strength = 1
 
-class PheromoneAgent(Agent):
-    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception) -> None:
-        super().__init__(id, position, package, perception)
-        self.previous_destination = None
+class PheromoneStrategy():
+
+    def step(self, pos: Position, previous_pos: Position, destination_pos: Position, visible_cells: List[List], grid) -> Position:       
+        # if self.package:
+        #     # Delivering package, drop pheromones of the previous point and move to destination
+        #     # TODO: get correct pheromone for intermediate points
+        #     search_pheromone_id = str(self.package.destination)
+        #     drop_pheromone_id = str(self.origin)
+        #     destination = self.package.destination
+        # else:
+        #     # TODO: Manage roaming and picking up packages in case of greedy agent
+        #     search_pheromone_id = str(self.origin)
+        #     drop_pheromone_id = str(self.previous_destination) if self.previous_destination is not None else None
         
-    def step(self, grid) -> None:
-        visible_cells = self.perception.percept(self.pos, grid)
-       
-        if self.package:
-            # Delivering package, drop pheromones of the previous point and move to destination
-            # TODO: get correct pheromone for intermediate points
-            search_pheromone_id = str(self.package.destination)
-            drop_pheromone_id = str(self.origin)
-            destination = self.package.destination
-        else:
-            # TODO: Manage roaming and picking up packages in case of greedy agent
-            search_pheromone_id = str(self.origin)
-            drop_pheromone_id = str(self.previous_destination) if self.previous_destination is not None else None
+        search_pheromone_id = str(destination_pos)
+        drop_pheromone_id = str(previous_pos)
             
         pheromone_direction = self.get_pheromone_direction(visible_cells, search_pheromone_id)
         if pheromone_direction != (0,0):
@@ -38,7 +36,7 @@ class PheromoneAgent(Agent):
         else:
             # Go in direction of destination
             # TODO: Use random movement or direction to destination?
-            vector_to_destination = (destination.x - self.pos.x, destination.y - self.pos.y)
+            vector_to_destination = (destination_pos.x - pos.x, destination_pos.y - pos.y)
             # Normalize direction
             if vector_to_destination != (0,0): 
                 if abs(vector_to_destination[0]) > abs(vector_to_destination[1]):
@@ -48,21 +46,21 @@ class PheromoneAgent(Agent):
             else:
                 direction = vector_to_destination
     
-        chosen_new_position = self.pos + direction
+        chosen_new_position = pos + direction
+        
         # Handle obstacles if there are any
         # Try different directions until there are no options
         possible_directions = self.get_available_moves(visible_cells, grid)
         while any([isinstance(entity, Obstacle) for entity in visible_cells[chosen_new_position.to_tuple()]]):
             if len(possible_directions) > 0:
                 direction = random.choice(possible_directions)
-                chosen_new_position = self.pos + direction
+                chosen_new_position = pos + direction
             else: # No more options, stay at the same cell
                 direction = (0,0)
-                chosen_new_position = self.pos
+                chosen_new_position = pos
                 break
 
         self.drop_pheromone(drop_pheromone_id, grid)
-        self.move(chosen_new_position, visible_cells, grid)
         
     def get_pheromone_direction(self, visible_cells, pheromone_id):
         
@@ -99,3 +97,4 @@ class PheromoneAgent(Agent):
         else:
             cell_pheromones[0].strength += 1
             
+    
