@@ -5,6 +5,10 @@ from src.environment.package import Package
 from src.environment.package_point import PackagePoint
 from src.environment.obstacle import Obstacle
 from src.environment.environment import Environment
+import random
+
+# Define seed for reproducibility, this will be used for the whole program
+random.seed(1)
 
 # Environment elements
 starting_package = Package('p1', Position(1, 2), Position(1, 2), 10)
@@ -28,7 +32,7 @@ print()
 
 iterations = 5
 for iteration in range(1, iterations+1):
-    environment.step(iteration)
+    environment.step()
     print(f'Iteration {iteration}')
     m = environment.grid_as_matrix(mode='visualization')
     for i in range(len(m)):

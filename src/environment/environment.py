@@ -32,13 +32,15 @@ class Environment(Model):
         self.package_points = package_points
         self.obstacles = obstacles
         self.packages = packages
+        
+        self.current_iteration = 0
 
         # Create self.grid with grid_height rows and grid_width columns
         self.grid = MultiGrid(width=self.grid_width, height=self.grid_height, torus=False)
         self.init_grid(agents, package_points, packages, obstacles)
 
 
-    def step(self, current_iteration: int) -> None:
+    def step(self) -> None:
         """ Main method of the environment. It is called every iteration.
 
         Args:
@@ -54,17 +56,19 @@ class Environment(Model):
                 agent.package.step(agent.pos, self.grid)
         
         for obstacle in self.obstacles:
-            obstacle.step(current_iteration, self.grid)
+            obstacle.step(self.current_iteration, self.grid)
 
         # Dynamic entities that do not move, but can disappear: Obstacles
         for obstacle in self.obstacles:
             if obstacle.iterations_left == -1 and obstacle.pos is not None:
                 # The object has to disappear from the grid. It has already stayed in the environment for the required iterations.
                 self.grid.remove_agent(obstacle)
-            elif current_iteration == obstacle.starting_iteration:
+            elif self.current_iteration == obstacle.starting_iteration:
                 # The object has to appear in the grid now, it is the starting iteration.
                 obstacle.determine_position(self.grid)
                 self.grid.place_agent(obstacle, obstacle.pos)
+                
+        self.current_iteration += 1
             
 
     def init_grid(self, agents: List[Agent], package_points: List[PackagePoint], packages: List[Package], obstacles: List[Obstacle]) -> None:
