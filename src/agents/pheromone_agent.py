@@ -52,9 +52,14 @@ class PheromoneAgent(Agent):
         # Handle obstacles if there are any
         # Try different directions until there are no options
         possible_directions = self.get_available_moves(visible_cells, grid)
-        while any([isinstance(entity, Obstacle) for entity in visible_cells[chosen_new_position.to_tuple()]]) and len(possible_directions) > 0:
-            direction = random.choice(possible_directions)
-            chosen_new_position = self.pos + direction
+        while any([isinstance(entity, Obstacle) for entity in visible_cells[chosen_new_position.to_tuple()]]):
+            if len(possible_directions) > 0:
+                direction = random.choice(possible_directions)
+                chosen_new_position = self.pos + direction
+            else: # No more options, stay at the same cell
+                direction = (0,0)
+                chosen_new_position = self.pos
+                break
 
         self.drop_pheromone(drop_pheromone_id, grid)
         self.move(chosen_new_position, visible_cells, grid)
