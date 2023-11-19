@@ -14,7 +14,7 @@ from src.environment.obstacle import Obstacle
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
 
-    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception) -> None:
+    def __init__(self, id: str, position: Position, package: Union[Package, None], package_point_type: str, perception: Perception) -> None:
         """ Constructor.
 
         Args:
@@ -23,6 +23,7 @@ class Agent(MesaAgent):
             origin (Union[Position, None]): Origin position of agent (assigned home), where agent should return if it is not carrying package. 
                                             If not defined, agent will return to first encountered package point
             package (Union[Package, None]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
+            package_point_type (str): Agent's goal package point type, agent will deliver package only to this type of package point.
             perception (Perception): The subgrid the agent is currently perceiving.
         
         Returns:
@@ -32,6 +33,7 @@ class Agent(MesaAgent):
         self.pos = position
         self.origin = position
         self.package = package
+        self.package_point_type = package_point_type
         self.perception = perception
 
     
@@ -54,8 +56,12 @@ class Agent(MesaAgent):
         self.move(chosen_new_position, perception, grid)
     
     def get_available_moves(self, perception: List[List], grid):
-        available_moves = [(1,0), (0,1), (-1,0), (0,-1)] # add (0,0) for staying in place?
-        return [move for move in available_moves if self.can_move_to(self.pos + move, perception, grid.width, grid.height)]
+        available_moves = [(1,0), (0,1), (-1,0), (0,-1)]
+        available_moves = [move for move in available_moves if self.can_move_to(self.pos + move, perception, grid.width, grid.height)]
+        if available_moves == []:
+            return [(0,0)] # stay in place, if no other options
+        else:
+            return available_moves
             
 
     def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:
