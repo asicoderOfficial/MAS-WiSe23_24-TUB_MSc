@@ -2,7 +2,7 @@ from typing import List
 
 
 from src.utils.position import Position
-
+from src.environment.obstacle import Obstacle
 
 class Perception:
     """ What the agent can perceive from the environment."""
@@ -16,24 +16,24 @@ class Perception:
             None
         """        
         self.n_cells_around = n_cells_around
+        self.visible_packages = []
+        self.visible_obstacles = []
+        self.visible_package_points = []
     
 
-    def percept(self, agent_position: Position, environment_grid: List[List]) -> List[List]:
+    def percept(self, agent_position: Position, grid) -> List[List]:
         """ The agent perceives the environment.
 
         Args:
             agent_position (Position): The position of the agent in the environment.
-            environment_grid (List[List]): The current state of the environment.
+            environment (Environment): The current state of the environment.
 
         Returns:
             List[List]: The subgrid the agent can perceive.
         """        
-        visible_submatrix = []
+        visible_cells_positions = grid.get_neighborhood(agent_position, moore=True, include_center=True, radius=self.n_cells_around)
+        visible_cells_entities = {}
+        for cell_position in visible_cells_positions:
+            visible_cells_entities[cell_position] = grid.get_cell_list_contents(cell_position)
         
-        for i in range(max(0, agent_position.x - agent_position.y), min(len(environment_grid), agent_position.x + self.n_cells_around + 1)):
-            row = []
-            for j in range(max(0, agent_position.y - self.n_cells_around), min(len(environment_grid[0]), agent_position.y + self.n_cells_around + 1)):
-                row.append(environment_grid[i][j])
-            visible_submatrix.append(row)
-        
-        return visible_submatrix
+        return visible_cells_entities

@@ -2,13 +2,21 @@ from typing import Union, List
 from copy import deepcopy
 
 from mesa import Agent as MesaAgent
+from mesa.space import MultiGrid
 
 from src.utils.position import Position
 from src.environment.package import Package
 from src.environment.package_point import PackagePoint
 from src.agents.perception import Perception
+from src.environment.obstacle import Obstacle
 
-from src.agents.dijkstra import Dijkstra
+#dijkstra
+from pathfinding.core.diagonal_movement import DiagonalMovement
+from pathfinding.core.grid import Grid
+from pathfinding.finder.dijkstra import DijkstraFinder
+
+from dijstra import Dijkstra
+count = 0
 
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
@@ -19,6 +27,8 @@ class Agent(MesaAgent):
         Args:
             id (str): The ID to identify the agent.
             position (Position): The position of the agent in the environment.
+            origin (Union[Position, None]): Origin position of agent (assigned home), where agent should return if it is not carrying package. 
+                                            If not defined, agent will return to first encountered package point
             package (Union[Package, None]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
             perception (Perception): The subgrid the agent is currently perceiving.
         
@@ -26,29 +36,38 @@ class Agent(MesaAgent):
             None 
         """        
         self.id = id
-        self.position = position
+        self.pos = position
+        self.origin = position
         self.package = package
         self.perception = perception
 
-    
-    def step(self, environment_grid: List[List]) -> None:
+
+    def step(self, grid, matrix) -> None:
         """ The agent performs an action.
 
         Args:
-            environment_grid (List[List]): The current state of the environment.
+            grid (Environment): The current state of the grid.
         
         Returns:
             None 
-        """        
+        """
+
         # TODO: Strategies (agents sub-classes)
         # TODO: Determine which action to perform (pick package, deliver package or move)
         # TODO: Determine movement with algorithm (Dijkstra, pheromones, etc.)
         # By now, the agent only moves down for demonstration purposes.
-        chosen_new_position = Position(self.position.x + 1, self.position.y)
-        perception = self.perception.percept(self.position, environment_grid)
-        self.move(chosen_new_position, perception)
 
-    def can_move_to(self, chosen_new_position: Position, perception: List[List]) -> bool:
+        #global count - each iteration showing new step for agent
+        global count
+        count += 1
+        print("Matrix received by agent")
+        print(matrix)
+        perception = self.perception.percept(self.pos, grid)
+        new_position = Dijkstra.dijkstra_path(self, grid.height, grid.width, matrix, count)
+        self.move(new_position, perception, grid)
+
+
+    def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:
         """ Checks if the agent can move to the chosen position.
 
         Args:
@@ -59,20 +78,20 @@ class Agent(MesaAgent):
             bool: True if the agent can move to the chosen position, False otherwise.
         """        
         # Check if the chosen position is inside the grid of the environment.
-        if chosen_new_position.x < 0 or chosen_new_position.x >= len(perception) or \
-           chosen_new_position.y < 0 or chosen_new_position.y >= len(perception[0]):
+        if chosen_new_position.x < 0 or chosen_new_position.x >= grid_width or \
+           chosen_new_position.y < 0 or chosen_new_position.y >= grid_height:
             return False
         # Check if the chosen position is occupied by an obstacle.
-        if perception[chosen_new_position.x][chosen_new_position.y]['agents']:
-            return False
-        # Check if the chosen position is occupied by a package point.
-        if perception[chosen_new_position.x][chosen_new_position.y]['package_points']:
-            return False
+        entities_in_chosen_new_position = perception[(chosen_new_position.x, chosen_new_position.y)]
+        if entities_in_chosen_new_position:
+            for entity in entities_in_chosen_new_position:
+                if isinstance(entity, Obstacle):
+                    return False
 
         return True        
+    
 
-
-    def move(self, chosen_new_position: Position, perception: List[List]) -> None:
+    def move(self, chosen_new_position: Position, perception: List[List], grid: MultiGrid) -> None:
         """ Action of the agent: move to the chosen position.
 
         Args:
@@ -84,11 +103,11 @@ class Agent(MesaAgent):
         """        
         # By now, the agent only moves to the right.
         # TODO: Implement a more complex movement (strategies, Dijkstra, pheromones, check basic movement rules, etc.)
-        if self.can_move_to(chosen_new_position, perception):
-            self.position = chosen_new_position
+        if self.can_move_to(chosen_new_position, perception, grid.width, grid.height):
+            grid.move_agent(self, chosen_new_position)
 
 
-    def pick_package(self, package: Package) -> None:
+    def pick_package(self, package: Package, grid) -> None:
         """ Action of the agent: pick a package.
 
         Args:
@@ -96,19 +115,27 @@ class Agent(MesaAgent):
 
         Raises:
             Exception: If the agent is already carrying a package.
+            Exception: If the package is not in the same cell as the agent.
+            Exception: If the agent is at a package point that is not an intermediate or starting point.
         
         Returns:
             None
         """        
         if self.package:
             raise Exception(f'The agent is already carrying a package with id: {self.package.id}')
+
+        cell_entities_ids = [cell_entity.id for cell_entity in grid._grid[self.pos.x][self.pos.y]]
+        if package.id in cell_entities_ids:
+            raise Exception(f'The agent cannot pick package with id: {package.id}, as the package is not in the same cell as the agent.')
+
+        cell_entities = [cell_entity for cell_entity in grid._grid[self.pos.x][self.pos.y] if isinstance(cell_entity, PackagePoint) and cell_entity.point_type != 'ending-point']
+        if not cell_entities:
+            raise Exception(f'The agent cannot pick package with id: {package.id}, as the agent is at package point with id {cell_entities[0].id}, which is not in an intermediate or starting point.')
+
         self.package = package
 
-    def djistra_algo(self, height: int, width: int, matrix):
-        Dijkstra.dijkstra_path(self, height, width, matrix)
 
-
-    def deliver_package(self, package: Package, package_point: PackagePoint) -> None:
+    def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
         """ Action of the agent: deliver a package.
 
         Args:
@@ -118,5 +145,14 @@ class Agent(MesaAgent):
         Returns:
             None
         """        
-        package.position = deepcopy(package_point.position)
+        # TODO: logic for case of intermidiate point/end point
+        cell_entities = [cell_entity for cell_entity in grid._grid[self.pos.x][self.pos.y] if isinstance(cell_entity, PackagePoint) and cell_entity.point_type == 'starting-point']
+        if not cell_entities:
+            raise Exception(f'The agent cannot deliver package with id: {package.id}, as the agent is at package point with id {cell_entities[0].id}, which is not in an intermediate or ending point.')
+
+        if package_point.point_type == 'ending-point':
+            # The package has reached its destination! 
+            # Therefore, now the agent is not carrying any package and the package has to disappear from the environment (so it is not visible anymore).
+            grid.remove_agent(package)
+
         self.package = None

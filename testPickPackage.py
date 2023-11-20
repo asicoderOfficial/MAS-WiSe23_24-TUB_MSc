@@ -7,11 +7,11 @@ from src.environment.obstacle import Obstacle
 from src.environment.environment import Environment
 
 # Environment elements
-starting_package = Package('p1', Position(1, 2), Position(1, 2), 10)
+starting_package = Package('p1', Position(3, 3), Position(3, 3), 10)
 
-starting_package_point = PackagePoint('pp1', Position(1, 1), Position(2, 2))
+starting_package_point = PackagePoint('pp1', Position(4, 4), Position(2, 2))
 
-starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
+starting_obstacle = Obstacle('o1', Position(1, 1), 1, 1, 1, 2)
 
 starting_position = Position(0, 0)
 # - None for non package
@@ -20,8 +20,6 @@ a = Agent('a', starting_position, starting_package, Perception(1))
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
 environment = Environment(5, 5, [a], [starting_package_point], [starting_obstacle], [starting_package])
-#dijstar = a.djistra_algo(environment.grid_height, environment.grid_width, environment.grid_as_matrix(), a)
-a.dijkstra_path(environment.grid_height, environment.grid_width, environment.grid_as_matrix())
 m = environment.grid_as_matrix()
 print('Initial state')
 for i in range(len(m)):
