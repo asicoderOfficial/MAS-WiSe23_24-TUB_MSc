@@ -9,8 +9,12 @@ class Strategy():
         pass
     
     def get_available_moves(self, perception: List[List], grid):
-        available_moves = [(1,0), (0,1), (-1,0), (0,-1)] # add (0,0) for staying in place?
-        return [move for move in available_moves if self.can_move_to(self.pos + move, perception, grid.width, grid.height)]
+        available_moves = [(1,0), (0,1), (-1,0), (0,-1)]
+        available_moves = [move for move in available_moves if self.can_move_to(self.pos + move, perception, grid.width, grid.height)]
+        if available_moves == []:
+            return [(0,0)] # stay in place, if no other options
+        else:
+            return available_moves
             
 
     def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:
