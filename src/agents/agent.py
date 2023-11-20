@@ -6,7 +6,7 @@ from mesa.space import MultiGrid
 
 from src.utils.position import Position
 from src.environment.package import Package
-from src.environment.package_point import PackagePoint
+from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PackagePoint
 from src.agents.perception import Perception
 from src.environment.obstacle import Obstacle
 
@@ -101,6 +101,8 @@ class Agent(MesaAgent):
         # TODO: Implement a more complex movement (strategies, Dijkstra, pheromones, check basic movement rules, etc.)
         if self.can_move_to(chosen_new_position, perception, grid.width, grid.height):
             grid.move_agent(self, chosen_new_position)
+        else:
+            raise Exception(f'The agent cannot move to the chosen position: {chosen_new_position}')
 
 
     def pick_package(self, package: Package, grid) -> None:
@@ -120,13 +122,13 @@ class Agent(MesaAgent):
         if self.package:
             raise Exception(f'The agent is already carrying a package with id: {self.package.id}')
 
-        cell_entities_ids = [cell_entity.id for cell_entity in grid._grid[self.pos.x][self.pos.y]]
-        if package.id in cell_entities_ids:
+        cell_entities_ids = [cell_entity.id for cell_entity in grid[self.pos.x][self.pos.y]]
+        if package.id not in cell_entities_ids:
             raise Exception(f'The agent cannot pick package with id: {package.id}, as the package is not in the same cell as the agent.')
 
-        cell_entities = [cell_entity for cell_entity in grid._grid[self.pos.x][self.pos.y] if isinstance(cell_entity, PackagePoint) and cell_entity.point_type != 'ending-point']
+        cell_entities = [cell_entity for cell_entity in grid[self.pos.x][self.pos.y] if isinstance(cell_entity, PackagePoint) and cell_entity.point_type != 'ending-point']
         if not cell_entities:
-            raise Exception(f'The agent cannot pick package with id: {package.id}, as the agent is at package point with id {cell_entities[0].id}, which is not in an intermediate or starting point.')
+            raise Exception(f'The agent cannot pick package with id: {package.id} at position {self.pos} as there are no intermediate or starting points in the cell.')
 
         self.package = package
 
@@ -141,14 +143,15 @@ class Agent(MesaAgent):
         Returns:
             None
         """        
-        # TODO: logic for case of intermidiate point/end point
-        cell_entities = [cell_entity for cell_entity in grid._grid[self.pos.x][self.pos.y] if isinstance(cell_entity, PackagePoint) and cell_entity.point_type == 'starting-point']
+        # TODO: logic for case of intermediate point/end point
+        cell_entities = [cell_entity for cell_entity in grid[self.pos.x][self.pos.y] if isinstance(cell_entity, PackagePoint)]
         if not cell_entities:
-            raise Exception(f'The agent cannot deliver package with id: {package.id}, as the agent is at package point with id {cell_entities[0].id}, which is not in an intermediate or ending point.')
+            raise Exception(f'The agent cannot deliver package with id: {package.id}, as the agent is is not in the same cell')
 
-        if package_point.point_type == 'ending-point':
+        if package_point.point_type == PACKAGE_POINT_END or package_point.point_type == PACKAGE_POINT_INTERMEDIATE:
             # The package has reached its destination! 
             # Therefore, now the agent is not carrying any package and the package has to disappear from the environment (so it is not visible anymore).
             grid.remove_agent(package)
-
-        self.package = None
+            self.package = None
+        else:
+            raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')

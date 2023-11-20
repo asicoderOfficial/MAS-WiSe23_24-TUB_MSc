@@ -108,7 +108,6 @@ class Environment(Model):
                         column.append(1)
                 matrix_grid.append(column)
         if mode == 'visualization':
-            # Be aware this can add more columns, if more than 1 entity is in the same cell.
             for i in range(self.grid_height):
                 column = []
                 for j in range(self.grid_width):

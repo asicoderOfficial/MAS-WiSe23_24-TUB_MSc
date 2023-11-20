@@ -2,6 +2,9 @@ from typing import List
 
 from src.utils.position import Position
 
+PACKAGE_POINT_START = 'pp-start'
+PACKAGE_POINT_INTERMEDIATE = 'pp-intermediate'
+PACKAGE_POINT_END = 'pp-end'
 
 class PackagePoint:
     """ A point where the agent can leave a package, or pick up from."""
