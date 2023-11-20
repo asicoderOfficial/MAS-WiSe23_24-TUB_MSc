@@ -1,5 +1,6 @@
 from random import shuffle
 from typing import List, Union
+from agents.strategies.strategy import Strategy
 from src.agents.perception import Perception
 from src.environment.package import Package
 from src.environment.obstacle import Obstacle
@@ -13,9 +14,9 @@ class Pheromone:
         self.pos = pos
         self.strength = 1
 
-class PheromoneStrategy():
+class PheromoneStrategy(Strategy):
 
-    def step(self, pos: Position, previous_pos: Position, destination_pos: Position, visible_cells: List[List], grid) -> Position:       
+    def find_path(self, pos: Position, previous_pos: Position, destination_pos: Position, visible_cells: List[List], grid) -> Position:       
         # if self.package:
         #     # Delivering package, drop pheromones of the previous point and move to destination
         #     # TODO: get correct pheromone for intermediate points
@@ -82,7 +83,7 @@ class PheromoneStrategy():
         
         return highest_pheromone_direction
     
-    def drop_pheromone(self, pheromone_id: str, grid):
+    def drop_pheromone(self, pos: Position, pheromone_id: str, grid):
         """Add pheromone to current cell. If there is pheromone with same id, increase its strength.
 
         Args:
@@ -90,10 +91,10 @@ class PheromoneStrategy():
             grid: grid of the environment
         """
         
-        cell_pheromones = [entity for entity in grid.get_cell_list_contents(self.pos.to_tuple()) if isinstance(entity, Pheromone) and entity.id == pheromone_id]
+        cell_pheromones = [entity for entity in grid.get_cell_list_contents(pos.to_tuple()) if isinstance(entity, Pheromone) and entity.id == pheromone_id]
         if len(cell_pheromones) == 0:
-            pheromone = Pheromone(pheromone_id, self.pos)
-            grid.place_agent(pheromone, self.pos)
+            pheromone = Pheromone(pheromone_id, pos)
+            grid.place_agent(pheromone, pos)
         else:
             cell_pheromones[0].strength += 1
             

@@ -5,7 +5,7 @@ from environment.obstacle import Obstacle
 
 
 class Strategy():
-    def find_path():
+    def find_path(self):
         pass
     
     def get_available_moves(self, perception: List[List], grid):
