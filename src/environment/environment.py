@@ -1,3 +1,4 @@
+import random
 from typing import List
 
 from mesa import Model
@@ -5,7 +6,7 @@ from mesa.space import MultiGrid
 
 from src.agents.agent import Agent
 from src.environment.package import Package
-from src.environment.package_point import PackagePoint
+from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_START, PackagePoint
 from src.environment.obstacle import Obstacle
 
 
@@ -42,9 +43,6 @@ class Environment(Model):
 
     def step(self) -> None:
         """ Main method of the environment. It is called every iteration.
-
-        Args:
-            current_iteration (int): The current iteration of the experiment.
         
         Returns:
             None 
@@ -57,6 +55,10 @@ class Environment(Model):
         
         for obstacle in self.obstacles:
             obstacle.step(self.current_iteration, self.grid)
+            
+        for package_point in self.package_points:
+            if package_point.point_type == PACKAGE_POINT_START and package_point.steps_per_package != None and self.current_iteration - package_point.previous_package_generation_step > package_point.steps_per_package:
+                self.generate_package(package_point)
 
         # Dynamic entities that do not move, but can disappear: Obstacles
         for obstacle in self.obstacles:
@@ -82,7 +84,19 @@ class Environment(Model):
             if obstacle.starting_iteration == 1:
                 obstacle.determine_position(self.grid)
                 self.grid.place_agent(obstacle, obstacle.pos)
-
+                
+    def generate_package(self, package_point: PackagePoint) -> None:
+        # Choose random destination
+        destination = random.choice([pp for pp in self.package_points if pp.point_type == PACKAGE_POINT_END and pp.id != package_point.id])
+        
+        # Create package and place it on grid
+        package = Package(f'p{len(self.packages)}', package_point.pos, destination, 10)
+        self.grid.place_agent(package, package_point.pos)
+        self.packages.append(package)
+        print("Generated package")
+        # Update package point
+        package_point.previous_package_generation_step = self.current_iteration
+        
 
     def grid_as_matrix(self, mode:str='dijkstra') -> List[List]:
         """ Convert the grid to a matrix of dimensions self.grid_height x self.grid_width.

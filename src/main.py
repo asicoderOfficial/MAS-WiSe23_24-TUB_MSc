@@ -2,7 +2,7 @@ from src.agents.agent import Agent
 from src.agents.perception import Perception
 from src.utils.position import Position
 from src.environment.package import Package
-from src.environment.package_point import PackagePoint
+from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_START, PackagePoint
 from src.environment.obstacle import Obstacle
 from src.environment.environment import Environment
 import random
@@ -11,18 +11,22 @@ import random
 random.seed(1)
 
 # Environment elements
-starting_package = Package('p1', Position(1, 2), Position(1, 2), 10)
+starting_position = Position(0, 0)
+end_position = Position(4, 4)
 
-starting_package_point = PackagePoint('pp1', Position(1, 1), Position(2, 2))
+starting_package = Package('p1', starting_position, Position(1, 4), 10)
+
+starting_package_point = PackagePoint('pp1', starting_position, PACKAGE_POINT_START, 5, 0)
+
+end_package_point = PackagePoint('pp2', end_position, PACKAGE_POINT_END)
 
 starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
 
-starting_position = Position(0, 0)
 a = Agent('a', starting_position, starting_package, Perception(1))
 
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
-environment = Environment(5, 5, [a], [starting_package_point], [starting_obstacle], [starting_package])
+environment = Environment(5, 5, [a], [starting_package_point, end_package_point], [starting_obstacle], [starting_package])
 
 m = environment.grid_as_matrix()
 print('Initial state')
