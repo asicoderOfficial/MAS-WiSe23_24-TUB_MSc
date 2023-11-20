@@ -14,7 +14,7 @@ from src.environment.obstacle import Obstacle
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
 
-    def __init__(self, id: str, position: Position, package: Union[Package, None], package_point_type: str, perception: Perception) -> None:
+    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception) -> None:
         """ Constructor.
 
         Args:
@@ -33,7 +33,6 @@ class Agent(MesaAgent):
         self.pos = position
         self.origin = position
         self.package = package
-        self.package_point_type = package_point_type
         self.perception = perception
 
     
