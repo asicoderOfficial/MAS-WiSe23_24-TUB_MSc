@@ -5,7 +5,7 @@ from src.environment.package_point import PackagePoint
 
 
 from src.utils.position import Position
-
+from src.environment.obstacle import Obstacle
 
 class Perception:
     """ What the agent can perceive from the environment."""

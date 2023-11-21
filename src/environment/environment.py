@@ -3,7 +3,6 @@ from typing import List
 
 from mesa import Model
 from mesa.space import MultiGrid
-from src.agents.strategies.pheromone_strategy import Pheromone
 
 from src.agents.agent import Agent
 from src.environment.package import Package
@@ -113,14 +112,13 @@ class Environment(Model):
             for i in range(self.grid_height):
                 column = []
                 for j in range(self.grid_width):
-                    if self.grid._grid[i][j]:
-                        for entity in self.grid._grid[i][j]:
+                    if self.grid[i][j]:
+                        for entity in self.grid[i][j]:
                             if isinstance(entity, Obstacle):
                                 column.append(0)
-                            else:
-                                column.append(1)
-                    else:
-                        column.append(1)
+                                break
+                        else:
+                            column.append(1)
                 matrix_grid.append(column)
         if mode == 'visualization':
             for i in range(self.grid_height):

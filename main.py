@@ -43,3 +43,6 @@ for iteration in range(1, iterations+1):
         print(m[i])
     print()
     #print(environment.grid)
+
+
+

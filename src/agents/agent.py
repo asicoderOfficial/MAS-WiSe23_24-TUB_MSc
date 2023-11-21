@@ -10,6 +10,13 @@ from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTER
 from src.agents.perception import Perception
 from src.environment.obstacle import Obstacle
 
+#dijkstra
+from pathfinding.core.diagonal_movement import DiagonalMovement
+from pathfinding.core.grid import Grid
+from pathfinding.finder.dijkstra import DijkstraFinder
+
+from agents.dijkstra import Dijkstra
+count = 0
 
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
@@ -20,6 +27,8 @@ class Agent(MesaAgent):
         Args:
             id (str): The ID to identify the agent.
             position (Position): The position of the agent in the environment.
+            origin (Union[Position, None]): Origin position of agent (assigned home), where agent should return if it is not carrying package. 
+                                            If not defined, agent will return to first encountered package point
             package (Union[Package, None]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
             perception (Perception): The subgrid the agent is currently perceiving.
         
@@ -41,13 +50,15 @@ class Agent(MesaAgent):
         
         Returns:
             None 
-        """        
+        """
+
         # TODO: Strategies (agents sub-classes)
         # TODO: Determine which action to perform (pick package, deliver package or move)
         # TODO: Determine movement with algorithm (Dijkstra, pheromones, etc.)
         # By now, the agent only moves down for demonstration purposes.
         perception = self.perception.percept(self.pos, grid)
-       
+        #new_position = Dijkstra.dijkstra_path(self, grid.height, grid.width, matrix, count)
+
         chosen_new_position = Position(self.pos.x + 1, self.pos.y)
         self.move(chosen_new_position, perception, grid)
     
@@ -73,7 +84,7 @@ class Agent(MesaAgent):
                     return False
 
         return True        
-
+    
 
     def move(self, chosen_new_position: Position, perception: List[List], grid: MultiGrid) -> None:
         """ Action of the agent: move to the chosen position.
