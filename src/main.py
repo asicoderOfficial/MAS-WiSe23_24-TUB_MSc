@@ -14,7 +14,7 @@ random.seed(1)
 starting_position = Position(0, 0)
 end_position = Position(4, 4)
 
-starting_package = Package('p1', starting_position, Position(1, 4), 10)
+starting_package = Package('p1', starting_position, end_position, 10)
 
 starting_package_point = PackagePoint('pp1', starting_position, PACKAGE_POINT_START, 5)
 
@@ -22,7 +22,7 @@ end_package_point = PackagePoint('pp2', end_position, PACKAGE_POINT_END)
 
 starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
 
-a = Agent('a', starting_position, starting_package, Perception(1))
+a = Agent('a', starting_position, starting_package, Perception(1), "pheromones")
 
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
@@ -34,10 +34,10 @@ for i in range(len(m)):
     print(m[i])
 print()
 
-iterations = 5
+iterations = 10
 for iteration in range(1, iterations+1):
-    environment.step()
     print(f'Iteration {iteration}')
+    environment.step()
     m = environment.grid_as_matrix(mode='visualization')
     for i in range(len(m)):
         print(m[i])

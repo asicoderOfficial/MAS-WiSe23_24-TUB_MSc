@@ -4,24 +4,21 @@ from copy import deepcopy
 from mesa import Agent as MesaAgent
 from mesa.space import MultiGrid
 
+from src.agents.strategies.pheromone_strategy import PheromonePath
 from src.utils.position import Position
 from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PackagePoint
 from src.agents.perception import Perception
 from src.environment.obstacle import Obstacle
 
-#dijkstra
-from pathfinding.core.diagonal_movement import DiagonalMovement
-from pathfinding.core.grid import Grid
-from pathfinding.finder.dijkstra import DijkstraFinder
-
-from agents.dijkstra import Dijkstra
+from src.agents.strategies.dijkstra import Dijkstra
+from src.utils.grid2matrix import convert_grid_to_matrix
 count = 0
 
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
 
-    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception) -> None:
+    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception, algorithm: str) -> None:
         """ Constructor.
 
         Args:
@@ -31,6 +28,7 @@ class Agent(MesaAgent):
                                             If not defined, agent will return to first encountered package point
             package (Union[Package, None]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
             perception (Perception): The subgrid the agent is currently perceiving.
+            algorithm (str): Algorithm name to use for pathfinding. (Possible values: 'dijkstra', 'pheromone')
         
         Returns:
             None 
@@ -40,6 +38,7 @@ class Agent(MesaAgent):
         self.origin = position  # Origin (spawn) position 
         self.package = package
         self.perception = perception
+        self.algorithm = algorithm
 
     
     def step(self, grid) -> None:
@@ -54,12 +53,14 @@ class Agent(MesaAgent):
 
         # TODO: Strategies (agents sub-classes)
         # TODO: Determine which action to perform (pick package, deliver package or move)
-        # TODO: Determine movement with algorithm (Dijkstra, pheromones, etc.)
-        # By now, the agent only moves down for demonstration purposes.
         perception = self.perception.percept(self.pos, grid)
-        #new_position = Dijkstra.dijkstra_path(self, grid.height, grid.width, matrix, count)
-
-        chosen_new_position = Position(self.pos.x + 1, self.pos.y)
+        
+        if self.algorithm == 'dijkstra':
+            chosen_new_position = Dijkstra.dijkstra_path(self, self.pos, self.package.destination, grid.height, grid.width, convert_grid_to_matrix(grid), count)
+        elif self.algorithm == 'pheromones':
+            chosen_new_position = PheromonePath().get_next_position(self.pos, self.origin, None, self.package.destination, None, perception, grid)
+        else:
+            raise Exception(f"Unknown algorithm: {self.algorithm}")
         self.move(chosen_new_position, perception, grid)
     
     def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:

@@ -12,12 +12,12 @@ from src.utils.position import Position
 
 class Dijkstra:
 
-    def dijkstra_path(self, grid_height: int, grid_width: int, matrix, count: int) -> None:
+    def dijkstra_path(self, pos: Position, dest: Position, grid_height: int, grid_width: int, matrix, count: int) -> None:
         # create grid for dijkstra
         grid = Grid(width=grid_width, height=grid_height, matrix=matrix)
         # start and end points on the grid
-        start = grid.node(self.pos.x, self.pos.y)
-        end = grid.node(self.package.destination.x, self.package.destination.y)
+        start = grid.node(pos.x, pos.y)
+        end = grid.node(dest.x, dest.y)
 
         # runs a dijkstra
         finder = DijkstraFinder()

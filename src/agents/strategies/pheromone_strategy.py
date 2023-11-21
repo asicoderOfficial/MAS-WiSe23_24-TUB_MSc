@@ -1,11 +1,6 @@
-from random import shuffle
-from typing import List, Union
+from typing import List
 from agents.strategies.strategy import Strategy
-from src.environment.package_point import PackagePoint
-from src.agents.perception import Perception
-from src.environment.package import Package
 from src.environment.obstacle import Obstacle
-from src.agents.agent import Agent
 from src.utils.position import Position
 import random
 
@@ -15,7 +10,7 @@ class Pheromone:
         self.pos = pos
         self.strength = 1
 
-class PheromoneStrategy(Strategy):
+class PheromonePath(Strategy):
 
     def get_next_position(self, pos: Position, previous_pos: Position, previous_point_type, destination_pos: Position, destination_point_type, visible_cells: List[List], grid, enable_random_walk=True) -> Position:       
         
@@ -29,7 +24,7 @@ class PheromoneStrategy(Strategy):
         else:
             if enable_random_walk:
                 # Random walk
-                chosen_new_position = random.choice(possible_directions)
+                chosen_new_position = pos + random.choice(possible_directions)
             else:
                 # Go in direction of destination
                 vector_to_destination = (destination_pos.x - pos.x, destination_pos.y - pos.y)
