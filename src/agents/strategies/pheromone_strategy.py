@@ -11,7 +11,7 @@ class Pheromone:
         self.strength = 1
 
 class PheromonePath(Strategy):
-
+    
     def get_next_position(self, pos: Position, previous_pos: Position, previous_point_type, destination_pos: Position, destination_point_type, visible_cells: List[List], grid, enable_random_walk=True) -> Position:       
         
         search_pheromone_id = str(destination_pos) if not destination_point_type else f"{destination_pos}-{destination_point_type}"

@@ -18,7 +18,7 @@ count = 0
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
 
-    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception, algorithm: str) -> None:
+    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception, algorithm_name: str) -> None:
         """ Constructor.
 
         Args:
@@ -28,7 +28,7 @@ class Agent(MesaAgent):
                                             If not defined, agent will return to first encountered package point
             package (Union[Package, None]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
             perception (Perception): The subgrid the agent is currently perceiving.
-            algorithm (str): Algorithm name to use for pathfinding. (Possible values: 'dijkstra', 'pheromone')
+            algorithm_name (str): Algorithm name to use for pathfinding. (Possible values: 'dijkstra', 'pheromone')
         
         Returns:
             None 
@@ -38,7 +38,13 @@ class Agent(MesaAgent):
         self.origin = position  # Origin (spawn) position 
         self.package = package
         self.perception = perception
-        self.algorithm = algorithm
+        self.algorithm_name = algorithm_name
+        if self.algorithm_name == 'dijkstra':
+            self.algorithm = Dijkstra()
+        elif self.algorithm_name == 'pheromones':
+            self.algorithm = PheromonePath()
+        else:
+            raise Exception(f"Unknown algorithm: {self.algorithm_name}")
 
     
     def step(self, grid) -> None:
@@ -55,12 +61,12 @@ class Agent(MesaAgent):
         # TODO: Determine which action to perform (pick package, deliver package or move)
         perception = self.perception.percept(self.pos, grid)
         
-        if self.algorithm == 'dijkstra':
-            chosen_new_position = Dijkstra.dijkstra_path(self, self.pos, self.package.destination, grid.height, grid.width, convert_grid_to_matrix(grid), count)
-        elif self.algorithm == 'pheromones':
-            chosen_new_position = PheromonePath().get_next_position(self.pos, self.origin, None, self.package.destination, None, perception, grid)
+        if self.algorithm_name == 'dijkstra':
+            chosen_new_position = self.algorithm.get_next_position(self, self.pos, self.package.destination, grid.height, grid.width, convert_grid_to_matrix(grid), count)
+        elif self.algorithm_name == 'pheromones':
+            chosen_new_position = self.algorithm.get_next_position(self.pos, self.origin, None, self.package.destination, None, perception, grid)
         else:
-            raise Exception(f"Unknown algorithm: {self.algorithm}")
+            raise Exception(f"Unknown algorithm: {self.algorithm_name}")
         self.move(chosen_new_position, perception, grid)
     
     def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:
