@@ -3,6 +3,7 @@ from typing import List
 
 from mesa import Model
 from mesa.space import MultiGrid
+from agents.chain_agent import ChainAgent
 from src.agents.strategies.pheromone_strategy import Pheromone
 
 from src.agents.agent import Agent
@@ -134,7 +135,7 @@ class Environment(Model):
                                 cell += 'o'
                             if isinstance(entity, Package):
                                 cell += 'p'
-                            if isinstance(entity, Agent):
+                            if isinstance(entity, (Agent, ChainAgent)):
                                 cell += 'a'
                     column.append(cell)
                 matrix_grid.append(column)

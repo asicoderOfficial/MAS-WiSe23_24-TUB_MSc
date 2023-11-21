@@ -38,5 +38,13 @@ class Position:
     def __str__(self) -> str:
         return f"({self.x},{self.y})"
     
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Position):
+            return False
+        return self.x == other.x and self.y == other.y
+    
+    def __hash__(self):
+        return hash((self.x, self.y))
+    
     def to_tuple(self) -> Tuple[int, int]:
         return (self.x, self.y)
