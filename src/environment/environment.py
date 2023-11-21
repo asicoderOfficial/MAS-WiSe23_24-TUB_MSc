@@ -98,8 +98,9 @@ class Environment(Model):
                         for entity in self.grid._grid[i][j]:
                             if isinstance(entity, Obstacle):
                                 column.append(0)
-                            else:
-                                column.append(1)
+                                break
+                        else:
+                            column.append(1)
                     else:
                         column.append(1)
                 matrix_grid.append(column)
@@ -109,15 +110,17 @@ class Environment(Model):
                 column = []
                 for j in range(self.grid_width):
                     if self.grid._grid[i][j]:
+                        cell = ""
                         for entity in self.grid._grid[i][j]:
                             if isinstance(entity, PackagePoint):
-                                column.append('x')
+                                cell += 'x'
                             if isinstance(entity, Obstacle):
-                                column.append('o')
+                                cell += 'o'
                             if isinstance(entity, Package):
-                                column.append('p')
+                                cell += 'p'
                             if isinstance(entity, Agent):
-                                column.append('a')
+                                cell += 'a'
+                        column.append(cell)
                     else:
                         column.append(' ')
                 matrix_grid.append(column)

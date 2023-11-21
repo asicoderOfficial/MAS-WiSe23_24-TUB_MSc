@@ -15,7 +15,7 @@ from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
 from pathfinding.finder.dijkstra import DijkstraFinder
 
-from dijstra import Dijkstra
+from agents.dijkstra import Dijkstra
 count = 0
 
 class Agent(MesaAgent):
