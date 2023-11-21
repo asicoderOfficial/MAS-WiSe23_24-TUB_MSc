@@ -1,11 +1,12 @@
 from random import shuffle
 from typing import List, Union
 from agents.strategies.strategy import Strategy
+from src.environment.package_point import PackagePoint
 from src.agents.perception import Perception
 from src.environment.package import Package
 from src.environment.obstacle import Obstacle
 from src.agents.agent import Agent
-from utils.position import Position
+from src.utils.position import Position
 import random
 
 class Pheromone:
@@ -16,42 +17,34 @@ class Pheromone:
 
 class PheromoneStrategy(Strategy):
 
-    def find_path(self, pos: Position, previous_pos: Position, destination_pos: Position, visible_cells: List[List], grid) -> Position:       
-        # if self.package:
-        #     # Delivering package, drop pheromones of the previous point and move to destination
-        #     # TODO: get correct pheromone for intermediate points
-        #     search_pheromone_id = str(self.package.destination)
-        #     drop_pheromone_id = str(self.origin)
-        #     destination = self.package.destination
-        # else:
-        #     # TODO: Manage roaming and picking up packages in case of greedy agent
-        #     search_pheromone_id = str(self.origin)
-        #     drop_pheromone_id = str(self.previous_destination) if self.previous_destination is not None else None
+    def get_next_position(self, pos: Position, previous_pos: Position, previous_point_type, destination_pos: Position, destination_point_type, visible_cells: List[List], grid, enable_random_walk=True) -> Position:       
         
-        search_pheromone_id = str(destination_pos)
-        drop_pheromone_id = str(previous_pos)
-            
-        pheromone_direction = self.get_pheromone_direction(visible_cells, search_pheromone_id)
-        if pheromone_direction != (0,0):
-            direction = pheromone_direction
+        search_pheromone_id = str(destination_pos) if not destination_point_type else f"{destination_pos}-{destination_point_type}"
+        drop_pheromone_id = str(previous_pos) if not previous_point_type else f"{previous_pos}-{previous_point_type}"
+        possible_directions = self.get_available_directions(pos, visible_cells, grid)
+
+        pheromone_position = self.get_pheromone_direction(pos, visible_cells, search_pheromone_id)
+        if pheromone_position != None:
+            chosen_new_position = pheromone_position
         else:
-            # Go in direction of destination
-            # TODO: Use random movement or direction to destination?
-            vector_to_destination = (destination_pos.x - pos.x, destination_pos.y - pos.y)
-            # Normalize direction
-            if vector_to_destination != (0,0): 
-                if abs(vector_to_destination[0]) > abs(vector_to_destination[1]):
-                    direction = (int(vector_to_destination[0] / abs(vector_to_destination[0])), 0)
-                else:
-                    direction = (0, int(vector_to_destination[1] / abs(vector_to_destination[1])))
+            if enable_random_walk:
+                # Random walk
+                chosen_new_position = random.choice(possible_directions)
             else:
-                direction = vector_to_destination
-    
-        chosen_new_position = pos + direction
+                # Go in direction of destination
+                vector_to_destination = (destination_pos.x - pos.x, destination_pos.y - pos.y)
+                # Normalize direction
+                if vector_to_destination != (0,0): 
+                    if abs(vector_to_destination[0]) > abs(vector_to_destination[1]):
+                        direction = (int(vector_to_destination[0] / abs(vector_to_destination[0])), 0)
+                    else:
+                        direction = (0, int(vector_to_destination[1] / abs(vector_to_destination[1])))
+                else:
+                    direction = vector_to_destination
+                chosen_new_position = pos + direction
         
         # Handle obstacles if there are any
         # Try different directions until there are no options
-        possible_directions = self.get_available_moves(visible_cells, grid)
         while any([isinstance(entity, Obstacle) for entity in visible_cells[chosen_new_position.to_tuple()]]):
             if len(possible_directions) > 0:
                 direction = random.choice(possible_directions)
@@ -61,16 +54,20 @@ class PheromoneStrategy(Strategy):
                 chosen_new_position = pos
                 break
 
-        self.drop_pheromone(drop_pheromone_id, grid)
+        # if not any([entity.pos == pos for entity in visible_cells[pos.to_tuple()] if isinstance(entity, PackagePoint)]):
+            # If there is no package point on current position, drop pheromone
+            # Dropping pheromone on package point can lead to problems
+        self.drop_pheromone(pos, drop_pheromone_id, grid)
+        return chosen_new_position
         
-    def get_pheromone_direction(self, visible_cells, pheromone_id):
+    def get_pheromone_direction(self, pos: Position, visible_cells, pheromone_id) -> Position:
         
         # Find visible pheromone with highest strength
-        highest_pheromone_direction = (0,0) # default value, in case no pheromone found
+        highest_pheromone_position = None # default value, in case no pheromone found
         highest_pheromone_value = 0
-        for direction, entities in visible_cells.items():
+        for position, entities in visible_cells.items():
             # Check pheromones cell by cell
-            if direction == (0,0):
+            if position == pos.to_tuple():
                 # Skip pheromones on agent position, they should not affect the path finding
                 continue
             
@@ -78,10 +75,12 @@ class PheromoneStrategy(Strategy):
             
             for pheromone in pheromones:
                 if pheromone.id == pheromone_id and pheromone.strength > highest_pheromone_value:
-                    highest_pheromone_direction = direction
+                    highest_pheromone_position = position
                     highest_pheromone_value = pheromone.strength
         
-        return highest_pheromone_direction
+        if highest_pheromone_position != None:
+            highest_pheromone_position = Position(highest_pheromone_position[0], highest_pheromone_position[1])
+        return highest_pheromone_position
     
     def drop_pheromone(self, pos: Position, pheromone_id: str, grid):
         """Add pheromone to current cell. If there is pheromone with same id, increase its strength.

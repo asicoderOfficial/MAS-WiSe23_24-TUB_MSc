@@ -1,16 +1,16 @@
 from typing import List
 
-from utils.position import Position
+from src.utils.position import Position
 from environment.obstacle import Obstacle
 
 
 class Strategy():
-    def find_path(self):
+    def get_next_position(self):
         pass
     
-    def get_available_moves(self, perception: List[List], grid):
+    def get_available_directions(self, pos: Position, perception: List[List], grid):
         available_moves = [(1,0), (0,1), (-1,0), (0,-1)]
-        available_moves = [move for move in available_moves if self.can_move_to(self.pos + move, perception, grid.width, grid.height)]
+        available_moves = [move for move in available_moves if self.can_move_to(pos + move, perception, grid.width, grid.height)]
         if available_moves == []:
             return [(0,0)] # stay in place, if no other options
         else:
