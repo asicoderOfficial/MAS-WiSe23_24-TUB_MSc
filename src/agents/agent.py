@@ -41,8 +41,7 @@ class Agent(MesaAgent):
         self.package = package
         self.perception = perception
 
-
-    def step(self, grid, matrix) -> None:
+    def step(self, grid, matrix) -> None:    
         """ The agent performs an action.
 
         Args:
@@ -60,8 +59,9 @@ class Agent(MesaAgent):
         #global count - each iteration showing new step for agent
         global count
         count += 1
-        print("Matrix received by agent")
-        print(matrix)
+        #print("Matrix received by agent")
+        #print(matrix)
+        print("Agent moving")
         perception = self.perception.percept(self.pos, grid)
         new_position = Dijkstra.dijkstra_path(self, grid.height, grid.width, matrix, count)
         self.move(new_position, perception, grid)
@@ -133,6 +133,7 @@ class Agent(MesaAgent):
             raise Exception(f'The agent cannot pick package with id: {package.id}, as the agent is at package point with id {cell_entities[0].id}, which is not in an intermediate or starting point.')
 
         self.package = package
+        print("Package was picked")
 
 
     def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
@@ -153,6 +154,7 @@ class Agent(MesaAgent):
         if package_point.point_type == 'ending-point':
             # The package has reached its destination! 
             # Therefore, now the agent is not carrying any package and the package has to disappear from the environment (so it is not visible anymore).
+            print("Package was delivered")
             grid.remove_agent(package)
 
         self.package = None

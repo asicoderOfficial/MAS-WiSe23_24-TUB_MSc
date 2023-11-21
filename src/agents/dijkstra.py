@@ -13,7 +13,6 @@ class Dijkstra:
         start = grid.node(self.position.x, self.position.y)
         end = grid.node(self.package.position.x, self.package.position.y)
         
-        #print(self.package.position.x, self.package.position.y)
         # runs a dijkstra
         finder = DijkstraFinder()
         path, runs = finder.find_path(start, end, grid)

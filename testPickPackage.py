@@ -6,6 +6,7 @@ from src.environment.package_point import PackagePoint
 from src.environment.obstacle import Obstacle
 from src.environment.environment import Environment
 
+from src.visualization.save import Save
 # Environment elements
 starting_package = Package('p1', Position(3, 3), Position(3, 3), 10)
 
@@ -16,7 +17,6 @@ starting_obstacle = Obstacle('o1', Position(1, 1), 1, 1, 1, 2)
 starting_position = Position(0, 0)
 # - None for non package
 a = Agent('a', starting_position, starting_package, Perception(1))
-
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
 environment = Environment(5, 5, [a], [starting_package_point], [starting_obstacle], [starting_package])
@@ -36,5 +36,8 @@ for iteration in range(1, iterations+1):
     print()
     #print(environment.grid)
 
-
+# Save agent data
+Save.save_to_csv([a])
+# Visualize it
+Save.visualize_data()
 
