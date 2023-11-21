@@ -16,7 +16,7 @@ end_position = Position(4, 4)
 
 starting_package = Package('p1', starting_position, Position(1, 4), 10)
 
-starting_package_point = PackagePoint('pp1', starting_position, PACKAGE_POINT_START, 5, 0)
+starting_package_point = PackagePoint('pp1', starting_position, PACKAGE_POINT_START, 5)
 
 end_package_point = PackagePoint('pp2', end_position, PACKAGE_POINT_END)
 

@@ -20,10 +20,7 @@ class Agent(MesaAgent):
         Args:
             id (str): The ID to identify the agent.
             position (Position): The position of the agent in the environment.
-            origin (Union[Position, None]): Origin position of agent (assigned home), where agent should return if it is not carrying package. 
-                                            If not defined, agent will return to first encountered package point
             package (Union[Package, None]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
-            package_point_type (str): Agent's goal package point type, agent will deliver package only to this type of package point.
             perception (Perception): The subgrid the agent is currently perceiving.
         
         Returns:
@@ -31,7 +28,7 @@ class Agent(MesaAgent):
         """        
         self.id = id
         self.pos = position
-        self.origin = position
+        self.origin = position  # Origin (spawn) position 
         self.package = package
         self.perception = perception
 
@@ -53,7 +50,7 @@ class Agent(MesaAgent):
        
         chosen_new_position = Position(self.pos.x + 1, self.pos.y)
         self.move(chosen_new_position, perception, grid)
-
+    
     def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:
         """ Checks if the agent can move to the chosen position.
 
@@ -112,6 +109,9 @@ class Agent(MesaAgent):
         """        
         if self.package:
             raise Exception(f'The agent is already carrying a package with id: {self.package.id}')
+        
+        if package.picked:
+            raise Exception(f'Package {package.id} is already carried by another agent')
 
         cell_entities_ids = [cell_entity.id for cell_entity in grid[self.pos.x][self.pos.y]]
         if package.id not in cell_entities_ids:
@@ -122,7 +122,8 @@ class Agent(MesaAgent):
             raise Exception(f'The agent cannot pick package with id: {package.id} at position {self.pos} as there are no intermediate or starting points in the cell.')
 
         self.package = package
-
+        package.picked = True
+        print(f"Agent {self.id}: Picked up package!")
 
     def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
         """ Action of the agent: deliver a package.
@@ -138,11 +139,20 @@ class Agent(MesaAgent):
         cell_entities = [cell_entity for cell_entity in grid[self.pos.x][self.pos.y] if isinstance(cell_entity, PackagePoint)]
         if not cell_entities:
             raise Exception(f'The agent cannot deliver package with id: {package.id}, as the agent is is not in the same cell')
+        
+        if self.package.id != package.id:
+            raise Exception(f'The agent cannot deliver package with id: {package.id}, as the agent is not carrying this package.')
 
-        if package_point.point_type == PACKAGE_POINT_END or package_point.point_type == PACKAGE_POINT_INTERMEDIATE:
+        if package_point.point_type == PACKAGE_POINT_END:
             # The package has reached its destination! 
             # Therefore, now the agent is not carrying any package and the package has to disappear from the environment (so it is not visible anymore).
+            package.picked = False
             grid.remove_agent(package)
+            self.package = None
+        elif package_point.point_type == package_point.point_type == PACKAGE_POINT_INTERMEDIATE:
+            package.picked = False
             self.package = None
         else:
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
+        
+        print(f"Agent {self.id}: Delivered package!")

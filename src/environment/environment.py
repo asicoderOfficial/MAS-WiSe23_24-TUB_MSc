@@ -90,7 +90,7 @@ class Environment(Model):
         destination = random.choice([pp for pp in self.package_points if pp.point_type == PACKAGE_POINT_END and pp.id != package_point.id])
         
         # Create package and place it on grid
-        package = Package(f'p{len(self.packages)}', package_point.pos, destination, 10)
+        package = Package(f'p{len(self.packages)}', package_point.pos, destination.pos, 10)
         self.grid.place_agent(package, package_point.pos)
         self.packages.append(package)
         print("Generated package")
@@ -126,8 +126,8 @@ class Environment(Model):
                 column = []
                 for j in range(self.grid_width):
                     cell = ''
-                    if self.grid._grid[i][j]:
-                        for entity in self.grid._grid[i][j]:
+                    if self.grid[i][j]:
+                        for entity in self.grid[i][j]:
                             if isinstance(entity, PackagePoint):
                                 cell += 'x'
                             if isinstance(entity, Obstacle):

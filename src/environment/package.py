@@ -1,7 +1,5 @@
 from src.utils.position import Position
 
-
-
 class Package:
     """ A package that the agent can carry, or that can be stored in the PackagePoint."""
     def __init__(self, id: str, position: Position, destination: Position, max_iterations_to_deliver: int) -> None:
@@ -22,6 +20,7 @@ class Package:
         self.max_iterations_to_deliver = max_iterations_to_deliver
         self.iterations = 0
         self.is_delayed = False
+        self.picked = False
     
 
     def step(self, new_position: Position, grid) -> None:
