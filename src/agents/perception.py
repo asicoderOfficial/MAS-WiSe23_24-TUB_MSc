@@ -1,4 +1,7 @@
 from typing import List
+from environment.obstacle import Obstacle
+from src.environment.package import Package
+from src.environment.package_point import PackagePoint
 
 
 from src.utils.position import Position
@@ -35,5 +38,12 @@ class Perception:
         visible_cells_entities = {}
         for cell_position in visible_cells_positions:
             visible_cells_entities[cell_position] = grid.get_cell_list_contents(cell_position)
+            for entity in visible_cells_entities[cell_position]:
+                if isinstance(entity, PackagePoint):
+                    self.visible_package_points.append(entity)
+                elif isinstance(entity, Package):
+                    self.visible_packages.append(entity)
+                elif isinstance(entity, Obstacle):
+                    self.visible_obstacles.append(entity)
         
         return visible_cells_entities
