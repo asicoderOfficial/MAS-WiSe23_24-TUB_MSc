@@ -34,6 +34,7 @@ class Position:
         y = self.y + direction_vector[1]
         return Position(x,y)
     
+
     def __str__(self) -> str:
         return f"({self.x},{self.y})"
     
