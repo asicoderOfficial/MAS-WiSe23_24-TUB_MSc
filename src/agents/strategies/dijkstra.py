@@ -12,7 +12,7 @@ from src.utils.position import Position
 
 class Dijkstra:
 
-    def get_next_position(self, pos: Position, dest: Position, grid_height: int, grid_width: int, matrix, count: int) -> None:
+    def get_next_position(self, pos: Position, dest: Position, grid_height: int, grid_width: int, matrix) -> None:
         # create grid for dijkstra
         grid = Grid(width=grid_width, height=grid_height, matrix=matrix)
         # start and end points on the grid

@@ -1,4 +1,4 @@
-from agents.chain_agent import ChainAgent
+from src.agents.chain_agent import ChainAgent
 from src.agents.agent import Agent
 from src.agents.perception import Perception
 from src.utils.position import Position
@@ -26,8 +26,8 @@ end_package_point = PackagePoint('pp3', end_position, PACKAGE_POINT_END)
 
 starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
 
-start_agent = ChainAgent('1', starting_position, None, Perception(1), PACKAGE_POINT_INTERMEDIATE)
-intermediate_agent = ChainAgent('2', intermediate_position, None, Perception(1), PACKAGE_POINT_END)
+start_agent = ChainAgent('1', starting_position, None, Perception(1), PACKAGE_POINT_INTERMEDIATE, "pheromones")
+intermediate_agent = ChainAgent('2', intermediate_position, None, Perception(1), PACKAGE_POINT_END, "pheromones")
 
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
@@ -39,7 +39,7 @@ for i in range(len(m)):
     print(m[i])
 print()
 
-iterations = 22
+iterations = 40
 for iteration in range(1, iterations+1):
     print(f'Iteration {iteration}')
     environment.step()
