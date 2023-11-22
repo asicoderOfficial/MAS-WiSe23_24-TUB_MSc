@@ -7,7 +7,7 @@ from mesa.space import MultiGrid
 from src.agents.agent import Agent
 from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_START, PackagePoint
-from src.environment.obstacle import Obstacle
+from src.environment.obstacle import Obstacle, ObstacleCell
 
 
 class Environment(Model):
@@ -34,11 +34,11 @@ class Environment(Model):
         self.obstacles = obstacles
         self.packages = packages
         
-        self.current_iteration = 0
+        self.current_iteration = 1
 
         # Create self.grid with grid_height rows and grid_width columns
         self.grid = MultiGrid(width=self.grid_width, height=self.grid_height, torus=False)
-        self.init_grid(agents, package_points, packages, obstacles)
+        self.init_grid()
 
 
     def step(self) -> None:
@@ -60,31 +60,26 @@ class Environment(Model):
             if package_point.point_type == PACKAGE_POINT_START and package_point.steps_per_package != None and self.current_iteration - package_point.previous_package_generation_step > package_point.steps_per_package:
                 self.generate_package(package_point)
 
-        # Dynamic entities that do not move, but can disappear: Obstacles
-        for obstacle in self.obstacles:
-            if obstacle.iterations_left == -1 and obstacle.pos is not None:
-                # The object has to disappear from the grid. It has already stayed in the environment for the required iterations.
-                self.grid.remove_agent(obstacle)
-            elif self.current_iteration == obstacle.starting_iteration:
-                # The object has to appear in the grid now, it is the starting iteration.
-                obstacle.determine_position(self.grid)
-                self.grid.place_agent(obstacle, obstacle.pos)
-                
         self.current_iteration += 1
             
 
-    def init_grid(self, agents: List[Agent], package_points: List[PackagePoint], packages: List[Package], obstacles: List[Obstacle]) -> None:
+    def init_grid(self) -> None:
         """ Initializes the grid with the static entities (Package Points, Obstacles and Packages).
         Called only once, at the beginning of the experiment.
         """        
-        for entity in agents + package_points + packages:
+        # Place static objects for the first time: package points
+        
+        # Place dynamic objects for the first time
+        for entity in self.agents + self.package_points + self.packages:
             self.grid.place_agent(entity, entity.pos)
 
-        for obstacle in obstacles:
-            if obstacle.starting_iteration == 1:
-                obstacle.determine_position(self.grid)
-                self.grid.place_agent(obstacle, obstacle.pos)
+        for obstacle in self.obstacles:
+            obstacle.step(self.current_iteration, self.grid)
+        
+        self.current_iteration += 1
+        
                 
+
     def generate_package(self, package_point: PackagePoint) -> None:
         # Choose random destination
         destination = random.choice([pp for pp in self.package_points if pp.point_type == PACKAGE_POINT_END and pp.id != package_point.id])
@@ -113,11 +108,11 @@ class Environment(Model):
                 column = []
                 for j in range(self.grid_width):
                     if self.grid._grid[i][j]:
-                        for entity in self.grid._grid[i][j]:
-                            if isinstance(entity, Obstacle):
-                                column.append(0)
-                            else:
-                                column.append(1)
+                        # check if there is some instance of ObstacleCell in the cell
+                        if any(isinstance(entity, ObstacleCell) for entity in self.grid._grid[i][j]):
+                            column.append(0)
+                        else:
+                            column.append(1)
                     else:
                         column.append(1)
                 matrix_grid.append(column)
@@ -130,12 +125,12 @@ class Environment(Model):
                         for entity in self.grid[i][j]:
                             if isinstance(entity, PackagePoint):
                                 cell += 'x'
-                            if isinstance(entity, Obstacle):
-                                cell += 'o'
                             if isinstance(entity, Package):
                                 cell += 'p'
                             if isinstance(entity, Agent):
                                 cell += 'a'
+                            else:
+                                cell += 'o'
                         column.append(cell)
                     else:
                         column.append(' ')
