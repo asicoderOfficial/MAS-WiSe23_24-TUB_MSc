@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from mesa import Agent as MesaAgent
 from mesa.space import MultiGrid
+from src.environment.package_counter import PackageCounter
 
 from src.agents.strategies.pheromone_strategy import PheromonePath
 from src.utils.position import Position
@@ -167,6 +168,7 @@ class Agent(MesaAgent):
             package.picked = False
             grid.remove_agent(package)
             self.package = None
+            PackageCounter.add_delivered_package()
         elif package_point.point_type == package_point.point_type == PACKAGE_POINT_INTERMEDIATE:
             package.picked = False
             self.package = None

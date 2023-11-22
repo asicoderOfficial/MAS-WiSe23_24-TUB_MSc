@@ -4,6 +4,7 @@ from typing import List
 from mesa import Model
 from mesa.space import MultiGrid
 from agents.chain_agent import ChainAgent
+from src.environment.package_counter import PackageCounter
 from src.agents.strategies.pheromone_strategy import Pheromone
 
 from src.agents.agent import Agent
@@ -38,7 +39,7 @@ class Environment(Model):
         self.assign_intermediate = assign_intermediate
         
         self.current_iteration = 0
-
+        
         # Create self.grid with grid_height rows and grid_width columns
         self.grid = MultiGrid(width=self.grid_width, height=self.grid_height, torus=False)
         self.init_grid(agents, package_points, packages, obstacles)
@@ -104,6 +105,7 @@ class Environment(Model):
         print("Generated package", package)
         # Update package point
         package_point.previous_package_generation_step = self.current_iteration
+        PackageCounter.add_generated_package()
         
 
     def grid_as_matrix(self, mode:str='dijkstra') -> List[List]:
