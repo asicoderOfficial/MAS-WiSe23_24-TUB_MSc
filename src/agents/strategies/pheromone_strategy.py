@@ -20,14 +20,20 @@ class PheromonePath(Strategy):
         search_pheromone_id = str(destination_pos) if not destination_point_type else f"{destination_pos}-{destination_point_type}"
         drop_pheromone_id = str(previous_pos) if not previous_point_type else f"{previous_pos}-{previous_point_type}"
         possible_directions = self.get_available_directions(pos, visible_cells, grid)
-
         pheromone_position = self.get_pheromone_direction(pos, visible_cells, search_pheromone_id)
+        
         if pheromone_position != None:
-            chosen_new_position = pheromone_position
+            # get move to pheromone, for example if it is further then agent can move or on diagonal
+            chosen_new_position = self.get_move_to_pheromone_position(pos, pheromone_position, visible_cells, grid)
         else:
             if enable_random_walk:
                 # Random walk
-                chosen_new_position = pos + random.choice(possible_directions)
+                if (destination_pos - pos.to_tuple()).to_tuple() in possible_directions:
+                    # destination in movement radius, go there
+                    chosen_new_position = destination_pos
+                else:
+                    # no destination can be seen, random walk
+                    chosen_new_position = pos + random.choice(possible_directions)
             else:
                 # Go in direction of destination
                 direction = self.get_normalized_vector_to_dest(pos, destination_pos)
@@ -50,6 +56,13 @@ class PheromonePath(Strategy):
             # Dropping pheromone on package point can lead to problems
         self.drop_pheromone(pos, drop_pheromone_id, grid, decrease_pheromone)
         return chosen_new_position
+    
+    def get_move_to_pheromone_position(self, pos: Position, pheromone_position: Position, perception: List[List], grid) -> Position:
+        vector_to_pheromone = (pheromone_position - pos).to_tuple()
+        if vector_to_pheromone in self.get_available_directions(pos, perception, grid):
+            return pheromone_position
+        else:
+            return pos + self.get_normalized_vector_to_dest(pos, pheromone_position)
     
     def get_normalized_vector_to_dest(self, pos: Position, destination_pos: Position) -> Position:
         vector_to_destination = (destination_pos.x - pos.x, destination_pos.y - pos.y)

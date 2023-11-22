@@ -34,7 +34,7 @@ for i in range(len(m)):
     print(m[i])
 print()
 
-iterations = 10
+iterations = 40
 for iteration in range(1, iterations+1):
     print(f'Iteration {iteration}')
     environment.step()
