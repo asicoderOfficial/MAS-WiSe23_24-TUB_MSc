@@ -1,5 +1,5 @@
 from typing import List
-from agents.strategies.strategy import Strategy
+from src.agents.strategies.strategy import Strategy
 from src.environment.obstacle import Obstacle
 from src.utils.position import Position
 import random
@@ -58,7 +58,7 @@ class PheromonePath(Strategy):
         return chosen_new_position
     
     def get_move_to_pheromone_position(self, pos: Position, pheromone_position: Position, perception: List[List], grid) -> Position:
-        vector_to_pheromone = (pheromone_position - pos).to_tuple()
+        vector_to_pheromone = (pheromone_position - pos.to_tuple()).to_tuple()
         if vector_to_pheromone in self.get_available_directions(pos, perception, grid):
             return pheromone_position
         else:
