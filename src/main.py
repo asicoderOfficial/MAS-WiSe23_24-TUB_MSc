@@ -26,8 +26,8 @@ end_package_point = PackagePoint('pp3', end_position, PACKAGE_POINT_END)
 
 starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
 
-start_agent = ChainAgent('1', starting_position, None, Perception(1), PACKAGE_POINT_INTERMEDIATE, "dijkstra")
-intermediate_agent = ChainAgent('2', intermediate_position, None, Perception(1), PACKAGE_POINT_END, "dijkstra")
+start_agent = ChainAgent('1', starting_position, [], Perception(1), PACKAGE_POINT_INTERMEDIATE, "dijkstra")
+intermediate_agent = ChainAgent('2', intermediate_position, [], Perception(1), PACKAGE_POINT_END, "dijkstra")
 
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
