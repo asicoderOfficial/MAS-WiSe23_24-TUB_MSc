@@ -4,6 +4,8 @@ from typing import List
 
 from mesa import Model
 from mesa.space import MultiGrid
+from agents.chain_agent import ChainAgent
+from src.agents.strategies.pheromone_strategy import Pheromone
 
 from src.agents.agent import Agent
 from src.environment.package import Package
@@ -13,11 +15,13 @@ from src.utils.position import Position
 from src.environment.obstacle import Obstacle, ObstacleCell
 
 
+
 class Environment(Model):
     """ The environment where the agents interact."""
     def __init__(self, grid_height: int, grid_width: int, agents: List[Agent], \
                  starting_package_point: PackagePoint, n_intermediate_package_points: int, n_ending_package_points: int, 
                  obstacles: List[Obstacle]) -> None:
+
         """ Constructor.
 
         Args:
@@ -25,7 +29,6 @@ class Environment(Model):
             grid_width (int): Width of the grid (number of columns)
             agents (List[Agent]): Agents in the environment.
             obstacles (List[Obstacle]): Obstacles in the environment.
-        
         Returns:
             None
         """        
@@ -43,6 +46,7 @@ class Environment(Model):
         self.starting_package_point = starting_package_point
         self.intermediate_package_points = []
         self.ending_package_points = []
+
         
         self.current_iteration = 1
 
@@ -187,8 +191,9 @@ class Environment(Model):
                 agent.pos = random.choice([pp.pos for pp in self.intermediate_package_points])
                 self.grid.place_agent(agent, agent.pos)
                 self.agents.append(agent)
-        
+
         self.current_iteration += 1
+
         
 
     def grid_as_matrix(self, mode:str='dijkstra') -> List[List]:
@@ -212,9 +217,9 @@ class Environment(Model):
                         else:
                             column.append(1)
                     else:
-                        column.append(1)
+                        column.append(1)lumn.append(1)
                 matrix_grid.append(column)
-        if mode == 'visualization':
+        elif mode == 'visualization':
             for i in range(self.grid_height):
                 column = []
                 for j in range(self.grid_width):
@@ -225,7 +230,7 @@ class Environment(Model):
                                 cell += 'x'
                             if isinstance(entity, Package):
                                 cell += 'p'
-                            if isinstance(entity, Agent):
+                            if isinstance(entity, (Agent, ChainAgent)):
                                 cell += 'a'
                             if isinstance(entity, ObstacleCell):
                                 cell += 'o'
