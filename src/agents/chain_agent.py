@@ -45,7 +45,11 @@ class ChainAgent(Agent):
                         self.deliver_package(self.package, package_point, grid)
                         return   
             # Search for path to package point
-            next_pos = self.get_next_position(grid, perception, self.package.destination, self.goal_package_point)
+            if self.goal_package_point == PACKAGE_POINT_INTERMEDIATE and self.package.intermediate_point_pos != None:
+                destination = self.package.intermediate_point_pos
+            else:
+                destination = self.package.destination
+            next_pos = self.get_next_position(grid, perception, destination, self.goal_package_point)
             self.move(next_pos, perception, grid)
         else:
             if self.origin == self.pos:
@@ -65,7 +69,7 @@ class ChainAgent(Agent):
     
     def get_next_position(self, grid, perception, destination: Position, destination_type: str) -> Position:
         if self.algorithm_name == 'dijkstra':
-            chosen_new_position = self.algorithm.get_next_position(self, self.pos, self.package.destination, grid.height, grid.width, convert_grid_to_matrix(grid))
+            chosen_new_position = self.algorithm.get_next_position(self.pos, destination, grid.height, grid.width, convert_grid_to_matrix(grid))
         elif self.algorithm_name == 'pheromones':
             chosen_new_position = self.algorithm.get_next_position(self.pos, self.previous_point, self.previous_point_type, destination, destination_type, perception, grid, False, True)
         else:

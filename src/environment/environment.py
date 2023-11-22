@@ -8,14 +8,14 @@ from src.agents.strategies.pheromone_strategy import Pheromone
 
 from src.agents.agent import Agent
 from src.environment.package import Package
-from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_START, PackagePoint
+from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START, PackagePoint
 from src.environment.obstacle import Obstacle
 
 
 class Environment(Model):
     """ The environment where the agents interact."""
     def __init__(self, grid_height: int, grid_width: int, agents: List[Agent], \
-                 package_points: List[PackagePoint], obstacles: List[Obstacle], packages: List[Package]) -> None:
+                 package_points: List[PackagePoint], obstacles: List[Obstacle], packages: List[Package], assign_intermediate: bool=False) -> None:
         """ Constructor.
 
         Args:
@@ -25,7 +25,7 @@ class Environment(Model):
             package_points (List[PackagePoint]): Package points in the environment.
             obstacles (List[Obstacle]): Obstacles in the environment.
             packages (List[Package]): Packages in the environment.
-        
+            assign_intermediate (bool, optional): Whether to assign an intermediate point to the package. Defaults to False.
         Returns:
             None
         """        
@@ -35,6 +35,7 @@ class Environment(Model):
         self.package_points = package_points
         self.obstacles = obstacles
         self.packages = packages
+        self.assign_intermediate = assign_intermediate
         
         self.current_iteration = 0
 
@@ -93,9 +94,14 @@ class Environment(Model):
         
         # Create package and place it on grid
         package = Package(f'p{len(self.packages)}', package_point.pos, destination.pos, 10)
+        if self.assign_intermediate:
+            # find intermediate point, that is the nearest to the destination
+            intermediate_point = min([pp for pp in self.package_points if pp.point_type == PACKAGE_POINT_INTERMEDIATE], key=lambda pp: pp.pos.dist_to(destination.pos))
+            package.intermediate_point_pos = intermediate_point.pos
+            
         self.grid.place_agent(package, package_point.pos)
         self.packages.append(package)
-        print("Generated package")
+        print("Generated package", package)
         # Update package point
         package_point.previous_package_generation_step = self.current_iteration
         
