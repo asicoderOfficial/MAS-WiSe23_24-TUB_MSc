@@ -3,6 +3,7 @@ from typing import List
 
 from mesa import Model
 from mesa.space import MultiGrid
+from src.agents.strategies.pheromone_strategy import Pheromone
 
 from src.agents.agent import Agent
 from src.environment.package import Package
@@ -120,7 +121,7 @@ class Environment(Model):
                         else:
                             column.append(1)
                 matrix_grid.append(column)
-        if mode == 'visualization':
+        elif mode == 'visualization':
             for i in range(self.grid_height):
                 column = []
                 for j in range(self.grid_width):
@@ -135,6 +136,19 @@ class Environment(Model):
                                 cell += 'p'
                             if isinstance(entity, Agent):
                                 cell += 'a'
+                    column.append(cell)
+                matrix_grid.append(column)
+        elif mode == 'pheromone':
+            for i in range(self.grid_height):
+                column = []
+                for j in range(self.grid_width):
+                    cell = ''
+                    if self.grid[i][j]:
+                        for entity in self.grid[i][j]:
+                            if isinstance(entity, Pheromone):
+                                cell += f'p-{entity.strength} '
+                        if cell == '':
+                            cell = " "
                     column.append(cell)
                 matrix_grid.append(column)
 

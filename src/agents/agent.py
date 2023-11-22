@@ -64,7 +64,7 @@ class Agent(MesaAgent):
         if self.algorithm_name == 'dijkstra':
             chosen_new_position = self.algorithm.get_next_position(self, self.pos, self.package.destination, grid.height, grid.width, convert_grid_to_matrix(grid), count)
         elif self.algorithm_name == 'pheromones':
-            chosen_new_position = self.algorithm.get_next_position(self.pos, self.origin, None, self.package.destination, None, perception, grid)
+            chosen_new_position = self.algorithm.get_next_position(self.pos, self.origin, None, self.package.destination, None, perception, grid, True, True)
         else:
             raise Exception(f"Unknown algorithm: {self.algorithm_name}")
         self.move(chosen_new_position, perception, grid)
