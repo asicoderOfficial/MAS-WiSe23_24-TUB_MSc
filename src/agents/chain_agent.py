@@ -1,4 +1,4 @@
-from typing import Union
+from typing import List, Union
 from src.agents.agent import Agent
 from src.agents.perception import Perception
 from src.agents.strategies.pheromone_strategy import PheromonePath
@@ -9,7 +9,7 @@ from utils.grid2matrix import convert_grid_to_matrix
 
 
 class ChainAgent(Agent):
-    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception, goal_package_point: str, algorithm_name: str) -> None:
+    def __init__(self, id: str, position: Position, package: List[Package], perception: Perception, goal_package_point: str, algorithm_name: str) -> None:
         """Chain Agent delivers package only to specific package point type and returns to origin position after delivering package.
 
         Args:
@@ -32,33 +32,37 @@ class ChainAgent(Agent):
     def step(self, grid) -> None:
         perception = self.perception.percept(self.pos, grid)
         
-        if self.package:
+        if len(self.packages) > 0:
             valid_package_points = [pp for pp in self.perception.visible_package_points if pp.point_type == self.goal_package_point]
             for package_point in valid_package_points:
                 # Correct package point on current position, deliver package
                 if self.goal_package_point == package_point.point_type \
-                    and (package_point.point_type == PACKAGE_POINT_INTERMEDIATE or (self.goal_package_point == PACKAGE_POINT_END and self.package.destination == package_point.pos)):
+                    and (package_point.point_type == PACKAGE_POINT_INTERMEDIATE or (self.goal_package_point == PACKAGE_POINT_END and self.packages[0].destination == package_point.pos)):
                     # Found searched package point, deliver package
                     if self.pos == package_point.pos:
-                        self.previous_point = self.package.destination
+                        self.previous_point = self.packages[0].destination
                         self.previous_point_type = self.goal_package_point
-                        self.deliver_package(self.package, package_point, grid)
+                        for package in self.packages:
+                            self.deliver_package(package, package_point, grid)
                         return   
             # Search for path to package point
-            if self.goal_package_point == PACKAGE_POINT_INTERMEDIATE and self.package.intermediate_point_pos != None:
-                destination = self.package.intermediate_point_pos
+            if self.goal_package_point == PACKAGE_POINT_INTERMEDIATE and self.packages[0].intermediate_point_pos != None:
+                destination = self.packages[0].intermediate_point_pos
             else:
-                destination = self.package.destination
+                destination = self.packages[0].destination
             next_pos = self.get_next_position(grid, perception, destination, self.goal_package_point)
             self.move(next_pos, perception, grid)
         else:
             if self.origin == self.pos:
                 # Package point should be on current position, pick up package
                 current_packages = [package for package in perception[self.pos.to_tuple()] if isinstance(package, Package) and not package.picked]
+                current_pp = []
                 if len(current_packages) > 0:
+                    packages = self.get_biggest_package_order(current_packages, self.goal_package_point)
                     self.previous_point = self.origin
                     self.previous_point_type = self.origin_point
-                    self.pick_package(current_packages[0], grid)
+                    for package in current_packages:
+                        self.pick_package(package, grid)
                 else:
                     print("Agent is at package point, but there are no packages, resting...")
             else:
@@ -66,6 +70,25 @@ class ChainAgent(Agent):
                 next_pos = self.get_next_position(grid, perception, self.origin, self.origin_point)
                 self.move(next_pos, perception, grid)
 
+    
+    def get_biggest_package_order(self, current_packages, goal_package_point) -> List[Package]:
+        destinations = {}
+        for package in current_packages:
+            if goal_package_point == PACKAGE_POINT_INTERMEDIATE and package.intermediate_point_pos != None:
+                # collect based on intermediate point
+                if destinations.get(package.intermediate_point_pos) == None:
+                    destinations[package.intermediate_point_pos] = [package]
+                else: 
+                    destinations[package.intermediate_point_pos].append(package)
+            else:
+                # collect based on end destination
+                if destinations.get(package.destination) == None:
+                    destinations[package.destination] = [package]
+                else: 
+                    destinations[package.destination].append(package)
+        biggest_order = max(destinations.values(), key=lambda x: len(x))
+        return biggest_order
+                
     
     def get_next_position(self, grid, perception, destination: Position, destination_type: str) -> Position:
         if self.algorithm_name == 'dijkstra':

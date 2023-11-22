@@ -21,16 +21,17 @@ end_pps_pos = [Position(0, 0), Position(3, 0), Position(0, 3), Position(9, 7)]
 
 starting_agents_num = 4
 starting_package_point = PackagePoint('pp1', starting_pp_pos, PACKAGE_POINT_START, 5, 1)
-start_agents = [ChainAgent(f's-{i}', starting_pp_pos, None, Perception(1), PACKAGE_POINT_INTERMEDIATE, "dijkstra") for i in range(starting_agents_num)]
+start_agents = [ChainAgent(f's-{i}', starting_pp_pos, [], Perception(1), PACKAGE_POINT_INTERMEDIATE, "dijkstra") for i in range(starting_agents_num)]
 
 intermediate_pps = [PackagePoint(f'pp{i}', pos, PACKAGE_POINT_INTERMEDIATE, 5, 5) for i, pos in enumerate(intermediate_pps_pos)]
-intermediate_agents = [ChainAgent(f'i-{i}', pp.pos, None, Perception(1), PACKAGE_POINT_END, "dijkstra") for i, pp in enumerate(intermediate_pps)]
+intermediate_agents = [ChainAgent(f'i-{i}', pp.pos, [], Perception(1), PACKAGE_POINT_END, "dijkstra") for i, pp in enumerate(intermediate_pps)]
 
 end_pps = [PackagePoint(f'pp-e{i}', pos, PACKAGE_POINT_END) for i, pos in enumerate(end_pps_pos)]
 
 starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
 
 package_counter = PackageCounter()
+
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
 environment = Environment(grid_size, grid_size, start_agents + intermediate_agents, [starting_package_point] + intermediate_pps + end_pps, [starting_obstacle], [], True)
