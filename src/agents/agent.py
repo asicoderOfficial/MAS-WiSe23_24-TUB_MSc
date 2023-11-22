@@ -47,10 +47,18 @@ class Agent(MesaAgent):
         # TODO: Determine movement with algorithm (Dijkstra, pheromones, etc.)
         # By now, the agent only moves down for demonstration purposes.
         perception = self.perception.percept(self.pos, grid)
-       
+
+        # check if there is some element of instance PackagePoint in the cell
+        package_points_in_current_pick_cell = [cell_entity for cell_entity in grid[self.pos.x][self.pos.y] if isinstance(cell_entity, PackagePoint)]
+        if not package_points_in_current_pick_cell:
+            raise Exception(f'The agent cannot pick package at position {self.pos}, as there are no package points in the cell.')
+        selected_package_to_pick_id = 'p1'
+        package_to_pick = [package for package in grid._grid[self.pos.x][self.pos.y] if isinstance(package, Package) and package.id == selected_package_to_pick_id][0]
+        self.pick_package(package_to_pick, grid)
         chosen_new_position = Position(self.pos.x + 1, self.pos.y)
         self.move(chosen_new_position, perception, grid)
     
+
     def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:
         """ Checks if the agent can move to the chosen position.
 
@@ -124,6 +132,7 @@ class Agent(MesaAgent):
         self.package = package
         package.picked = True
         print(f"Agent {self.id}: Picked up package!")
+
 
     def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
         """ Action of the agent: deliver a package.
