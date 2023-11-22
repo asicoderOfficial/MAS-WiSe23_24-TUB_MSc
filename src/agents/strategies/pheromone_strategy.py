@@ -1,5 +1,5 @@
 from typing import List
-from agents.strategies.strategy import Strategy
+from src.agents.strategies.strategy import Strategy
 from src.environment.obstacle import Obstacle
 from src.utils.position import Position
 import random
