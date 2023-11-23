@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, List, Tuple
 
 class RecursiveDictConvert:
     """A class for creating objects with attributes."""

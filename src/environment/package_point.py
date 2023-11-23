@@ -11,7 +11,8 @@ PACKAGE_POINT_END = 'pp-end'
 
 class PackagePoint:
     """ A point where the agent can leave a package, or pick up from."""
-    def __init__(self, id: str, position: Position, point_type: str, max_simultaneous_packages_storage:float=float('inf'), package_spawn_interval:Union[int, None]=None, n_packages_per_spawn:int=0, assign_intermediate=True) -> None:
+    def __init__(self, id: str, position: Position, point_type: str, max_simultaneous_packages_storage:float=float('inf'), 
+                 package_spawn_interval:Union[int, None]=None, n_packages_per_spawn:int=0, assign_intermediate=True) -> None:
         """ Constructor.
 
         Args:

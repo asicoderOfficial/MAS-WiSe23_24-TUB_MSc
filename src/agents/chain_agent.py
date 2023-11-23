@@ -1,7 +1,7 @@
 from typing import List, Union
 from src.agents.agent import Agent
 from src.agents.perception import Perception
-from agents.strategies.pheromone import PheromonePath
+from src.agents.strategies.pheromone import PheromonePath
 from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START
 from src.utils.position import Position
@@ -94,6 +94,8 @@ class ChainAgent(Agent):
     
     def get_next_position(self, grid, perception, destination: Position, destination_type: str) -> Position:
         if self.algorithm_name == 'dijkstra':
+            print(self.pos.x, self.pos.y)
+            print(destination.x, destination.y)
             chosen_new_position = self.algorithm.get_next_position(self.pos, destination, grid.height, grid.width, convert_grid_to_matrix(grid))
         elif self.algorithm_name == 'pheromones':
             chosen_new_position = self.algorithm.get_next_position(self.pos, self.previous_point, self.previous_point_type, destination, destination_type, perception, grid, False, True)
