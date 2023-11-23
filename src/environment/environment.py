@@ -217,7 +217,7 @@ class Environment(Model):
                         else:
                             column.append(1)
                     else:
-                        column.append(1)lumn.append(1)
+                        column.append(1)
                 matrix_grid.append(column)
         elif mode == 'visualization':
             for i in range(self.grid_height):
