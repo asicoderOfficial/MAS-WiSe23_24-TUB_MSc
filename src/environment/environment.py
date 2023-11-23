@@ -9,17 +9,16 @@ from src.agents.strategies.greedy_agent import GreedyAgent
 
 from src.agents.agent import Agent
 from src.environment.package import Package
-from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_START, PackagePoint, PACKAGE_POINT_INTERMEDIATE
+from src.environment.package_point import PACKAGE_POINT_END, PackagePoint, PACKAGE_POINT_INTERMEDIATE
 from src.constants.environment import MAX_PERC_PACKAGE_POINTS
 from src.utils.position import Position
 from src.environment.obstacle import Obstacle, ObstacleCell
-from src.constants.agents import AGENT_TYPES
 
 
 
 class Environment(Model):
     """ The environment where the agents interact."""
-    def __init__(self, grid_height: int, grid_width: int, agents_distribution: dict, \
+    def __init__(self, grid_height: int, grid_width: int, agents:list, \
                  starting_package_point: PackagePoint, n_intermediate_package_points: int, n_ending_package_points: int, 
                  obstacles: List[Obstacle], agents_distribution_strategy:str='strategic') -> None:
 
@@ -61,8 +60,7 @@ class Environment(Model):
         self.n_ending_package_points = n_ending_package_points
 
         self.obstacles = obstacles
-        self.agents_distribution = agents_distribution
-        self.agents = []
+        self.agents = agents
         self.starting_package_point = starting_package_point
         self.intermediate_package_points = []
         self.ending_package_points = []
@@ -205,25 +203,18 @@ class Environment(Model):
         package_points_by_distance = [(pp, pp.pos.dist_to(self.starting_package_point.pos)) for pp in self.intermediate_package_points]
         package_points_by_distance.sort(key=lambda x: x[1])
         package_points_by_distance = [pp[0] for pp in package_points_by_distance]
-        for agent_class_id, distribution in self.agents_distribution.items():
-            for num_agents, parameters in distribution.items():
-                for i in range(num_agents):
-                    if parameters['pos'] is None:
-                        if self.agents_distribution_strategy == 'random':
-                            # Place it in a random intermediate package point, as the position has not been specified (and we assume it will be the starting package point position)
-                            parameters['pos'] = random.choice([pp.pos for pp in self.intermediate_package_points])
-                        elif self.agents_distribution_strategy == 'strategic':
-                            # Strategically place the agent in an intermediate point as close as possible to the starting package point,
-                            # equally distributing agents among the intermediate points by traversing the list of intermediate points
-                            # sorted by distance to the starting package point in a circular way
-                            agent_position = package_points_by_distance[intermediate_package_point_index % len(package_points_by_distance)].pos
-                            parameters['pos'] = agent_position
-                            intermediate_package_point_index += 1
-                        parameters['id'] = f'{parameters["id"]}_{i}'
-                    if agent_class_id.lower() == 'greedyagent':
-                        self.agents.append(GreedyAgent(**parameters))
-                    elif agent_class_id.lower() == 'chainagent':
-                        self.agents.append(ChainAgent(**parameters))
+        for agent in self.agents:
+            if agent.pos is None:
+                if self.agents_distribution_strategy == 'random':
+                    # Place it in a random intermediate package point, as the position has not been specified (and we assume it will be the starting package point position)
+                    agent.pos = random.choice([pp.pos for pp in self.intermediate_package_points])
+                elif self.agents_distribution_strategy == 'strategic':
+                    # Strategically place the agent in an intermediate point as close as possible to the starting package point,
+                    # equally distributing agents among the intermediate points by traversing the list of intermediate points
+                    # sorted by distance to the starting package point in a circular way
+                    agent_position = package_points_by_distance[intermediate_package_point_index % len(package_points_by_distance)].pos
+                    agent.pos = agent_position
+                    intermediate_package_point_index += 1
 
         # Place dynamic objects for the first time
         for obstacle in self.obstacles:
