@@ -47,10 +47,10 @@ for iteration in range(1, iterations+1):
     for i in range(len(m)):
         print(m[i])
     print()
-    m = environment.grid_as_matrix(mode='pheromone')
-    for i in range(len(m)):
-        print(m[i])
-    print()
+    # m = environment.grid_as_matrix(mode='pheromone')
+    # for i in range(len(m)):
+    #     print(m[i])
+    # print()
     #print(environment.grid)
 
 
