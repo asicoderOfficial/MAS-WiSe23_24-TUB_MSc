@@ -1,7 +1,7 @@
 from typing import List
 
 from src.utils.position import Position
-from environment.obstacle import Obstacle
+from src.environment.obstacle import Obstacle
 
 
 class Strategy():

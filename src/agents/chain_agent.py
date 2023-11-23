@@ -5,7 +5,7 @@ from src.agents.strategies.pheromone_strategy import PheromonePath
 from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START
 from src.utils.position import Position
-from utils.grid2matrix import convert_grid_to_matrix
+from src.utils.grid2matrix import convert_grid_to_matrix
 
 
 class ChainAgent(Agent):

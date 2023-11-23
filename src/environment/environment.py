@@ -4,7 +4,7 @@ from typing import List
 
 from mesa import Model
 from mesa.space import MultiGrid
-from agents.chain_agent import ChainAgent
+from src.agents.chain_agent import ChainAgent
 from src.agents.strategies.pheromone_strategy import Pheromone
 
 from src.agents.agent import Agent
@@ -217,7 +217,7 @@ class Environment(Model):
                         else:
                             column.append(1)
                     else:
-                        column.append(1)lumn.append(1)
+                        column.append(1)
                 matrix_grid.append(column)
         elif mode == 'visualization':
             for i in range(self.grid_height):
