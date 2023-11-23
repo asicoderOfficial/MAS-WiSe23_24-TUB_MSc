@@ -28,8 +28,26 @@ class Environment(Model):
         Args:
             grid_height (int): Height of the grid (number of rows)
             grid_width (int): Width of the grid (number of columns)
-            agents (List[Agent]): Agents in the environment.
-            obstacles (List[Obstacle]): Obstacles in the environment.
+            agents_distribution (dict) : The types of agents and their distribution when first appearing in the grid. Example:
+                agents_distribution = {
+                    'GreedyAgent': {
+                        5 : {'id':'ga_start', 'position':Position(5, 5), 'package':Package(...), 'perception':Perception(...), 'algorithm_name':'dijkstra'},
+                        2 : {'id':'ga_intermediate', 'position':None, 'package':Package(...), 'perception':Perception(...), 'algorithm_name':'pheromones'}
+                    }
+                }
+
+                That would create 5 greedy agents that start where the position is specified (typically, the starting package point position), 
+                and 2 greedy agents that start in the 2 closest intermediate package points to the starting package point.
+            starting_package_point (PackagePoint): The starting package point where packages are generated from.
+            n_intermediate_package_points (int): Number of intermediate package points in the environment.
+            n_ending_package_points (int): Number of ending package points in the environment.
+            obstacles (List[Obstacle]): Obstacles in the environment. Initially, they are placed in the specified position, but if it is not possible, they are placed in a random position,
+                or at whichever position is possible. If there is no position available, the obstacle is finally not placed.
+            agents_distribution_strategy (str, optional): Strategy to distribute the agents in the environment. Possible values: 'strategic' or 'random'. Defaults to 'strategic'.
+                - 'strategic': Agents are distributed in the intermediate package points in a strategic way, so that the agents are equally distributed among the intermediate package points,
+                    and the agents are placed in the intermediate package points that are closer to the starting package point.
+                - 'random': Agents are distributed in the intermediate package points in a random way.
+
         Returns:
             None
         """        
@@ -189,7 +207,7 @@ class Environment(Model):
         package_points_by_distance = [pp[0] for pp in package_points_by_distance]
         for agent_class_id, distribution in self.agents_distribution.items():
             for num_agents, parameters in distribution.items():
-                for _ in range(num_agents):
+                for i in range(num_agents):
                     if parameters['pos'] is None:
                         if self.agents_distribution_strategy == 'random':
                             # Place it in a random intermediate package point, as the position has not been specified (and we assume it will be the starting package point position)
@@ -201,6 +219,7 @@ class Environment(Model):
                             agent_position = package_points_by_distance[intermediate_package_point_index % len(package_points_by_distance)].pos
                             parameters['pos'] = agent_position
                             intermediate_package_point_index += 1
+                        parameters['id'] = f'{parameters["id"]}_{i}'
                     if agent_class_id.lower() == 'greedyagent':
                         self.agents.append(GreedyAgent(**parameters))
                     elif agent_class_id.lower() == 'chainagent':
@@ -210,10 +229,8 @@ class Environment(Model):
         for obstacle in self.obstacles:
             obstacle.step(self.current_iteration, self.grid)
 
-
         self.current_iteration += 1
 
-        
 
     def grid_as_matrix(self, mode:str='dijkstra') -> List[List]:
         """ Convert the grid to a matrix of dimensions self.grid_height x self.grid_width.
