@@ -5,7 +5,7 @@ from typing import List
 from mesa import Model
 from mesa.space import MultiGrid
 from agents.chain_agent import ChainAgent
-from src.agents.strategies.pheromone_strategy import Pheromone
+from agents.strategies.pheromone import Pheromone
 
 from src.agents.agent import Agent
 from src.environment.package import Package

@@ -4,7 +4,7 @@ from copy import deepcopy
 from mesa import Agent as MesaAgent
 from mesa.space import MultiGrid
 
-from src.agents.strategies.pheromone_strategy import PheromonePath
+from agents.strategies.pheromone import PheromonePath
 from src.utils.position import Position
 from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PackagePoint

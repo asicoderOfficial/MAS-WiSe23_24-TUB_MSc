@@ -1,5 +1,5 @@
 from typing import List
-from src.agents.strategies.strategy import Strategy
+from agents.strategies.path_algorithm import PathAlgorithm
 from src.environment.obstacle import Obstacle
 from src.utils.position import Position
 import random
@@ -10,7 +10,7 @@ class Pheromone:
         self.pos = pos
         self.strength = strength
 
-class PheromonePath(Strategy):
+class PheromonePath(PathAlgorithm):
     def __init__(self, pheromone_decrease_rate:int=0.01) -> None:
         self.previous_pheromone = None
         self.pheromone_decrease_rate = pheromone_decrease_rate
