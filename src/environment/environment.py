@@ -203,19 +203,25 @@ class Environment(Model):
         package_points_by_distance = [(pp, pp.pos.dist_to(self.starting_package_point.pos)) for pp in self.intermediate_package_points]
         package_points_by_distance.sort(key=lambda x: x[1])
         package_points_by_distance = [pp[0] for pp in package_points_by_distance]
+        agents_updated = []
         for agent in self.agents:
             if agent.pos is None:
                 if self.agents_distribution_strategy == 'random':
                     # Place it in a random intermediate package point, as the position has not been specified (and we assume it will be the starting package point position)
-                    agent.pos = random.choice([pp.pos for pp in self.intermediate_package_points])
+                    random_pos = random.choice([pp.pos for pp in self.intermediate_package_points])
+                    agent.pos = random_pos
+                    agent.origin = random_pos
                 elif self.agents_distribution_strategy == 'strategic':
                     # Strategically place the agent in an intermediate point as close as possible to the starting package point,
                     # equally distributing agents among the intermediate points by traversing the list of intermediate points
                     # sorted by distance to the starting package point in a circular way
                     agent_position = package_points_by_distance[intermediate_package_point_index % len(package_points_by_distance)].pos
                     agent.pos = agent_position
+                    agent.origin = agent_position
                     intermediate_package_point_index += 1
             self.grid.place_agent(agent, agent.pos)
+            agents_updated.append(agent)
+        self.agents = agents_updated
 
         # Place dynamic objects for the first time
         for obstacle in self.obstacles:
@@ -266,8 +272,6 @@ class Environment(Model):
                             if isinstance(entity, Package):
                                 cell += 'p'
                             # Agents
-                            if isinstance(entity, Agent):
-                                cell += 'a'
                             if isinstance(entity, ChainAgent):
                                 cell += 'c'
                             if isinstance(entity, GreedyAgent):
