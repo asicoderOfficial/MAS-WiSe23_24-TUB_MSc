@@ -14,25 +14,26 @@ from src.visualization.merge import Merge
 random.seed(1)
 
 # Environment elements
-starting_position = Position(0, 0)
-end_position = Position(4, 4)
+starting_position = Position(2, 2)
+# end_position = Position(4, 4)
 
-starting_position_ab = Position(1, 1)
-
-starting_package = Package('p1', starting_position, Position(1, 3), 10)
+# starting_position_ab = Position(1, 1)
 
 starting_package_point = PackagePoint('pp1', starting_position, PACKAGE_POINT_START, 5)
 
-end_package_point = PackagePoint('pp2', end_position, PACKAGE_POINT_END)
+# end_package_point = PackagePoint('pp2', end_position, PACKAGE_POINT_END)
 
 starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
 
-a = Agent('a', starting_position, starting_package, Perception(1))
+# a = Agent('a', starting_position, starting_package, Perception(1))
 # List of agents
-agents = [a]
+agents = []
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
-environment = Environment(10, 10, agents, [starting_package_point, end_package_point], [starting_obstacle], [starting_package])
+# environment = Environment(10, 10, agents, [starting_package_point, end_package_point], [starting_obstacle], [starting_package])
+environment = Environment(10,10, agents, starting_package_point, 2, 2, [])
+Save.visualize_grid(environment.grid)
+
 
 m = environment.grid_as_matrix()
 print('Initial state')
