@@ -13,6 +13,7 @@ from src.environment.obstacle import Obstacle
 
 from src.agents.strategies.dijkstra import Dijkstra
 from src.utils.grid2matrix import convert_grid_to_matrix
+from src.visualization.save import Save
 count = 0
 
 class Agent(MesaAgent):
@@ -159,6 +160,7 @@ class Agent(MesaAgent):
             # The package has reached its destination! 
             # Therefore, now the agent is not carrying any package and the package has to disappear from the environment (so it is not visible anymore).
             package.picked = False
+            Save.save_to_csv_package(package)
             grid.remove_agent(package)
             self.packages.remove(package)
         elif package_point.point_type == package_point.point_type == PACKAGE_POINT_INTERMEDIATE:

@@ -2,13 +2,11 @@ import csv
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import pandas as pd
-
-from mesa.space import MultiGrid
-
-from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START, PackagePoint
+import os
 
 class Save:
-    def save_to_csv(agent_data, filename="delivery_data.csv"):
+    log_dir = None
+    def save_to_csv(agent_data, filename="agent_data.csv"):
         with open(filename, mode="w", newline="") as file:
             writer = csv.writer(file)
             # Header
@@ -16,6 +14,36 @@ class Save:
             # data
             for agent in agent_data:
                 writer.writerow([agent.id, agent.package.id, agent.package.destination.x, agent.package.destination.y, agent.package.is_delayed, agent.package.pos.x, agent.package.pos.y])
+
+    def save_to_csv_package(package, delivered=True):
+        if delivered:
+            filename=f"{Save.log_dir}/delivery_data.csv"
+        else: 
+            filename=f"{Save.log_dir}/package_data.csv"
+            
+        file_exists = os.path.exists(filename)
+        with open(filename, mode="a") as file:
+            writer = csv.writer(file)
+            if not file_exists:
+                # Header
+                writer.writerow(["PackageID", "PackagePoint X", "PackagePoint Y", "Delayed", "Delivery Time", "Intermediate X", "Intermediate Y"])
+            # data
+            data = [
+                package.id, 
+                    package.pos.x, 
+                    package.pos.y, 
+                    package.is_delayed, 
+            ]
+            if delivered:
+                data.append(package.iterations)
+            else:
+                data.append(None)
+                
+            if package.intermediate_point_pos:
+                data += [package.destination.x, package.destination.y]
+            else:
+                data += [None, None]
+            writer.writerow(data)
 
     def visualize_data():
         df = pd.read_csv("delivery_data.csv")
@@ -33,40 +61,4 @@ class Save:
 
         # Show the plot
         plt.show()
-
-    def visualize_grid(grid: MultiGrid):
-        start_pp_code = 0
-        intermediate_pp_code = 1
-        end_pp_code = 2
-        empty_cell = 3
-        
-        pps_matrix = []
-        for i in range(grid.height):
-            row = []
-            for j in range(grid.width):
-                cell_code = empty_cell
-                if grid[i][j]:
-                    for entity in grid[i][j]:
-                        if isinstance(entity, PackagePoint):
-                            if entity.point_type == PACKAGE_POINT_START:
-                                cell_code = start_pp_code
-                            elif entity.point_type == PACKAGE_POINT_INTERMEDIATE:
-                                cell_code = intermediate_pp_code
-                            elif entity.point_type == PACKAGE_POINT_END:
-                                cell_code = end_pp_code
-                row.append(cell_code)
-            pps_matrix.append(row)
-
-        x = [pp[0] for pp in pps_matrix]
-        y = [pp[1] for pp in pps_matrix]
-        # Create a scatter plot
-        # plt.scatter(x, y, c=colors, marker='o', alpha=0.5)
-        cmap = ListedColormap(['red','yellow', 'blue', 'white'])
-        plt.pcolormesh(pps_matrix, cmap=cmap)
-        # Add labels and title
-        plt.xlabel('GRID X')
-        plt.ylabel('GRID Y')
-        plt.title('Scatter Plot of Package Points')
-
-        # Show the plot
-        plt.savefig("grid.png")        
+     

@@ -67,13 +67,13 @@ class Environment(Model):
                 for package in agent.packages:
                     # The agent package_id != '', so the agent is carrying the package. So wherever the agent goes, the package goes too.
                     package.step(agent.pos, self.grid)
-            self.agents.pop(i)
-            self.agents.append(agent)
+            # self.agents.pop(i)
+            # self.agents.append(agent)
         
         for obstacle in self.obstacles:
             obstacle.step(self.current_iteration, self.grid)
             
-        self.starting_package_point.step(self.current_iteration, self.grid, self.ending_package_points)
+        self.starting_package_point.step(self.current_iteration, self.grid, self.intermediate_package_points, self.ending_package_points)
 
         self.current_iteration += 1
             
@@ -190,8 +190,7 @@ class Environment(Model):
                 # The agent has not been placed in the grid yet
                 # Place it in a random intermediate package point, as the position has not been specified (and we assume it will be the starting package point position)
                 agent.pos = random.choice([pp.pos for pp in self.intermediate_package_points])
-                self.grid.place_agent(agent, agent.pos)
-                self.agents.append(agent)
+            self.grid.place_agent(agent, agent.pos)
 
         self.current_iteration += 1
 
