@@ -63,9 +63,10 @@ class Environment(Model):
         """        
         for i, agent in enumerate(self.agents):
             agent.step(self.grid)
-            if agent.package:
-                # The agent package_id != '', so the agent is carrying the package. So wherever the agent goes, the package goes too.
-                agent.package.step(agent.pos, self.grid)
+            if len(agent.packages) > 0:
+                for package in agent.packages:
+                    # The agent package_id != '', so the agent is carrying the package. So wherever the agent goes, the package goes too.
+                    package.step(agent.pos, self.grid)
             self.agents.pop(i)
             self.agents.append(agent)
         
