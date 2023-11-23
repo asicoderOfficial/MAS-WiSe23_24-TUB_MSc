@@ -180,16 +180,17 @@ class Environment(Model):
                     self.grid.place_agent(pp, pp.pos)
                     self.ending_package_points.append(pp)
 
-        # Place dynamic objects for the first time
-        for obstacle in self.obstacles:
-            obstacle.step(self.current_iteration, self.grid)
-
         for agent in self.agents:
             if agent.pos is None:
                 # The agent has not been placed in the grid yet
                 # Place it in a random intermediate package point, as the position has not been specified (and we assume it will be the starting package point position)
                 agent.pos = random.choice([pp.pos for pp in self.intermediate_package_points])
             self.grid.place_agent(agent, agent.pos)
+
+        # Place dynamic objects for the first time
+        for obstacle in self.obstacles:
+            obstacle.step(self.current_iteration, self.grid)
+
 
         self.current_iteration += 1
 
