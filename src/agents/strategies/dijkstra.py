@@ -29,8 +29,8 @@ class Dijkstra:
             new_position = Position(path[0].x, path[0].y)
 
 
-        print('operations:', runs, 'path length:', len(path))
-        print(grid.grid_str(path=path, start=start, end=end))
+        # print('operations:', runs, 'path length:', len(path))
+        # print(grid.grid_str(path=path, start=start, end=end))
 
         return new_position
     

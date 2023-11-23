@@ -1,9 +1,12 @@
 import csv
+from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
 class Save:
-    def save_to_csv(agent_data, filename="delivery_data.csv"):
+    log_dir = None
+    def save_to_csv(agent_data, filename="agent_data.csv"):
         with open(filename, mode="w", newline="") as file:
             writer = csv.writer(file)
             # Header
@@ -11,6 +14,36 @@ class Save:
             # data
             for agent in agent_data:
                 writer.writerow([agent.id, agent.package.id, agent.package.destination.x, agent.package.destination.y, agent.package.is_delayed, agent.package.pos.x, agent.package.pos.y])
+
+    def save_to_csv_package(package, delivered=True):
+        if delivered:
+            filename=f"{Save.log_dir}/delivery_data.csv"
+        else: 
+            filename=f"{Save.log_dir}/package_data.csv"
+            
+        file_exists = os.path.exists(filename)
+        with open(filename, mode="a") as file:
+            writer = csv.writer(file)
+            if not file_exists:
+                # Header
+                writer.writerow(["PackageID", "PackagePoint X", "PackagePoint Y", "Delayed", "Delivery Time", "Intermediate X", "Intermediate Y"])
+            # data
+            data = [
+                package.id, 
+                    package.pos.x, 
+                    package.pos.y, 
+                    package.is_delayed, 
+            ]
+            if delivered:
+                data.append(package.iterations)
+            else:
+                data.append(None)
+                
+            if package.intermediate_point_pos:
+                data += [package.destination.x, package.destination.y]
+            else:
+                data += [None, None]
+            writer.writerow(data)
 
     def visualize_data():
         df = pd.read_csv("delivery_data.csv")
@@ -28,3 +61,4 @@ class Save:
 
         # Show the plot
         plt.show()
+     

@@ -4,7 +4,7 @@ from src.utils.position import Position
 from src.environment.obstacle import Obstacle
 
 
-class Strategy():
+class PathAlgorithm():
     def get_next_position(self):
         pass
     

@@ -4,7 +4,7 @@ from copy import deepcopy
 from mesa import Agent as MesaAgent
 from mesa.space import MultiGrid
 
-from src.agents.strategies.pheromone_strategy import PheromonePath
+from agents.strategies.pheromone import PheromonePath
 from src.utils.position import Position
 from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PackagePoint
@@ -13,12 +13,13 @@ from src.environment.obstacle import Obstacle
 
 from src.agents.strategies.dijkstra import Dijkstra
 from src.utils.grid2matrix import convert_grid_to_matrix
+from src.visualization.save import Save
 count = 0
 
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
 
-    def __init__(self, id: str, position: Position, package: Union[Package, None], perception: Perception, algorithm_name: str) -> None:
+    def __init__(self, id: str, position: Position, packages: List[Package], perception: Perception, algorithm_name: str) -> None:
         """ Constructor.
 
         Args:
@@ -26,7 +27,7 @@ class Agent(MesaAgent):
             position (Position): The position of the agent in the environment.
             origin (Union[Position, None]): Origin position of agent (assigned home), where agent should return if it is not carrying package. 
                                             If not defined, agent will return to first encountered package point
-            package (Union[Package, None]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
+            package (List[Package]): The packages the agent is carrying.
             perception (Perception): The subgrid the agent is currently perceiving.
             algorithm_name (str): Algorithm name to use for pathfinding. (Possible values: 'dijkstra', 'pheromone')
         
@@ -36,7 +37,7 @@ class Agent(MesaAgent):
         self.id = id
         self.pos = position
         self.origin = position  # Origin (spawn) position 
-        self.package = package
+        self.packages = packages
         self.perception = perception
         self.algorithm_name = algorithm_name
         if self.algorithm_name == 'dijkstra':
@@ -118,8 +119,8 @@ class Agent(MesaAgent):
         Returns:
             None
         """        
-        if self.package:
-            raise Exception(f'The agent is already carrying a package with id: {self.package.id}')
+        # if len(self.package) > 0:
+        #     raise Exception(f'The agent is already carrying a package with id: {self.package.id}')
         
         if package.picked:
             raise Exception(f'Package {package.id} is already carried by another agent')
@@ -132,7 +133,7 @@ class Agent(MesaAgent):
         if not cell_entities:
             raise Exception(f'The agent cannot pick package with id: {package.id} at position {self.pos} as there are no intermediate or starting points in the cell.')
 
-        self.package = package
+        self.packages.append(package)
         package.picked = True
         print(f"Agent {self.id}: Picked up package!")
 
@@ -152,18 +153,19 @@ class Agent(MesaAgent):
         if not cell_entities:
             raise Exception(f'The agent cannot deliver package with id: {package.id}, as the agent is is not in the same cell')
         
-        if self.package.id != package.id:
+        if package.id not in [my_package.id for my_package in self.packages]:
             raise Exception(f'The agent cannot deliver package with id: {package.id}, as the agent is not carrying this package.')
 
         if package_point.point_type == PACKAGE_POINT_END:
             # The package has reached its destination! 
             # Therefore, now the agent is not carrying any package and the package has to disappear from the environment (so it is not visible anymore).
             package.picked = False
+            Save.save_to_csv_package(package)
             grid.remove_agent(package)
-            self.package = None
+            self.packages.remove(package)
         elif package_point.point_type == package_point.point_type == PACKAGE_POINT_INTERMEDIATE:
             package.picked = False
-            self.package = None
+            self.packages.remove(package)
         else:
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
         

@@ -22,8 +22,8 @@ starting_package_point = PackagePoint('pp1', starting_position, PACKAGE_POINT_ST
 
 starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
 
-start_agent = ChainAgent('1', starting_position, None, Perception(1), PACKAGE_POINT_INTERMEDIATE, "dijkstra")
-intermediate_agent = ChainAgent('2', intermediate_position, None, Perception(1), PACKAGE_POINT_END, "dijkstra")
+start_agent = ChainAgent('1', starting_position, [], Perception(1), PACKAGE_POINT_INTERMEDIATE, "dijkstra")
+intermediate_agent = ChainAgent('2', intermediate_position, [], Perception(1), PACKAGE_POINT_END, "dijkstra")
 
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
@@ -45,10 +45,10 @@ for iteration in range(1, iterations+1):
     for i in range(len(m)):
         print(m[i])
     print()
-    m = environment.grid_as_matrix(mode='pheromone')
-    for i in range(len(m)):
-        print(m[i])
-    print()
+    # m = environment.grid_as_matrix(mode='pheromone')
+    # for i in range(len(m)):
+    #     print(m[i])
+    # print()
     #print(environment.grid)
 
 
