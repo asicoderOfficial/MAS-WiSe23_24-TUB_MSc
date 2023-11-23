@@ -9,7 +9,7 @@ from src.agents.strategies.greedy_agent import GreedyAgent
 
 from src.agents.agent import Agent
 from src.environment.package import Package
-from src.environment.package_point import PACKAGE_POINT_END, PackagePoint, PACKAGE_POINT_INTERMEDIATE
+from src.environment.package_point import PACKAGE_POINT_END, PackagePoint, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START
 from src.constants.environment import MAX_PERC_PACKAGE_POINTS
 from src.utils.position import Position
 from src.environment.obstacle import Obstacle, ObstacleCell
@@ -215,6 +215,7 @@ class Environment(Model):
                     agent_position = package_points_by_distance[intermediate_package_point_index % len(package_points_by_distance)].pos
                     agent.pos = agent_position
                     intermediate_package_point_index += 1
+            self.grid.place_agent(agent, agent.pos)
 
         # Place dynamic objects for the first time
         for obstacle in self.obstacles:
@@ -253,12 +254,25 @@ class Environment(Model):
                     cell = ''
                     if self.grid[i][j]:
                         for entity in self.grid[i][j]:
+                            # Package points
                             if isinstance(entity, PackagePoint):
-                                cell += 'x'
+                                if entity.point_type == PACKAGE_POINT_START:
+                                    cell += 's'
+                                elif entity.point_type == PACKAGE_POINT_INTERMEDIATE:
+                                    cell += 'i'
+                                elif entity.point_type == PACKAGE_POINT_END:
+                                    cell += 'e'
+                            # Packages
                             if isinstance(entity, Package):
                                 cell += 'p'
-                            if isinstance(entity, (Agent, ChainAgent)):
+                            # Agents
+                            if isinstance(entity, Agent):
                                 cell += 'a'
+                            if isinstance(entity, ChainAgent):
+                                cell += 'c'
+                            if isinstance(entity, GreedyAgent):
+                                cell += 'g'
+                            # Obstacles
                             if isinstance(entity, ObstacleCell):
                                 cell += 'o'
                         column.append(cell)
