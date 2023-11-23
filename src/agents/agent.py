@@ -60,15 +60,8 @@ class Agent(MesaAgent):
         # TODO: Strategies (agents sub-classes)
         # TODO: Determine which action to perform (pick package, deliver package or move)
         perception = self.perception.percept(self.pos, grid)
-        
-        if self.algorithm_name == 'dijkstra':
-            chosen_new_position = self.algorithm.get_next_position(self, self.pos, self.package.destination, grid.height, grid.width, convert_grid_to_matrix(grid), count)
-        elif self.algorithm_name == 'pheromones':
-            chosen_new_position = self.algorithm.get_next_position(self.pos, self.origin, None, self.package.destination, None, perception, grid, True, True)
-        else:
-            raise Exception(f"Unknown algorithm: {self.algorithm_name}")
-        self.move(chosen_new_position, perception, grid)
     
+
     def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:
         """ Checks if the agent can move to the chosen position.
 
@@ -142,6 +135,7 @@ class Agent(MesaAgent):
         self.package = package
         package.picked = True
         print(f"Agent {self.id}: Picked up package!")
+
 
     def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
         """ Action of the agent: deliver a package.

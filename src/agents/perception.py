@@ -1,5 +1,5 @@
 from typing import List
-from environment.obstacle import Obstacle
+from src.environment.obstacle import Obstacle
 from src.environment.package import Package
 from src.environment.package_point import PackagePoint
 

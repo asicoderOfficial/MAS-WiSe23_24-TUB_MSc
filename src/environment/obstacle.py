@@ -1,3 +1,4 @@
+from typing import List
 import random
 
 from src.utils.position import Position
@@ -42,55 +43,15 @@ class Obstacle:
         Returns:
             None
         """        
-        if self.iterations_left == -1 and not self.pos is None:
+        if self.iterations_left == 0 and not self.pos is None:
             # The object has to disappear from the grid. It has already stayed in the environment for the required iterations.
-            grid.remove_agent(self)
+            #grid.remove_agent(self)
+            self._disappear(grid)
         elif current_iteration == self.starting_iteration:
             # The object has to appear in the grid now, it is the starting iteration.
-            self.determine_position(grid)
-            grid.place_agent(self, self.pos)
-        if self.iterations_left >= 0 and current_iteration >= self.starting_iteration:
-            self.iterations_left -= 1
+            self._appear(grid)
+        self.iterations_left -= 1
 
-
-    def is_in(self, position: Position) -> bool:
-        """ Returns True if the position is inside the obstacle, False otherwise."""
-        pass
-
-
-    def _obstacles_overlap(self, obstacle1_x: int, obstacle1_y: int, obstacle1_width: int, obstacle1_height: int,
-                      obstacle2_x: int, obstacle2_y: int, obstacle2_width: int, obstacle2_height: int) -> bool:
-        """
-        Check if two obstacles (rectangles) in a grid share any common cells.
-
-        Args:
-            obstacle1_x (int): The x-coordinate of the top-left corner of the first obstacle.
-            obstacle1_y (int): The y-coordinate of the top-left corner of the first obstacle.
-            obstacle1_width (int): The width of the first obstacle.
-            obstacle1_height (int): The height of the first obstacle.
-            obstacle2_x (int): The x-coordinate of the top-left corner of the second obstacle.
-            obstacle2_y (int): The y-coordinate of the top-left corner of the second obstacle.
-            obstacle2_width (int): The width of the second obstacle.
-            obstacle2_height (int): The height of the second obstacle.
-
-        Returns:
-            bool: True if the obstacles overlap, False otherwise.
-        """
-        # Calculate the coordinates of the right-bottom corners of the obstacles
-        obstacle1_right = obstacle1_x + obstacle1_width
-        obstacle1_bottom = obstacle1_y + obstacle1_height
-        obstacle2_right = obstacle2_x + obstacle2_width
-        obstacle2_bottom = obstacle2_y + obstacle2_height
-
-        # Check for horizontal overlap
-        overlap_x = (obstacle1_x < obstacle2_right) and (obstacle1_right > obstacle2_x)
-
-        # Check for vertical overlap
-        overlap_y = (obstacle1_y < obstacle2_bottom) and (obstacle1_bottom > obstacle2_y)
-
-        # Return True if there is both horizontal and vertical overlap
-        return overlap_x and overlap_y
-    
 
     def _is_position_valid(self, grid: list, x: int, y: int) -> bool:
         """ Checks if the position is valid for the obstacle in the environment to be placed.
@@ -103,20 +64,21 @@ class Obstacle:
         Returns:
             bool: True if the position is valid, False otherwise.
         """        
-        for i in range(grid.width):
-            for j in range(grid.height):
-                if grid._grid[i][j]:
-                    for entity in grid._grid[i][j]:
-                        if isinstance(entity, Obstacle):
-                            if self._obstacles_overlap(x, y, self.width, self.height, i, j, entity.width, entity.height):
-                                return False
-                        elif i == x and j == y:
-                            return False
+        if x < 0 or x + self.height > grid.height or y < 0 or y + self.width > grid.width:
+            return False
+        for i in range(x, x + self.height):
+            for j in range(y, y + self.width):
+                if not grid.is_cell_empty([i, j]):
+                    return False
 
         return True
 
-    
-    def determine_position(self, grid: list) -> Position:
+
+    def _cells(self) -> List[Position]:
+        return [ObstacleCell(id=self.id, pos=Position(self.pos.x + j, self.pos.y + i)) for i in range(self.width) for j in range(self.height)]
+
+
+    def _appear(self, grid: list) -> List[Position]:
         """ Determines the position of the obstacle in the environment.
 
         Args:
@@ -128,6 +90,9 @@ class Obstacle:
         Returns:
             Position: The position of the obstacle in the environment.
         """        
+        if self.pos.x < 0 or self.pos.x + self.width > grid.width or self.pos.y < 0 or self.pos.y + self.height > grid.height:
+            raise Exception(f'The obstacle won\'t fit in the environment ever, as its width and height are {self.width} and {self.height}, respectively, and x and y are {self.pos.x} and {self.pos.y}, respectively, which exceed the grid dimensions, or has a <= 0 value in its dimensions.')
+
         if not self._is_position_valid(grid, self.pos.x, self.pos.y):
             if self.pos_determination == 'random':
                 is_position_valid = False
@@ -136,14 +101,55 @@ class Obstacle:
                     random_x = random.randint(0, grid.width - 1)
                     random_y = random.randint(0, grid.height - 1)
                     is_position_valid = self._is_position_valid(grid, random_x, random_y)
+                    if is_position_valid:
+                        self.pos.x = random_x
+                        self.pos.y = random_y
+                        self.cells_with_obstacle = self._cells()
                     maximum_random_tries -= 1
                     if maximum_random_tries == 0:
                         # No random choice of coordinates was valid. Check for all possible coordinates.
-                        for i in range(len(grid)):
-                            for j in range(len(grid[0])):
-                                if self._is_position_valid(grid, i, j):
-                                    self.pos = Position(i, j)
-                                    return
+                        for x in range(len(grid._grid)):
+                            for y in range(len(grid._grid[0])):
+                                if (x, y) != (self.pos.x, self.pos.y) and self._is_position_valid(grid, x, y):
+                                    self.pos.x = x
+                                    self.pos.y = y
+                                    self.cells_with_obstacle = self._cells()
+                                    is_position_valid = True
+                                    break
+                            else:
+                                continue
+                            break
                         # No valid position exists for the obstacle in the environment.
                         # TODO: This is a colision! Solve it in some way.
-                        raise Exception('No valid position exists for the obstacle in the environment.')
+                        #raise Exception('No valid position exists for the obstacle in the environment.')
+                        # By now, the obstacle is just no placed. A solution could be to shrink it, or to divide it in n smaller obstacles
+        else:
+            self.cells_with_obstacle = self._cells()
+        
+        for cell in self.cells_with_obstacle:
+            grid.place_agent(cell, cell.pos)
+
+
+    def _disappear(self, grid):
+        """ Removes the obstacle from the environment.
+
+        Args:
+            grid (list): The current state of the environment.
+
+        Returns:
+            None
+        """        
+        for cell in self.cells_with_obstacle:
+            obstacle_cell = [obs for obs in grid._grid[cell.pos.x][cell.pos.y] if isinstance(obs, ObstacleCell)][0]
+            grid.remove_agent(obstacle_cell)
+
+
+class ObstacleCell:
+    def __init__(self, id: str, pos: Position) -> None:
+        self.id = id
+        self.pos = pos
+
+
+    def __iter__(self):
+        yield self.x
+        yield self.y

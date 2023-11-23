@@ -12,17 +12,13 @@ import random
 random.seed(1)
 
 # Environment elements
-starting_position = Position(0, 0)
-intermediate_position = Position(2, 2)
-end_position = Position(4, 4)
+starting_position = Position(4, 4)
+end_position = Position(6, 4)
+
 
 # starting_package = Package('p1', starting_position, end_position, 10)
 
 starting_package_point = PackagePoint('pp1', starting_position, PACKAGE_POINT_START, 5, 5)
-
-intermediate_package_point = PackagePoint('pp2', intermediate_position, PACKAGE_POINT_INTERMEDIATE, 5, 0)
-
-end_package_point = PackagePoint('pp3', end_position, PACKAGE_POINT_END)
 
 starting_obstacle = Obstacle('o1', Position(0, 1), 1, 1, 1, 2)
 
@@ -31,7 +27,9 @@ intermediate_agent = ChainAgent('2', intermediate_position, None, Perception(1),
 
 # Environment
 #environment = Environment(5, 5, [a], [], [], [])
-environment = Environment(5, 5, [start_agent, intermediate_agent], [starting_package_point, intermediate_package_point, end_package_point], [starting_obstacle], [], True)
+# environment = Environment(5, 5, [a], [starting_package_point, end_package_point], [starting_obstacle], [starting_package])
+environment = Environment(10, 10, [a], starting_package_point, 1, 1, [starting_obstacle])
+
 
 m = environment.grid_as_matrix(mode='visualization')
 print('Initial state')
