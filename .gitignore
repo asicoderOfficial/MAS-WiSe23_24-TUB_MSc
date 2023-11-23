@@ -5,10 +5,12 @@
 **/plots/
 
 # File types
-**/.env
-**/.yml
-**/.yaml
-**/.csv
+*.env
+*.yml
+*.yaml
+*.csv
+*.xml
+*.iml
 
 # MacOS
 .DS_Store
