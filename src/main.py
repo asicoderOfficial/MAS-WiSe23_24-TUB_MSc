@@ -19,8 +19,8 @@ end_pps_pos = [Position(0, 0), Position(3, 0), Position(0, 3), Position(9, 7)]
 
 # starting_package = Package('p1', starting_position, end_position, 10)
 
-starting_agents_num = 4
-starting_package_point = PackagePoint('pp1', starting_pp_pos, PACKAGE_POINT_START, 5, 1)
+starting_agents_num = 3
+starting_package_point = PackagePoint('pp1', starting_pp_pos, PACKAGE_POINT_START, 5, 0)
 start_agents = [ChainAgent(f's-{i}', starting_pp_pos, [], Perception(1), PACKAGE_POINT_INTERMEDIATE, "dijkstra") for i in range(starting_agents_num)]
 
 intermediate_pps = [PackagePoint(f'pp{i}', pos, PACKAGE_POINT_INTERMEDIATE, 5, 5) for i, pos in enumerate(intermediate_pps_pos)]
@@ -42,7 +42,7 @@ for i in range(len(m)):
     print(m[i])
 print()
 
-iterations = 40
+iterations = 1000
 for iteration in range(1, iterations+1):
     print(f'Iteration {iteration}')
     environment.step()
