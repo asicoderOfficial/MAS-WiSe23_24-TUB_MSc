@@ -94,8 +94,6 @@ class ChainAgent(Agent):
     
     def get_next_position(self, grid, perception, destination: Position, destination_type: str) -> Position:
         if self.algorithm_name == 'dijkstra':
-            print(self.pos.x, self.pos.y)
-            print(destination.x, destination.y)
             chosen_new_position = self.algorithm.get_next_position(self.pos, destination, grid.height, grid.width, convert_grid_to_matrix(grid))
         elif self.algorithm_name == 'pheromones':
             chosen_new_position = self.algorithm.get_next_position(self.pos, self.previous_point, self.previous_point_type, destination, destination_type, perception, grid, False, True)

@@ -66,7 +66,7 @@ class Environment(Model):
         self.ending_package_points = []
 
         
-        self.current_iteration = 1
+        self.current_iteration = 0
 
         # Create self.grid with grid_height rows and grid_width columns
         self.grid = MultiGrid(width=self.grid_width, height=self.grid_height, torus=False)
@@ -199,6 +199,10 @@ class Environment(Model):
                     self.grid.place_agent(pp, pp.pos)
                     self.ending_package_points.append(pp)
 
+        # Spawn initial packages
+        self.starting_package_point.step(self.current_iteration, self.grid, self.intermediate_package_points, self.ending_package_points)
+
+        # Agents
         intermediate_package_point_index = 0
         package_points_by_distance = [(pp, pp.pos.dist_to(self.starting_package_point.pos)) for pp in self.intermediate_package_points]
         package_points_by_distance.sort(key=lambda x: x[1])
