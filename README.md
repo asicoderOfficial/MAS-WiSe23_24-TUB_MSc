@@ -36,12 +36,17 @@ Run the main.py file like
 ```python
 python -m src.main
 ```
+You can also equivalently try to run src/experiment1.py and src/experiment2.py
 
 
 ## Structure
 See the structure of the source code:
 
 ![Src structure](./imgs/src_structure.PNG)
+
+Check the logs and plots of the experiments at experiments/ directory.
+
+See the 3 grids of the experiments in imgs/grids/ directory.
 
 ## License
 
