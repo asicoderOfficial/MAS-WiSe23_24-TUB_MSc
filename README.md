@@ -8,6 +8,7 @@ This repository contains the source code for the Multi-Agent Techniques 1st deli
 1. [Overview](#overview)
 2. [Installation](#installation)
 3. [Usage](#usage)
+4. [Structure](#structure)
 4. [License](#license)
 5. [Acknowledgements](#acknowledgements)
 
@@ -17,7 +18,7 @@ Pickup & delivery tasks in the real world usually involve multiple entities (age
 
 In the present work, we develop a multi-agent system for package distribution in a grid, where intermediate package points enhance delegation and obstacles randomly appear & disappear.
 
-![Getting Started](./imgs/environment_sample.jpeg)
+![Environment sample](./imgs/environment_sample.jpeg)
 
 ## Installation
 
@@ -35,3 +36,18 @@ Run the main.py file like
 ```python
 python -m src.main
 ```
+
+
+## Structure
+See the structure of the source code:
+
+![Src structure](./imgs/src_structure.PNG)
+
+## License
+
+MIT License.
+
+## Acknowledgements
+- Asier Serrano Aramburu
+- Maxim Popov
+- Omadbek Meliev 
