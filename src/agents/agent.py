@@ -57,8 +57,6 @@ class Agent(MesaAgent):
             None 
         """
 
-        # TODO: Strategies (agents sub-classes)
-        # TODO: Determine which action to perform (pick package, deliver package or move)
         perception = self.perception.percept(self.pos, grid)
     
 
@@ -96,8 +94,6 @@ class Agent(MesaAgent):
         Returns:
             None
         """        
-        # By now, the agent only moves to the right.
-        # TODO: Implement a more complex movement (strategies, Dijkstra, pheromones, check basic movement rules, etc.)
         if self.can_move_to(chosen_new_position, perception, grid.width, grid.height):
             grid.move_agent(self, chosen_new_position)
         else:
@@ -147,7 +143,6 @@ class Agent(MesaAgent):
         Returns:
             None
         """        
-        # TODO: logic for case of intermediate point/end point
         cell_entities = [cell_entity for cell_entity in grid[self.pos.x][self.pos.y] if isinstance(cell_entity, PackagePoint)]
         if not cell_entities:
             raise Exception(f'The agent cannot deliver package with id: {package.id}, as the agent is is not in the same cell')

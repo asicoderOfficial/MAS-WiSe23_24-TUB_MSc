@@ -121,9 +121,9 @@ class Obstacle:
                                 continue
                             break
                         # No valid position exists for the obstacle in the environment.
-                        # TODO: This is a colision! Solve it in some way.
-                        #raise Exception('No valid position exists for the obstacle in the environment.')
-                        # By now, the obstacle is just no placed. A solution could be to shrink it, or to divide it in n smaller obstacles
+                        # By now, the obstacle is just no placed. 
+                        # A solution could be to shrink it, or to divide it in n smaller obstacles.
+                        # However, this is not implemented by now.
         else:
             self.cells_with_obstacle = self._cells()
         
