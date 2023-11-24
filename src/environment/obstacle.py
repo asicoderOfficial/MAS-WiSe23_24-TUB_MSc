@@ -32,6 +32,7 @@ class Obstacle:
         self.iterations_left = duration
         self.starting_iteration = starting_iteration
         self.pos_determination = position_determination
+        self.cells_with_obstacle = []
 
 
     def step(self, current_iteration: int, grid) -> None:
@@ -139,6 +140,7 @@ class Obstacle:
         Returns:
             None
         """        
+        
         for cell in self.cells_with_obstacle:
             obstacle_cell = [obs for obs in grid._grid[cell.pos.x][cell.pos.y] if isinstance(obs, ObstacleCell)][0]
             grid.remove_agent(obstacle_cell)

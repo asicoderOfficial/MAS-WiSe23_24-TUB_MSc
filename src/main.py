@@ -1,3 +1,5 @@
+from datetime import datetime
+import os
 from src.agents.strategies.chain_agent import ChainAgent
 from src.agents.agent import Agent
 from src.agents.perception import Perception
@@ -12,7 +14,11 @@ from src.visualization.save import Save
 
 # Define seed for reproducibility, this will be used for the whole program
 random.seed(1)
-Save.log_dir = 'logs'
+
+timestamp = datetime.now()
+log_dir = f"logs/{timestamp}"
+os.makedirs(log_dir, exist_ok=True)
+Save.log_dir = log_dir
 
 
 
@@ -74,20 +80,36 @@ grid_width = 10
 starting_package_point_pos = Position(4, 4)
 starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=5, n_packages_per_spawn=5)
 # Intermediate package points
-n_intermediate_package_points = 5
+n_intermediate_package_points = 3
 # Ending package points
-n_ending_package_points = 3
+n_ending_package_points = 5
 # Obstacles
-obstacles = [Obstacle('o1', Position(0, 1), 1, 1, 1, 2)]
+total_iterations = 1000
+
+obstacle_number = 10
+obstacle_heights = [random.randint(1,3) for i in range(obstacle_number)]
+obstacle_widths = list(map(lambda x: x[1] if obstacle_heights[x[0]] == 1 else 1, enumerate([random.randint(1,3) for i in range(obstacle_number)])))
+obstacles = [
+    Obstacle('o1', Position(random.randint(0,grid_width-1), random.randint(0,grid_height-1)), width=obstacle_widths[i], height=obstacle_heights[i], starting_iteration=random.randint(1,total_iterations-1), duration=random.randint(1,5))
+    for i in range(obstacle_number)
+]
+
 # Agents
-total_n_agents = 2
+total_n_agents = 4
 n_shuffles = 1
+algorithm = 'dijkstra'
 agents_configurations = distribute_agents(total_n_agents, 
                                         {'GreedyAgent' :
                                          [
-                                            {'id':'gre1', 'position':None, 'packages':[], 'perception':Perception(3), 'algorithm_name':'dijkstra'},
-                                            {'id':'gre2', 'position':Position(4, 4), 'packages':[], 'perception':Perception(3), 'algorithm_name':'dijkstra'}
-                                        ] },
+                                            {'id':'gre1', 'position':None, 'packages':[], 'perception':Perception(1), 'algorithm_name':algorithm},
+                                            {'id':'gre2', 'position':starting_package_point_pos, 'packages':[], 'perception':Perception(1), 'algorithm_name':algorithm}
+                                         ],
+                                         'ChainAgent' : 
+                                         [
+                                            {'id':'cha1', 'position':None, 'package':[], 'perception':Perception(1), 'goal_package_point':PACKAGE_POINT_INTERMEDIATE, 'algorithm_name':'dijkstra'},
+                                            {'id':'cha2', 'position':starting_package_point_pos, 'package':[], 'perception':Perception(1), 'goal_package_point':PACKAGE_POINT_INTERMEDIATE, 'algorithm_name':'dijkstra'}, 
+                                        ] 
+                                        },
                                         n_shuffles)
 """
 agents_configurations = distribute_agents(total_n_agents, 
@@ -100,15 +122,17 @@ agents_configurations = distribute_agents(total_n_agents,
 """
 agents = agents_configurations[0]
 
+
 environment = Environment(grid_height, grid_width, agents, starting_package_point, n_intermediate_package_points, n_ending_package_points, obstacles)
 
 m = environment.grid_as_matrix(mode='visualization')
 for m_i in range(len(m)):
     print(m[m_i])
 
+for agent in agents:
+    Save.save_agent_data(agent, 0, "init_agent_data.csv")
 
-iterations = 16
-for iteration in range(1, iterations+1):
+for iteration in range(1, total_iterations+1):
     print(f'Iteration {iteration}')
     environment.step()
     m = environment.grid_as_matrix(mode='visualization')

@@ -48,6 +48,14 @@ class GreedyAgent(Agent):
                 self.move(next_pos, perception, grid)
         else:
             # The agent is not carrying a package. Has to go pick one.
+            if self.goal_package and self.goal_package.picked:
+                # We have defined a goal,
+                # are in the originally defined destination, but
+                # the package is not available anymore.
+                # Define a new destination
+                self.goal_package = None
+                self.goal_package_point_destination = None
+                self.goal_package_point_point_type = None
             if self.goal_package_point_destination is not None:
                 if self.pos.x == self.goal_package.pos.x and self.pos.y == self.goal_package.pos.y:
                     entities_in_goal_cell = [entity for entity in grid._grid[self.pos.x][self.pos.y] if isinstance(entity, Package) and entity.id == self.goal_package.id]

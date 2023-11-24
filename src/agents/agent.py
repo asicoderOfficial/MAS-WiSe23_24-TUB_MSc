@@ -168,4 +168,4 @@ class Agent(MesaAgent):
         else:
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
         
-        print(f"Agent {self.id}: Delivered package!")
+        print(f"Agent {self.id}: Delivered package {package.id}!")

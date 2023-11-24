@@ -6,14 +6,26 @@ import os
 
 class Save:
     log_dir = None
-    def save_to_csv(agent_data, filename="agent_data.csv"):
-        with open(filename, mode="w", newline="") as file:
+    # def save_to_csv(agent_data, filename="agent_data.csv"):
+    #     with open(filename, mode="w", newline="") as file:
+    #         writer = csv.writer(file)
+    #         # Header
+    #         writer.writerow(["AgentID", "PackageID", "PackagePoint X", "PackagePoint Y", "Delayed", "OriginPackage X", "OriginPackage Y"])
+    #         # data
+    #         for agent in agent_data:
+    #             writer.writerow([agent.id, agent.package.id, agent.package.destination.x, agent.package.destination.y, agent.package.is_delayed, agent.package.pos.x, agent.package.pos.y])
+
+    def save_agent_data(agent, iteration_num=None, filename="agent_data.csv"):
+        filename = f"{Save.log_dir}/{filename}"
+        file_exists = os.path.exists(filename)
+        with open(filename, mode="a", newline="") as file:
             writer = csv.writer(file)
-            # Header
-            writer.writerow(["AgentID", "PackageID", "PackagePoint X", "PackagePoint Y", "Delayed", "OriginPackage X", "OriginPackage Y"])
+            if not file_exists:
+                # Header
+                writer.writerow(["iteration", "AgentID", "Strategy", "Pos X", "Pos Y", "algorithm"])
             # data
-            for agent in agent_data:
-                writer.writerow([agent.id, agent.package.id, agent.package.destination.x, agent.package.destination.y, agent.package.is_delayed, agent.package.pos.x, agent.package.pos.y])
+            writer.writerow([iteration_num, agent.id, type(agent), agent.pos.x, agent.pos.y, agent.algorithm_name])
+            
 
     def save_to_csv_package(package, delivered=True):
         if delivered:
