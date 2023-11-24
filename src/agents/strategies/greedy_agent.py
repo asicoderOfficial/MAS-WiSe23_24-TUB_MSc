@@ -12,16 +12,18 @@ from src.utils.grid2matrix import convert_grid_to_matrix
 class GreedyAgent(Agent):
     def __init__(self, id: str, position: Position, packages: List[Package], 
                  perception: Perception, algorithm_name: str, decision: int=0) -> None:
-        """Chain Agent delivers package only to specific package point type and returns to origin position after delivering package.
+        """ GreedyAgent picks up the most optimal package he can perceive and directly delivers it to its ending package point.
 
         Args:
             id (str): The ID to identify the agent.
             position (Position): The position of the agent in the environment.
-            origin (Union[Position, None]): Origin position of agent (assigned home), where agent should return if it is not carrying package. 
-                                            If not defined, agent will return to first encountered package point
-            package (Union[Package, None]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
+            packages (List[Package]): The package the agent is carrying. If the agent is not carrying any package, this value is None.
             perception (Perception): The subgrid the agent is currently perceiving.
-            package_point_type (str): Agent's goal package point type, agent will deliver package only to this type of package point.
+            algorithm_name (str): The name of the algorithm the agent will use to move optimally.
+            decision (int, optional): The decision parameter the agent will use to select the package to pick up. Defaults to 0.
+        
+        Returns:
+            None
         """
         super().__init__(id, position, packages, perception, algorithm_name)
         self.goal_package = None

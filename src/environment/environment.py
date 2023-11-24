@@ -27,16 +27,8 @@ class Environment(Model):
         Args:
             grid_height (int): Height of the grid (number of rows)
             grid_width (int): Width of the grid (number of columns)
-            agents_distribution (dict) : The types of agents and their distribution when first appearing in the grid. Example:
-                agents_distribution = {
-                    'GreedyAgent': {
-                        5 : {'id':'ga_start', 'position':Position(5, 5), 'package':Package(...), 'perception':Perception(...), 'algorithm_name':'dijkstra'},
-                        2 : {'id':'ga_intermediate', 'position':None, 'package':Package(...), 'perception':Perception(...), 'algorithm_name':'pheromones'}
-                    }
-                }
-
-                That would create 5 greedy agents that start where the position is specified (typically, the starting package point position), 
-                and 2 greedy agents that start in the 2 closest intermediate package points to the starting package point.
+            agents_distribution (list): List of agents to be distributed in the environment. 
+                Some of them may have a position specified, some of them may not and will automatically be placed according to the agents_distribution_strategy parameter.
             starting_package_point (PackagePoint): The starting package point where packages are generated from.
             n_intermediate_package_points (int): Number of intermediate package points in the environment.
             n_ending_package_points (int): Number of ending package points in the environment.

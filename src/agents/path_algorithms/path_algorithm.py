@@ -8,7 +8,17 @@ class PathAlgorithm():
     def get_next_position(self):
         pass
     
-    def get_available_directions(self, pos: Position, perception: List[List], grid):
+    def get_available_directions(self, pos: Position, perception: List[List], grid) -> list:
+        """ Where the agent can go to.
+
+        Args:
+            pos (Position): Where the agent is at.
+            perception (List[List]): What the agent can see.
+            grid (_type_): The grid of the environment.
+
+        Returns:
+            list: The available directions the agent can go to.
+        """        
         available_moves = [(1,0), (0,1), (-1,0), (0,-1)]
         available_moves = [move for move in available_moves if self.can_move_to(pos + move, perception, grid.width, grid.height)]
         if available_moves == []:
@@ -23,6 +33,8 @@ class PathAlgorithm():
         Args:
             chosen_new_position (Position): The position the agent wants to move to.
             perception (List[List]): The current state of the environment.
+            grid_width (int): The width of the grid.
+            grid_height (int): The height of the grid.
 
         Returns:
             bool: True if the agent can move to the chosen position, False otherwise.
