@@ -37,7 +37,8 @@ class GreedyAgent(Agent):
             # The agent is carrying a package
             if self.pos.x == self.goal_package_point_destination.x and self.pos.y == self.goal_package_point_destination.y:
                 # We are in the destination, deliver package
-                self.deliver_package(self.packages[0], self.goal_package_point_destination, grid)
+                goal_package_point_in_grid = [entity for entity in grid._grid[self.pos.x][self.pos.y] if isinstance(entity, PackagePoint)][0]
+                self.deliver_package(self.packages[0], goal_package_point_in_grid, grid)
                 self.goal_package = None
                 self.goal_package_point_destination = None
                 self.goal_package_point_point_type = None
@@ -46,10 +47,12 @@ class GreedyAgent(Agent):
                 next_pos = self.get_next_position(grid, perception, self.goal_package_point_destination, self.goal_package_point_point_type)
                 self.move(next_pos, perception, grid)
         else:
-            # The agent is not carrying a package
+            # The agent is not carrying a package. Has to go pick one.
             if self.goal_package_point_destination is not None:
-                if self.pos.x == self.goal_package_point_destination.x and self.pos.y == self.goal_package_point_destination.y:
-                    if self.goal_package.picked == False:
+                if self.pos.x == self.goal_package.pos.x and self.pos.y == self.goal_package.pos.y:
+                    entities_in_goal_cell = [entity for entity in grid._grid[self.pos.x][self.pos.y] if isinstance(entity, Package) and entity.id == self.goal_package.id]
+                    goal_package_in_grid = entities_in_goal_cell[0] if len(entities_in_goal_cell) > 0 else None
+                    if goal_package_in_grid is not None and self.pos.x == goal_package_in_grid.pos.x and self.pos.y == goal_package_in_grid.pos.y and goal_package_in_grid.picked == False:
                         # We have defined a goal,
                         # are in the destination and
                         # the package is available.
@@ -58,8 +61,8 @@ class GreedyAgent(Agent):
                         self.goal_package = self.packages[0]
                     else:
                         # We have defined a goal,
-                        # are in the destination but
-                        # the package is not available.
+                        # are in the originally defined destination, but
+                        # the package is not available anymore.
                         # Define a new destination
                         self.goal_package = None
                         self.goal_package_point_destination = None
