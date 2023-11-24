@@ -1,5 +1,5 @@
 from typing import List
-from agents.path_algorithms.path_algorithm import PathAlgorithm
+from src.agents.path_algorithms.path_algorithm import PathAlgorithm
 from src.environment.obstacle import Obstacle
 from src.utils.position import Position
 import random
