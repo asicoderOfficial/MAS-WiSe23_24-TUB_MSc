@@ -113,10 +113,6 @@ class GreedyAgent(Agent):
                         distances_to_destination.sort(key=lambda x: x[1])
                         self.define_goal(distances_to_agent, grid)
                 
-                if not self.goal_package:
-                    # Do a random move
-                    self.random_move(grid, perception)
-
 
     def define_goal(self, distances: list, grid) -> None:
         self.goal_package = distances[0][0]
@@ -126,24 +122,20 @@ class GreedyAgent(Agent):
 
     
     def random_move(self, grid, perception) -> None:
-        if self.pos.x == 0 and self.pos.y == 0:
-            self.move(Position(self.pos.x + random.randint(0, 1), self.pos.y + random.randint(0, 1)), perception, grid)
-        elif self.pos.x == 0 and self.pos.y == grid.height - 1:
-            self.move(Position(self.pos.x + random.randint(0, 1), self.pos.y + random.randint(-1, 0)), perception, grid)
-        elif self.pos.x == grid.width - 1 and self.pos.y == 0:
-            self.move(Position(self.pos.x + random.randint(-1, 0), self.pos.y + random.randint(0, 1)), perception, grid)
-        elif self.pos.x == grid.width - 1 and self.pos.y == grid.height - 1:
-            self.move(Position(self.pos.x + random.randint(-1, 0), self.pos.y + random.randint(-1, 0)), perception, grid)
-        elif self.pos.x == 0:
-            self.move(Position(self.pos.x + random.randint(0, 1), self.pos.y + random.randint(-1, 1)), perception, grid)
-        elif self.pos.x == grid.width - 1:
-            self.move(Position(self.pos.x + random.randint(-1, 0), self.pos.y + random.randint(-1, 1)), perception, grid)
-        elif self.pos.y == 0:
-            self.move(Position(self.pos.x + random.randint(-1, 1), self.pos.y + random.randint(0, 1)), perception, grid)
-        elif self.pos.y == grid.height - 1:
-            self.move(Position(self.pos.x + random.randint(-1, 1), self.pos.y + random.randint(-1, 0)), perception, grid)
-        else:
-            self.move(Position(self.pos.x + random.randint(-1, 1), self.pos.y + random.randint(-1, 1)), perception, grid)
+        # Generate random values for x and y directions separately
+        delta_x = random.choice([-1, 0, 1])
+        # Avoid diagonal moves
+        delta_y = 0 if delta_x != 0 else random.choice([-1, 1])
+
+        # Calculate the new coordinates
+        new_x = self.pos.x + delta_x
+        new_y = self.pos.y + delta_y
+
+        # Clamp the new coordinates to stay within the grid boundaries
+        new_x = max(0, min(new_x, grid.width - 1))
+        new_y = max(0, min(new_y, grid.height - 1))
+
+        self.move(Position(new_x, new_y), perception, grid)
 
 
     def get_next_position(self, grid, perception, destination: Position, destination_type: str) -> Position:
