@@ -1,4 +1,4 @@
-from src.agents.chain_agent import ChainAgent
+from src.agents.strategies.chain_agent import ChainAgent
 from src.agents.agent import Agent
 from src.agents.perception import Perception
 from src.utils.position import Position

@@ -4,17 +4,16 @@ from copy import deepcopy
 from mesa import Agent as MesaAgent
 from mesa.space import MultiGrid
 
-from src.agents.strategies.pheromone import PheromonePath
+from src.agents.path_algorithms.pheromone import PheromonePath
 from src.utils.position import Position
 from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PackagePoint
 from src.agents.perception import Perception
 from src.environment.obstacle import Obstacle
 
-from src.agents.strategies.dijkstra import Dijkstra
+from src.agents.path_algorithms.dijkstra import Dijkstra
 from src.utils.grid2matrix import convert_grid_to_matrix
 from src.visualization.save import Save
-count = 0
 
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""

@@ -1,7 +1,7 @@
 from typing import List, Union
 from src.agents.agent import Agent
 from src.agents.perception import Perception
-from src.agents.strategies.pheromone import PheromonePath
+from src.agents.path_algorithms.pheromone import PheromonePath
 from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START
 from src.utils.position import Position

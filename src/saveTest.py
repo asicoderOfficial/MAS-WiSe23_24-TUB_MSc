@@ -1,5 +1,5 @@
 from datetime import datetime
-from src.agents.chain_agent import ChainAgent
+from agents.strategies.chain_agent import ChainAgent
 from src.agents.agent import Agent
 from src.agents.perception import Perception
 from src.utils.position import Position

@@ -4,7 +4,7 @@ from typing import List
 
 from mesa import Model
 from mesa.space import MultiGrid
-from src.agents.chain_agent import ChainAgent
+from agents.strategies.chain_agent import ChainAgent
 from src.agents.strategies.greedy_agent import GreedyAgent
 
 from src.agents.agent import Agent
