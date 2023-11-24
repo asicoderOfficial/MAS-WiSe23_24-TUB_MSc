@@ -80,31 +80,41 @@ n_ending_package_points = 3
 # Obstacles
 obstacles = [Obstacle('o1', Position(0, 1), 1, 1, 1, 2)]
 # Agents
-total_n_agents = 10
+total_n_agents = 2
 n_shuffles = 1
-agents_configurations = distribute_agents(total_n_agents, {'ChainAgent' : [
-                                        {'id':'cha1', 'position':None, 'package':[], 'perception':Perception(1), 'goal_package_point':PACKAGE_POINT_INTERMEDIATE, 'algorithm_name':'dijkstra'},
-                                        {'id':'cha2', 'position':Position(4, 4), 'package':[], 'perception':Perception(1), 'goal_package_point':PACKAGE_POINT_INTERMEDIATE, 'algorithm_name':'dijkstra'}
-                                       ]
-                            }, 3)
+agents_configurations = distribute_agents(total_n_agents, 
+                                        {'GreedyAgent' :
+                                         [
+                                            {'id':'gre1', 'position':None, 'packages':[], 'perception':Perception(3), 'algorithm_name':'dijkstra'},
+                                            {'id':'gre2', 'position':Position(4, 4), 'packages':[], 'perception':Perception(3), 'algorithm_name':'dijkstra'}
+                                        ] },
+                                        n_shuffles)
+"""
+agents_configurations = distribute_agents(total_n_agents, 
+                                        {'ChainAgent' : 
+                                         [
+                                            {'id':'cha1', 'position':None, 'package':[], 'perception':Perception(1), 'goal_package_point':PACKAGE_POINT_INTERMEDIATE, 'algorithm_name':'dijkstra'},
+                                            {'id':'cha2', 'position':Position(4, 4), 'package':[], 'perception':Perception(1), 'goal_package_point':PACKAGE_POINT_INTERMEDIATE, 'algorithm_name':'dijkstra'}
+                                        ] },
+                                        n_shuffles)
+"""
 agents = agents_configurations[0]
 
 environment = Environment(grid_height, grid_width, agents, starting_package_point, n_intermediate_package_points, n_ending_package_points, obstacles)
 
 m = environment.grid_as_matrix(mode='visualization')
-print('Initial state')
-for i in range(len(m)):
-    print(m[i])
-print()
+for m_i in range(len(m)):
+    print(m[m_i])
 
 
-iterations = 40
+iterations = 16
 for iteration in range(1, iterations+1):
     print(f'Iteration {iteration}')
     environment.step()
     m = environment.grid_as_matrix(mode='visualization')
     for i in range(len(m)):
         print(m[i])
+    print()
     print()
     # m = environment.grid_as_matrix(mode='pheromone')
     # for i in range(len(m)):
