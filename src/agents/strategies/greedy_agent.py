@@ -4,6 +4,7 @@ from src.agents.agent import Agent
 from src.agents.perception import Perception
 from src.environment.package import Package
 from src.utils.position import Position
+from src.environment.package_point import PackagePoint
 from src.utils.grid2matrix import convert_grid_to_matrix
 
 
@@ -24,65 +25,103 @@ class GreedyAgent(Agent):
         """
         super().__init__(id, position, packages, perception, algorithm_name)
         self.goal_package = None
+        self.goal_package_point_destination = None
         self.decision = decision
         self.previous_point = None
+        self.goal_package_point_point_type = None
 
 
     def step(self, grid) -> None:
         perception = self.perception.percept(self.pos, grid)
-        if self.goal_package:
-            if self.goal_package.destination.x == self.pos.x and self.goal_package.destination.y == self.pos.y:
+        if len(self.packages) == 1:
+            # The agent is carrying a package
+            if self.pos.x == self.goal_package_point_destination.x and self.pos.y == self.goal_package_point_destination.y:
                 # We are in the destination, deliver package
-                self.deliver_package(self.goal_package, self.goal_package.destination, grid)
+                self.deliver_package(self.packages[0], self.goal_package_point_destination, grid)
                 self.goal_package = None
+                self.goal_package_point_destination = None
+                self.goal_package_point_point_type = None
             else:
-                # We are carrying a package, but still did not reach the destination
-                # Move towards the destination using the algorithm specified in the constructor
-                print(self.goal_package)
-                print(self.goal_package.destination)
-                next_pos = self.get_next_position(grid, perception, self.goal_package.destination, '')
+                # We still did not reach the destination
+                next_pos = self.get_next_position(grid, perception, self.goal_package_point_destination, self.goal_package_point_point_type)
                 self.move(next_pos, perception, grid)
-        visible_packages_available = [item for items in perception.values() for item in items if isinstance(item, Package) and item.picked == False]
-        if not visible_packages_available:
-            # Do a random move
-            self.random_move(grid, perception)
         else:
-            # Select the package based on decision parameter:
-            # 0 - closest package to the agent
-            # 1 - closest package not delayed
-            # 2 - package that is closer to be delayed (but still is not)
-            # 3 - package closer to its destination
-            if self.decision == 0:
-                distances_to_agent = []
-                for package in visible_packages_available:
-                    distances_to_agent.append((package, package.pos.dist_to(self.pos)))
-                distances_to_agent.sort(key=lambda x: x[1])
-                self.goal_package = distances_to_agent[0][0]
-            elif self.decision == 1:
-                distances_to_agent = []
-                for package in visible_packages_available:
-                    if not package.is_delayed:
-                        distances_to_agent.append((package, package.pos.dist_to(self.pos)))
-                distances_to_agent.sort(key=lambda x: x[1])
-                self.goal_package = distances_to_agent[0][0]
-            elif self.decision == 2:
-                iterations_to_be_delayed = []
-                for package in visible_packages_available:
-                    if not package.is_delayed:
-                        iterations_to_be_delayed.append((package, package.max_iterations_to_deliver - package.iterations))
-                iterations_to_be_delayed.sort(key=lambda x: x[1])
-                self.goal_package = iterations_to_be_delayed[0][0]
-            elif self.decision == 3:
-                distances_to_destination = []
-                for package in visible_packages_available:
-                    distances_to_destination.append((package, package.pos.dist_to(package.destination.pos)))
-                distances_to_destination.sort(key=lambda x: x[1])
-                self.goal_package = distances_to_destination[0][0]
-        
-        if not self.goal_package:
-            # Do a random move
-            self.random_move(grid, perception)
-         
+            # The agent is not carrying a package
+            if self.goal_package_point_destination is not None:
+                if self.pos.x == self.goal_package_point_destination.x and self.pos.y == self.goal_package_point_destination.y:
+                    if self.goal_package.picked == False:
+                        # We have defined a goal,
+                        # are in the destination and
+                        # the package is available.
+                        # Pick up the package
+                        self.pick_package(self.goal_package, grid)
+                        self.goal_package = self.packages[0]
+                    else:
+                        # We have defined a goal,
+                        # are in the destination but
+                        # the package is not available.
+                        # Define a new destination
+                        self.goal_package = None
+                        self.goal_package_point_destination = None
+                        self.goal_package_point_point_type = None
+                else:
+                    # We have defined a goal,
+                    # but are not in the destination.
+                    # Keep moving towards the destination using the algorithm specified in the constructor
+                    next_pos = self.get_next_position(grid, perception, self.goal_package_point_destination, self.goal_package_point_point_type)
+                    self.move(next_pos, perception, grid)
+            else:
+                # We have not defined a goal
+                # Define it based on decision parameter:
+                visible_packages_available = [item for items in perception.values() for item in items if isinstance(item, Package) and item.picked == False]
+                if not visible_packages_available:
+                    # Do a random move
+                    self.random_move(grid, perception)
+                else:
+                    # Select the package based on decision parameter:
+                    if self.decision == 0:
+                        # 0 - closest package to the agent
+                        distances_to_agent = []
+                        for package in visible_packages_available:
+                            distances_to_agent.append((package, package.pos.dist_to(self.pos)))
+                        distances_to_agent.sort(key=lambda x: x[1])
+                        self.define_goal(distances_to_agent, grid)
+                    elif self.decision == 1:
+                        # 1 - closest package not delayed
+                        distances_to_agent = []
+                        for package in visible_packages_available:
+                            if not package.is_delayed:
+                                distances_to_agent.append((package, package.pos.dist_to(self.pos)))
+                        distances_to_agent.sort(key=lambda x: x[1])
+                        self.define_goal(distances_to_agent, grid)
+                    elif self.decision == 2:
+                        # 2 - package that is closer to be delayed (but still is not)
+                        iterations_to_be_delayed = []
+                        for package in visible_packages_available:
+                            if not package.is_delayed:
+                                iterations_to_be_delayed.append((package, package.max_iterations_to_deliver - package.iterations))
+                        iterations_to_be_delayed.sort(key=lambda x: x[1])
+                        self.define_goal(distances_to_agent, grid)
+                    elif self.decision == 3:
+                        # 3 - package closer to its destination
+                        distances_to_destination = []
+                        for package in visible_packages_available:
+                            distances_to_destination.append((package, package.pos.dist_to(package.destination.pos)))
+                        distances_to_destination.sort(key=lambda x: x[1])
+                        self.define_goal(distances_to_agent, grid)
+                
+                if not self.goal_package:
+                    # Do a random move
+                    self.random_move(grid, perception)
+
+
+    def define_goal(self, distances: list, grid) -> None:
+        self.goal_package = distances[0][0]
+        self.goal_package_point_destination = self.goal_package.destination
+        destination_package_point = [entity for entity in grid._grid[self.goal_package_point_destination.x][self.goal_package_point_destination.y] if isinstance(entity, PackagePoint)]
+        self.goal_package_point_point_type = destination_package_point[0].point_type
+
+    
     def random_move(self, grid, perception) -> None:
         if self.pos.x == 0 and self.pos.y == 0:
             self.move(Position(self.pos.x + random.randint(0, 1), self.pos.y + random.randint(0, 1)), perception, grid)
