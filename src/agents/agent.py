@@ -3,6 +3,8 @@ from copy import deepcopy
 
 from mesa import Agent as MesaAgent
 from mesa.space import MultiGrid
+from src.environment.communication.broker import Broker
+from src.environment.communication.communication_layer import CommunicationLayer, Message
 
 from src.agents.path_algorithms.pheromone import PheromonePath
 from src.utils.position import Position
@@ -164,3 +166,24 @@ class Agent(MesaAgent):
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
         
         print(f"Agent {self.id}: Delivered package {package.id}!")
+
+    def receive_message(self, message):
+        print(f"{self.id}: Received message: {message}")
+        # TODO: message logic, what to do when a certain message is received
+        
+    def send_broker_message(self, message: Message):
+        """Send message to a broker
+
+        Args:
+            message (Message): message to be sent
+        """
+        CommunicationLayer.send_to_broker(message)
+        
+    def send_agent_message(self, message: Message):
+        """Send message to an agent
+
+        Args:
+            message (Message): message to be sent
+        """
+        CommunicationLayer.send_to_agent(message)
+        
