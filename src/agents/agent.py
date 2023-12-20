@@ -168,9 +168,10 @@ class Agent(MesaAgent):
         print(f"Agent {self.id}: Delivered package {package.id}!")
 
     def receive_message(self, message):
-        print(f"{self.id}: Received message: {message}")
+        print("AGENT " + f"{self.id}: Received message: {message}")
         # TODO: message logic, what to do when a certain message is received
-        
+        # TODO: let's think about the logic what we should do after parcel was received and brokers knows about it
+
     def send_broker_message(self, message: Message):
         """Send message to a broker
 
@@ -178,12 +179,13 @@ class Agent(MesaAgent):
             message (Message): message to be sent
         """
         CommunicationLayer.send_to_broker(message)
-        
-    def send_agent_message(self, message: Message):
+
+    def send_agent_message(self, destination_agent_id: str, message: Message):
         """Send message to an agent
 
         Args:
+            destination_agent_id (str) ID of the destination agent
             message (Message): message to be sent
         """
-        CommunicationLayer.send_to_agent(message)
+        CommunicationLayer.send_to_agent(destination_agent_id, message)
         
