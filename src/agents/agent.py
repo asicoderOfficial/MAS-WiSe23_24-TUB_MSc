@@ -20,7 +20,7 @@ from src.visualization.save import Save
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
 
-    def __init__(self, id: str, position: Position, packages: List[Package], perception: Perception, algorithm_name: str) -> None:
+    def __init__(self, id: str, position: Position, packages: List[Package], perception: Perception, algorithm_name: str, goal_package_point=None) -> None:
         """ Constructor.
 
         Args:
@@ -41,6 +41,7 @@ class Agent(MesaAgent):
         self.packages = packages
         self.perception = perception
         self.algorithm_name = algorithm_name
+        self.goal_package_point = goal_package_point
         if self.algorithm_name == 'dijkstra':
             self.algorithm = Dijkstra()
         elif self.algorithm_name == 'pheromones':

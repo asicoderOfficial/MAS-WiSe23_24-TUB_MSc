@@ -3,6 +3,8 @@ from src.environment.communication.communication_layer import CommunicationLayer
 
 
 class Broker:
+    def __init__(self, broker_id):
+        self.id = broker_id
     def send_message(self,  message: Message):
         print("Broker: Sending message to an agent", message.destination_id)
         CommunicationLayer.send_to_agent(message.destination_id, message)
@@ -17,7 +19,7 @@ class Broker:
 
 
     def send_pickup_request(self, agent_id, package_id, intermediate_point):
-        message = Message("request_pickup", self.id, intermediate_point, {"package_id": package_id})
+        message = Message("request_pickup", self.id, agent_id, {"package_id": package_id, "intermediate_point": intermediate_point})
         CommunicationLayer.send_to_agent(agent_id, message)
 
     # logic for receiving information when agent will take parcel
