@@ -2,6 +2,9 @@ from typing import List
 from enum import Enum
 from typing import Dict
 
+MSG_PICKUP_RESPONSE = "pickup_response"
+MSG_PICKUP_REQUEST = "pickup_request"
+MSG_DELIVERY_NOTIFY = "delivery_notify"
 
 class Message:
     def __init__(self, type: str, sender_id: str, destination_id: str, value: Dict) -> None:
