@@ -4,6 +4,8 @@ from typing import List
 
 from mesa import Model
 from mesa.space import MultiGrid
+from src.environment.communication.broker import Broker
+from src.environment.communication.communication_layer import CommunicationLayer
 from src.agents.strategies.chain_agent import ChainAgent
 from src.agents.strategies.greedy_agent import GreedyAgent
 
@@ -57,12 +59,12 @@ class Environment(Model):
         self.intermediate_package_points = []
         self.ending_package_points = []
 
-        
         self.current_iteration = 0
 
         # Create self.grid with grid_height rows and grid_width columns
         self.grid = MultiGrid(width=self.grid_width, height=self.grid_height, torus=False)
         self.init_grid()
+        self.init_communication_layer()
 
 
     def step(self) -> None:
@@ -87,6 +89,9 @@ class Environment(Model):
 
         self.current_iteration += 1
             
+    def init_communication_layer(self) -> None:
+        self.broker = Broker("broker")
+        CommunicationLayer.instance(self.agents, self.broker)
 
     def init_grid(self) -> None:
         """ Initializes the grid with the static entities (Package Points, Obstacles and Packages).

@@ -39,12 +39,12 @@ class CommunicationLayer:
     def send_to_agent(cls, agent_id, message: Message):
         for agent in cls.agents:
             if agent.id == agent_id:
-                agent.receive_message(message)
+                return agent.receive_message(message)
                 break
         else:
             raise RuntimeError(f"No destination agent with id {message.destination_id} found")
 
-    def get_all_agent_destinations(cls):
+    def get_all_agent_ids(cls):
         return cls.agents
 
     # notify all agents in our grid. (When broker sends messages to all agents)
@@ -55,7 +55,7 @@ class CommunicationLayer:
 
     # returns a list of all agent destinations
     @classmethod
-    def all_agent_destinations(cls):
-        return cls.agents
+    def get_all_agent_ids(cls):
+        return [agent.id for agent in cls.agents]
 
 

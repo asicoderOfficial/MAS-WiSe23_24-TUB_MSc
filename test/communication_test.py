@@ -13,7 +13,7 @@ package_id = "123"
 intermediate_point = "A"
 intermediate_point_pos = (5,5)
 
-agent1 = CommunicationChainAgent(id="1", position=Position(0, 0), package=[], perception=Perception(1), algorithm_name="dijkstra", goal_package_point=PACKAGE_POINT_INTERMEDIATE)
+agent1 = CommunicationChainAgent(id="1", position=Position(0, 0), packages=[], perception=Perception(1), algorithm_name="dijkstra", goal_package_point=PACKAGE_POINT_INTERMEDIATE)
 #agent2 = CommunicationChainAgent("2", Position(1, 1), [], Perception(1), PACKAGE_POINT_INTERMEDIATE, "dijkstra")
 broker = Broker(broker_id="broker1")
 

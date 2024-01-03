@@ -4,7 +4,7 @@ from copy import deepcopy
 from mesa import Agent as MesaAgent
 from mesa.space import MultiGrid
 from src.environment.communication.broker import Broker
-from src.environment.communication.communication_layer import CommunicationLayer, Message
+from src.environment.communication.communication_layer import MSG_PICKUP_RESPONSE, CommunicationLayer, Message
 
 from src.agents.path_algorithms.pheromone import PheromonePath
 from src.utils.position import Position
@@ -20,7 +20,7 @@ from src.visualization.save import Save
 class Agent(MesaAgent):
     """ Parent class for all agents implemented in this project."""
 
-    def __init__(self, id: str, position: Position, packages: List[Package], perception: Perception, algorithm_name: str, goal_package_point=None) -> None:
+    def __init__(self, id: str, position: Position, packages: List[Package], perception: Perception, algorithm_name: str) -> None:
         """ Constructor.
 
         Args:
@@ -41,7 +41,7 @@ class Agent(MesaAgent):
         self.packages = packages
         self.perception = perception
         self.algorithm_name = algorithm_name
-        self.goal_package_point = goal_package_point
+        self.goal_package_point_type = None
         if self.algorithm_name == 'dijkstra':
             self.algorithm = Dijkstra()
         elif self.algorithm_name == 'pheromones':
@@ -101,6 +101,16 @@ class Agent(MesaAgent):
             grid.move_agent(self, chosen_new_position)
         else:
             raise Exception(f'The agent cannot move to the chosen position: {chosen_new_position}')
+
+    def get_next_position(self, grid, destination: Position) -> Position:
+        perception = self.perception.percept(self.pos, grid)
+        if self.algorithm_name == 'dijkstra':
+            chosen_new_position = self.algorithm.get_next_position(self.pos, destination, grid.height, grid.width, convert_grid_to_matrix(grid))
+        elif self.algorithm_name == 'pheromones':
+            chosen_new_position = self.algorithm.get_next_position(self.pos, self.previous_point, self.previous_point_type, destination, self.goal_package_point_type, perception, grid, False, True)
+        else:
+            raise Exception(f"Unknown algorithm: {self.algorithm_name}")
+        return chosen_new_position
 
 
     def pick_package(self, package: Package, grid) -> None:
@@ -168,10 +178,11 @@ class Agent(MesaAgent):
         
         print(f"Agent {self.id}: Delivered package {package.id}!")
 
-    def receive_message(self, message):
+    def receive_message(self, message) -> Message:
         print("AGENT " + f"{self.id}: Received message: {message}")
         # TODO: message logic, what to do when a certain message is received
         # TODO: let's think about the logic what we should do after parcel was received and brokers knows about it
+        return Message(MSG_PICKUP_RESPONSE, self.id, message.sender_id, {"response": "no"}) # placeholder
 
     def send_broker_message(self, message: Message):
         """Send message to a broker
