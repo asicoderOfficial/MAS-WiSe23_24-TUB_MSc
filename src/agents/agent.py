@@ -4,7 +4,7 @@ from copy import deepcopy
 from mesa import Agent as MesaAgent
 from mesa.space import MultiGrid
 from src.environment.communication.broker import Broker
-from src.environment.communication.communication_layer import MSG_PICKUP_RESPONSE, CommunicationLayer, Message
+from src.environment.communication.communication_layer import MSG_PICKUP_RESPONSE, MSG_PACKAGE_DELIVERED, CommunicationLayer, Message
 
 from src.agents.path_algorithms.pheromone import PheromonePath
 from src.utils.position import Position
@@ -141,7 +141,7 @@ class Agent(MesaAgent):
         if not cell_entities:
             raise Exception(f'The agent cannot pick package with id: {package.id} at position {self.pos} as there are no intermediate or starting points in the cell.')
 
-        self.packages.append(package)
+        self.append = self.packages.append(package)
         package.picked = True
         print(f"Agent {self.id}: Picked up package!")
 
@@ -170,9 +170,12 @@ class Agent(MesaAgent):
             Save.save_to_csv_package(package)
             grid.remove_agent(package)
             self.packages.remove(package)
+            self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker", {f"Package: {package.id}, was delivered to the ending point"}))
         elif package_point.point_type == package_point.point_type == PACKAGE_POINT_INTERMEDIATE:
             package.picked = False
             self.packages.remove(package)
+            self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker",
+                                             {f"Package: {package.id}, was delivered to the intermediate point"}))
         else:
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
         
