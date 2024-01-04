@@ -6,11 +6,13 @@ from src.utils.position import Position
 class Broker:
     def __init__(self, broker_id):
         self.id = broker_id
-        self.waiting_packages = []
+        self.waiting_packages_id_pos = {}
         
     def step(self):
-        for package in self.waiting_packages:
-            self.find_delivery_agent(package["package_id"], package["pos"])
+        for package_id, package_pos in self.waiting_packages_id_pos.copy().items():
+            found_agent = self.find_delivery_agent(package_id, package_pos)
+            if found_agent:
+                del self.waiting_packages_id_pos[package_id]
     
     def send_message(self,  message: Message):
         print("Broker: Sending message to an agent", message.destination_id)
@@ -48,11 +50,9 @@ class Broker:
             response = CommunicationLayer.send_to_agent(agent_id, message)
             if response is not None and response.value["response"] == "yes":
                 print(f"Agent {agent_id} accepted the pickup request. Assigning task...")
-                break
-        else:
-            print(f"No agent found to pick up package {package_id}. will repeat in the next step")
-            if new:
-                self.waiting_packages.append({
-                    "package_id": message.value["package_id"], 
-                    "pos": message.value["pos"],
-                })
+                return True    
+        
+        print(f"No agent found to pick up package {package_id}. will repeat in the next step")
+        if new:
+            self.waiting_packages_id_pos[message.value["package_id"]] =  message.value["pos"]
+        return False

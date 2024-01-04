@@ -170,12 +170,12 @@ class Agent(MesaAgent):
             Save.save_to_csv_package(package)
             grid.remove_agent(package)
             self.packages.remove(package)
-            self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker", {f"Package: {package.id}, will deliver to the ending point"}))
+            # self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker", {f"Package: {package.id}, will deliver to the ending point"}))
         elif package_point.point_type == package_point.point_type == PACKAGE_POINT_INTERMEDIATE:
             package.picked = False
             self.packages.remove(package)
-            self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker",
-                                             {f"Package: {package.id}, will deliver to the intermediate point"}))
+            # self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker",
+            #                                  {f"Package: {package.id}, will deliver to the intermediate point"}))
         else:
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
         

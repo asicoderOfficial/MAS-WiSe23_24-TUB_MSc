@@ -38,7 +38,7 @@ class Save:
             writer = csv.writer(file)
             if not file_exists:
                 # Header
-                writer.writerow(["PackageID", "PackagePoint X", "PackagePoint Y", "Delayed", "Delivery Time", "Intermediate X", "Intermediate Y"])
+                writer.writerow(["PackageID", "PackagePoint X", "PackagePoint Y", "Delayed", "Delivery Time", "End X", "End Y"])
             # data
             data = [
                 package.id, 

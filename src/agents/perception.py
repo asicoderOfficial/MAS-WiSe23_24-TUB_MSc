@@ -35,6 +35,9 @@ class Perception:
             List[List]: The subgrid the agent can perceive.
         """        
         visible_cells_positions = grid.get_neighborhood(agent_position, moore=True, include_center=True, radius=self.n_cells_around)
+        self.visible_packages = []
+        self.visible_obstacles = []
+        self.visible_package_points = []
         visible_cells_entities = {}
         for cell_position in visible_cells_positions:
             visible_cells_entities[cell_position] = grid.get_cell_list_contents(cell_position)

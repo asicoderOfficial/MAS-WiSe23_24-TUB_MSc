@@ -21,7 +21,7 @@ from src.visualization.save import Save
 random.seed(1)
 
 timestamp = datetime.now()
-log_dir = r'logs/{timestamp}'
+log_dir = f'logs/{timestamp}'
 os.makedirs(log_dir, exist_ok=True)
 Save.log_dir = log_dir
 

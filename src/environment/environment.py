@@ -4,6 +4,7 @@ from typing import List
 
 from mesa import Model
 from mesa.space import MultiGrid
+from src.agents.strategies.roaming_agent import RoamingAgent
 from src.environment.communication.broker import Broker
 from src.environment.communication.communication_layer import CommunicationLayer
 from src.agents.strategies.chain_agent import ChainAgent
@@ -22,7 +23,7 @@ class Environment(Model):
     """ The environment where the agents interact."""
 
     def __init__(self, grid_height: int, grid_width: int, agents: list,
-                 starting_package_point_pos: PackagePoint,
+                 starting_package_point: PackagePoint,
                  intermediate_package_points_pos: List[Position] = None,
                  ending_package_points_pos: List[Position] = None,
                  obstacles: List[Obstacle] = None,
@@ -59,7 +60,7 @@ class Environment(Model):
         self.ending_package_points_pos = ending_package_points_pos
         self.obstacles = obstacles
         self.agents = agents
-        self.starting_package_point_pos = starting_package_point_pos
+        self.starting_package_point = starting_package_point
         self.intermediate_package_points_list = []
         self.ending_package_points_list = []
 
@@ -88,7 +89,7 @@ class Environment(Model):
         for obstacle in self.obstacles:
             obstacle.step(self.current_iteration, self.grid)
 
-        self.starting_package_point_pos.step(self.current_iteration, self.grid, self.intermediate_package_points_list,
+        self.starting_package_point.step(self.current_iteration, self.grid, self.intermediate_package_points_list,
                                          self.ending_package_points_list)
 
         self.current_iteration += 1
@@ -103,7 +104,7 @@ class Environment(Model):
         """
         # Place static objects for the first time: package points
         # Starting package point
-        self.grid.place_agent(self.starting_package_point_pos, self.starting_package_point_pos.pos)
+        self.grid.place_agent(self.starting_package_point, self.starting_package_point.pos)
 
         # Intermediate package points
         if self.intermediate_package_points_pos is not None:
@@ -233,12 +234,12 @@ class Environment(Model):
                         self.ending_package_points.append(pp)
 
         # Spawn initial packages
-        self.starting_package_point_pos.step(self.current_iteration, self.grid, self.intermediate_package_points_list,
+        self.starting_package_point.step(self.current_iteration, self.grid, self.intermediate_package_points_list,
                                          self.ending_package_points_list)
 
         # Agents
         intermediate_package_point_index = 0
-        package_points_by_distance = [(pp, pp.pos.dist_to(self.starting_package_point_pos.pos)) for pp in
+        package_points_by_distance = [(pp, pp.pos.dist_to(self.starting_package_point.pos)) for pp in
                                       self.intermediate_package_points_list]
         package_points_by_distance.sort(key=lambda x: x[1])
         package_points_by_distance = [pp[0] for pp in package_points_by_distance]
@@ -315,6 +316,8 @@ class Environment(Model):
                                 cell += 'c'
                             if isinstance(entity, GreedyAgent):
                                 cell += 'g'
+                            if isinstance(entity, RoamingAgent):
+                                cell += 'r'
                             # Obstacles
                             if isinstance(entity, ObstacleCell):
                                 cell += 'o'
