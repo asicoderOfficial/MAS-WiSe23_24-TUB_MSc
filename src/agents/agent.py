@@ -170,12 +170,12 @@ class Agent(MesaAgent):
             Save.save_to_csv_package(package)
             grid.remove_agent(package)
             self.packages.remove(package)
-            self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker", {f"Package: {package.id}, was delivered to the ending point"}))
+            self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker", {f"Package: {package.id}, will deliver to the ending point"}))
         elif package_point.point_type == package_point.point_type == PACKAGE_POINT_INTERMEDIATE:
             package.picked = False
             self.packages.remove(package)
             self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker",
-                                             {f"Package: {package.id}, was delivered to the intermediate point"}))
+                                             {f"Package: {package.id}, will deliver to the intermediate point"}))
         else:
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
         
@@ -183,6 +183,7 @@ class Agent(MesaAgent):
 
     def receive_message(self, message) -> Message:
         print("AGENT " + f"{self.id}: Received message: {message}")
+        #Save.save_to_csv_messages(message, "Agent received message:")
         # TODO: message logic, what to do when a certain message is received
         # TODO: let's think about the logic what we should do after parcel was received and brokers knows about it
         return Message(MSG_PICKUP_RESPONSE, self.id, message.sender_id, {"response": "no"}) # placeholder
@@ -195,12 +196,12 @@ class Agent(MesaAgent):
         """
         CommunicationLayer.send_to_broker(message)
 
-    def send_agent_message(self, destination_agent_id: str, message: Message):
+ #   def send_agent_message(self, destination_agent_id: str, message: Message):
         """Send message to an agent
 
         Args:
             destination_agent_id (str) ID of the destination agent
             message (Message): message to be sent
         """
-        CommunicationLayer.send_to_agent(destination_agent_id, message)
+ #       CommunicationLayer.send_to_agent(destination_agent_id, message)
         

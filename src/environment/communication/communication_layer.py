@@ -2,6 +2,8 @@ from typing import List
 from enum import Enum
 from typing import Dict
 
+from src.visualization.save import Save
+
 MSG_PICKUP_RESPONSE = "pickup_response"
 MSG_PICKUP_REQUEST = "pickup_request"
 MSG_DELIVERY_NOTIFY = "delivery_notify"
@@ -35,11 +37,13 @@ class CommunicationLayer:
     @classmethod
     def send_to_broker(cls, message: Message):
         cls.broker.receive_message(message)
+        Save.save_to_csv_messages(message, "Message to broker:")
 
     @classmethod
     def send_to_agent(cls, agent_id, message: Message):
         for agent in cls.agents:
             if agent.id == agent_id:
+                Save.save_to_csv_messages(message, "Message to agent:")
                 return agent.receive_message(message)
                 break
         else:
@@ -47,12 +51,6 @@ class CommunicationLayer:
 
     def get_all_agent_ids(cls):
         return cls.agents
-
-    # notify all agents in our grid. (When broker sends messages to all agents)
-    @classmethod
-    def notify_agents(cls, message):
-        for agent in cls.agents:
-            agent.receive_message(message)
 
     # returns a list of all agent destinations
     @classmethod
