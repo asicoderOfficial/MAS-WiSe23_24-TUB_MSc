@@ -7,6 +7,7 @@ from src.visualization.save import Save
 MSG_PICKUP_RESPONSE = "pickup_response"
 MSG_PICKUP_REQUEST = "pickup_request"
 MSG_DELIVERY_NOTIFY = "delivery_notify"
+MSG_DELIVERY_ACCEPTED = "delivery_accepted"
 MSG_PACKAGE_DELIVERED = "package_delivered"
 
 class Message:
@@ -45,7 +46,6 @@ class CommunicationLayer:
             if agent.id == agent_id:
                 Save.save_to_csv_messages(message, "Message to agent:")
                 return agent.receive_message(message)
-                break
         else:
             raise RuntimeError(f"No destination agent with id {message.destination_id} found")
 
@@ -56,5 +56,3 @@ class CommunicationLayer:
     @classmethod
     def get_all_agent_ids(cls):
         return [agent.id for agent in cls.agents]
-
-

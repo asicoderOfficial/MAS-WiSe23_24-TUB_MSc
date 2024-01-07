@@ -1,7 +1,7 @@
 from src.agents.perception import Perception
 from src.agents.strategies.communication_chain_agent import CommunicationChainAgent
 from src.environment.communication.broker import Broker
-from src.environment.communication.communication_layer import MSG_DELIVERY_NOTIFY, MSG_PICKUP_REQUEST, MSG_PICKUP_RESPONSE, CommunicationLayer, Message
+from src.environment.communication.communication_layer import MSG_DELIVERY_NOTIFY, MSG_PICKUP_REQUEST, MSG_PICKUP_RESPONSE, MSG_DELIVERY_ACCEPTED, CommunicationLayer, Message
 from src.environment.package_point import PACKAGE_POINT_INTERMEDIATE
 
 from src.utils.position import Position
@@ -40,6 +40,12 @@ print ("TEST 3")
 # Test: Broker receives a pickup response from Agent1
 pickup_response_message = Message(MSG_PICKUP_RESPONSE, agent1.id, broker.id, {"response": "yes"})
 agent1.send_broker_message(pickup_response_message)
+
+print("TEST 4")
+# Test: Broker sends the agent confirmation, to the beginner agent
+message_to_agent1 = Message(MSG_DELIVERY_ACCEPTED, "broker", agent1.id, {"package_id": package_id, "pos": intermediate_point_pos})
+broker.send_message(message_to_agent1)
+
 
 print(f"Agent ID: {agent1.id}")
 print(f"Agent Position: {agent1.pos}")
