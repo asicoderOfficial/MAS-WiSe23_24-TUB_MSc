@@ -8,9 +8,11 @@ from src.environment.communication.Task import Task
 from src.environment.communication.communication_layer import MSG_DELIVERY_NOTIFY, MSG_PICKUP_RESPONSE, CommunicationLayer, Message
 
 
+
 class CommunicationChainAgent(ChainAgent):
-    def __init__(self, id: str, position, packages, perception: Perception, goal_package_point_type: str, algorithm_name: str):
+    def __init__(self, id: str, position, packages, perception: Perception, goal_package_point_type: str, algorithm_name: str, communication_mechanism: str="broker"):
         super().__init__(id, position, packages, perception, goal_package_point_type, algorithm_name)
+        self.communication_mechanism = communication_mechanism
 
     def receive_message(self, message: Message):
         print(f"Agent {self.id} received message: {message}")
@@ -20,7 +22,7 @@ class CommunicationChainAgent(ChainAgent):
 
     def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
         super().deliver_package(package, package_point, grid)
-        message = Message(sender_id=self.id, destination_id="broker", type=MSG_DELIVERY_NOTIFY, value={"package_id": package.id, "pos": package_point.pos})
+        message = Message(sender_id=self.id, destination_id=self.communication_mechanism, type=MSG_DELIVERY_NOTIFY, value={"package_id": package.id, "pos": package_point.pos, 'grid' : grid})
         CommunicationLayer.send_to_broker(message)
 
     # def get_next_task(self) -> Optional[Task]:
