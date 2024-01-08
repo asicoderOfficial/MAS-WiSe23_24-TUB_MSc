@@ -47,6 +47,8 @@ class Broker:
             agent_id = naive(sender_id, package_id, package_pos)
         elif self.optimality_criteria == 'closer_to_package':
             agent_id = closer_to_package(grid, sender_id, package_id, package_pos)
+        elif self.optimality_criteria == 'loneliest':
+            agent_id = loneliest(grid, sender_id, package_id, package_pos)
 
         if agent_id is None:
             print(f"No agent found to pick up package {package_id}, will repeat in the next step with optimality criteria {self.optimality_criteria}.")
