@@ -59,7 +59,7 @@ class Recruiter:
         else:
             print(f"Agent {agent_id} accepted the pickup request according to optimality criteria {self.optimality_criteria}. Assigning task...")
             # Send message back to the agent that initiated the request
-            message = Message(MSG_DELIVERY_ACCEPTED, "broker", sender_id, 
+            message = Message(MSG_DELIVERY_ACCEPTED, agent_id, sender_id, 
                 {
                     "pos": package_pos, 
                     "package_id": package_id

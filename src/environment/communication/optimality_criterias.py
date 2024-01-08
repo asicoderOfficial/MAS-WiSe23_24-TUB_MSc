@@ -57,7 +57,6 @@ def loneliest(grid, initiating_agent_id:str, target_package_id:str, target_packa
                                 if 'agent' in sub_elem.__class__.__name__.lower() and sub_elem.id != curr_id:
                                     agents_around += 1
                     agents_loneliness.append((curr_id, agents_around))
-    
 
     agents_loneliness.sort(key=lambda x: x[1])
                     
