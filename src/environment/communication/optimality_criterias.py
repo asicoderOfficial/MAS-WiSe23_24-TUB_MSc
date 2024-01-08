@@ -1,4 +1,6 @@
-from src.environment.communication.communication_layer import MSG_DELIVERY_ACCEPTED, MSG_DELIVERY_NOTIFY, MSG_PICKUP_REQUEST, CommunicationLayer, Message
+import inspect
+
+from src.environment.communication.communication_layer import MSG_PICKUP_REQUEST, CommunicationLayer, Message
 from src.utils.position import Position
 
 
@@ -15,3 +17,30 @@ def naive(initiating_agent_id:str, target_package_id:str, target_package_pos:Pos
             response = CommunicationLayer.send_to_agent(agent_id, message)
             if response is not None and response.value["response"] == "yes":
                 return agent_id
+
+
+def closer_to_package(grid, initiating_agent_id:str, target_package_id:str, target_package_pos:Position):
+    agents_distances = []
+    for i in range(len(grid._grid)):
+        for j in range(len(grid._grid[0])):
+            cell = grid._grid[i][j]
+            for elem in cell:
+                if 'agent' in elem.__class__.__name__.lower() and elem.id != initiating_agent_id:
+                    agents_distances.append((elem.id, elem.pos.dist_to(target_package_pos)))
+    
+    agents_distances.sort(key=lambda x: x[1])
+
+    for agent_id, _ in agents_distances:
+        if agent_id != initiating_agent_id:
+            message = Message(MSG_PICKUP_REQUEST, "broker", agent_id, {
+                "pos": target_package_pos, 
+                "package_id": target_package_id,
+            }
+            )
+            response = CommunicationLayer.send_to_agent(agent_id, message)
+            if response is not None and response.value["response"] == "yes":
+                return agent_id
+
+
+def loneliest():
+    pass
