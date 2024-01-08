@@ -35,6 +35,7 @@ class Broker:
         if message.type == MSG_DELIVERY_NOTIFY:
             self.find_delivery_agent(message.value["package_id"], message.value["pos"], sender_id=message.sender_id, new=True, grid=message.value['grid'])
 
+
     def find_delivery_agent(self, package_id: str, package_pos: Position, sender_id:str='', new: bool = False, grid=None):
         """Find an agent that accepts task to delivery the package
 
@@ -65,4 +66,3 @@ class Broker:
                 }
             )
             CommunicationLayer.send_to_agent(sender_id, message)
-

@@ -1,11 +1,13 @@
 from typing import List
 from src.environment.communication.communication_layer import MSG_DELIVERY_ACCEPTED, MSG_DELIVERY_NOTIFY, MSG_PICKUP_REQUEST, CommunicationLayer, Message
 from src.utils.position import Position
+from src.environment.communication.optimality_criterias import naive, closer_to_package, loneliest
 
 
 class Recruiter:
-    def __init__(self, recruiter_id):
+    def __init__(self, recruiter_id, optimality_criteria:str='naive'):
         self.id = recruiter_id
+        self.optimality_criteria = optimality_criteria
         self.waiting_packages_id_pos = {}
         
     def step(self):
@@ -33,7 +35,8 @@ class Recruiter:
         if message.type == MSG_DELIVERY_NOTIFY:
             self.find_delivery_agent(message.value["package_id"], message.value["pos"], sender_id=message.sender_id, new=True)            
 
-    def find_delivery_agent(self, package_id: str, package_pos: Position, sender_id:str, new: bool = False):
+
+    def find_delivery_agent(self, package_id: str, package_pos: Position, sender_id:str='', new: bool = False, grid=None):
         """Find an agent that accepts task to delivery the package
 
         Args:
@@ -41,24 +44,25 @@ class Recruiter:
             package_pos (Position): package position
             new (bool, optional): whether package was just received (and is not in waiting list). Defaults to False.
         """
-        agents_ids = CommunicationLayer.get_all_agent_ids()
-        for agent_id in agents_ids:
-            message = Message(MSG_PICKUP_REQUEST, "recruiter", agent_id, {
-                "pos": package_pos, 
-                "package_id": package_id
-            })
-            response = CommunicationLayer.send_to_agent(agent_id, message)
-            if response is not None and response.value["response"] == "yes":
-                # Send message back to the agent that initiated the request, directly from agent to agent
-                message = Message(MSG_DELIVERY_ACCEPTED, agent_id, sender_id, {
+        if grid is None or self.optimality_criteria == 'naive':
+            agent_id = naive(sender_id, package_id, package_pos)
+        elif self.optimality_criteria == 'closer_to_package':
+            agent_id = closer_to_package(grid, sender_id, package_id, package_pos)
+        elif self.optimality_criteria == 'loneliest':
+            agent_id = loneliest(grid, sender_id, package_id, package_pos)
+
+        if agent_id is None:
+            print(f"No agent found to pick up package {package_id}, will repeat in the next step with optimality criteria {self.optimality_criteria}.")
+            if new:
+                self.waiting_packages_id_pos[package_id] =  package_pos
+            return False
+        else:
+            print(f"Agent {agent_id} accepted the pickup request according to optimality criteria {self.optimality_criteria}. Assigning task...")
+            # Send message back to the agent that initiated the request
+            message = Message(MSG_DELIVERY_ACCEPTED, "broker", sender_id, 
+                {
                     "pos": package_pos, 
-                    "package_id": package_id,
+                    "package_id": package_id
                 }
-                )
-                CommunicationLayer.send_to_agent(sender_id, message)
-                return True    
-        
-        print(f"No agent found to pick up package {package_id}. will repeat in the next step")
-        if new:
-            self.waiting_packages_id_pos[message.value["package_id"]] =  message.value["pos"]
-        return False
+            )
+            CommunicationLayer.send_to_agent(sender_id, message)
