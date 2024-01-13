@@ -32,7 +32,7 @@ total_iterations = 5
 chain_agent = CommunicationChainAgent("agent1", Position(0, 0), [], Perception(1), PACKAGE_POINT_INTERMEDIATE, "dijkstra")
 roaming_agent = RoamingAgent("agent2", Position(5,5), [], Perception(1), "dijkstra")
 
-broker = Broker("broker")
+broker = Broker("broker", "naive")
 CommunicationLayer.instance([chain_agent, roaming_agent], broker)
 
 # Environment elements

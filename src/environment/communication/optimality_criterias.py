@@ -17,6 +17,7 @@ def naive(initiating_agent_id:str, target_package_id:str, target_package_pos:Pos
             response = CommunicationLayer.send_to_agent(agent_id, message)
             if response is not None and response.value["response"] == "yes":
                 return agent_id
+    return None
 
 
 def closer_to_package(grid, initiating_agent_id:str, target_package_id:str, target_package_pos:Position):
