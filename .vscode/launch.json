@@ -5,10 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "communication_grid.py",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/test/communication_grid.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "experiment1",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/experiments/assignment2/experiment1.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }
