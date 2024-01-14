@@ -9,7 +9,7 @@ from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START, PackagePoint
 
 
-def save_grid(grid):
+def save_grid(grid, log_dir):
     start_pp_code = 0
     intermediate_pp_code = 1
     end_pp_code = 2
@@ -44,7 +44,8 @@ def save_grid(grid):
     plt.title('Scatter Plot of Package Points')
 
     # Show the plot
-    plt.savefig("grid.png")   
+    figure_path = f"{log_dir}/grid.png"
+    plt.savefig(figure_path)   
     
 def grid_as_matrix(grid, mode:str='dijkstra') -> List[List]:
     """ Convert the grid to a matrix of dimensions self.grid_height x self.grid_width.
