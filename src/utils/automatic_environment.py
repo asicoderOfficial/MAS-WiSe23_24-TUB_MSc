@@ -132,6 +132,10 @@ def distribute_package_points(intermediate_package_points, ending_package_points
 
     subrectangles_height = int(math.ceil(starting_package_point.pos.x / n_subrectangles))
     subrectangles_width = int(math.ceil(starting_package_point.pos.y / n_subrectangles))
+    if starting_package_point.pos.y + subrectangles_width == grid.height:
+        subrectangles_width -= 1
+    if starting_package_point.pos.x + subrectangles_height == grid.width:
+        subrectangles_height -= 1
     for subrectangle in range(1, n_subrectangles + 1):
         subrectangles_height = subrectangles_height * subrectangle
         subrectangles_width = subrectangles_width * subrectangle
