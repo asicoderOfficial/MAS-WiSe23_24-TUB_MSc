@@ -58,21 +58,21 @@ class Save:
             writer.writerow(data)
 
 
-    def save_to_csv_messages(message, print):
+    def save_to_csv_messages(message, comment):
         filename = f"{Save.log_dir}/messages.csv"
         file_exists = os.path.exists(filename)
         with open(filename, mode="a") as file:
             writer = csv.writer(file)
             if not file_exists:
                 # Header
-                writer.writerow(["Message", "Type", "Sender ID", "Destination ID", "Value"])
+                writer.writerow(["Type", "Sender ID", "Destination ID", "Value", "Comment"])
             # data
             data = [
-                print,
                 message.type,
                     message.sender_id,
                     message.destination_id,
                     message.value,
+                comment
             ]
             writer.writerow(data)
 
