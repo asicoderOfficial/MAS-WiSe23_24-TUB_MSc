@@ -1,5 +1,11 @@
+from typing import List
 from matplotlib.colors import ListedColormap
 from matplotlib import pyplot as plt
+from src.agents.strategies.roaming_agent import RoamingAgent
+from src.agents.strategies.chain_agent import ChainAgent
+from src.agents.strategies.greedy_agent import GreedyAgent
+from src.environment.obstacle import ObstacleCell
+from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START, PackagePoint
 
 
@@ -39,3 +45,62 @@ def save_grid(grid):
 
     # Show the plot
     plt.savefig("grid.png")   
+    
+def grid_as_matrix(grid, mode:str='dijkstra') -> List[List]:
+    """ Convert the grid to a matrix of dimensions self.grid_height x self.grid_width.
+
+    Args:
+        mode (str, optional): How to create the matrix, depending on the purpose. Defaults to 'dijkstra'.
+
+    Returns:
+        List[List]: The grid as a matrix.
+    """        
+    matrix_grid = []
+    if mode == 'dijkstra':
+        for i in range(grid.height):
+            column = []
+            for j in range(grid.width):
+                if grid._grid[i][j]:
+                    # check if there is some instance of ObstacleCell in the cell
+                    if any(isinstance(entity, ObstacleCell) for entity in grid._grid[i][j]):
+                        column.append(0)
+                    else:
+                        column.append(1)
+                else:
+                    column.append(1)
+            matrix_grid.append(column)
+    elif mode == 'visualization':
+        for i in range(grid.height):
+            column = []
+            for j in range(grid.width):
+                cell = ''
+                if grid[i][j]:
+                    for entity in grid[i][j]:
+                        # Package points
+                        if isinstance(entity, PackagePoint):
+                            if entity.point_type == PACKAGE_POINT_START:
+                                cell += 's'
+                            elif entity.point_type == PACKAGE_POINT_INTERMEDIATE:
+                                cell += 'i'
+                            elif entity.point_type == PACKAGE_POINT_END:
+                                cell += 'e'
+                        # Packages
+                        if isinstance(entity, Package):
+                            cell += 'p'
+                        # Agents
+                        if isinstance(entity, ChainAgent):
+                            cell += 'c'
+                        if isinstance(entity, RoamingAgent):
+                            cell += 'r'
+                        if isinstance(entity, GreedyAgent):
+                            cell += 'g'
+                        # Obstacles
+                        if isinstance(entity, ObstacleCell):
+                            cell += 'o'
+                    column.append(cell)
+                else:
+                    column.append(' ')
+            matrix_grid.append(column)
+
+    return matrix_grid
+    

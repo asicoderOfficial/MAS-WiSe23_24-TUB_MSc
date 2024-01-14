@@ -20,6 +20,9 @@ os.makedirs(log_dir, exist_ok=True)
 Save.log_dir = log_dir
 
 
+
+
+
 # Grid dimensions
 grid_height = 10
 grid_width = 10
