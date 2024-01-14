@@ -10,6 +10,8 @@ from src.environment.environment import Environment
 import random
 from src.visualization.save import Save
 from src.utils.automatic_environment import distribute_agents
+from src.environment.communication.broker import Broker
+from src.environment.communication.communication_layer import CommunicationLayer
 
 
 
@@ -27,9 +29,9 @@ n_obstacles_perc = [0, 10, 25]
 package_spawn_interval = 5
 n_packages_per_spawn = 5
 # Intermediate package points
-n_intermediate_package_points = 3
+n_intermediate_package_points = 8
 # Ending package points
-n_ending_package_points = 5
+n_ending_package_points = 10
 
 # Experiment parameters
 n_iterations = [100, 1_000, 10_000]
@@ -40,6 +42,21 @@ perception_cells = 3
 n_chain_agents = [2, 8, 32]
 n_roaming_agents = [2, 8, 32]
 movement_algorithm = 'dijkstra'
+
+# Environment elements
+intermediate_pp_positions = [
+    Position(3,4), Position(6,4),
+    Position(3,7), Position(6,7)
+]
+ending_pp_positions = [
+    Position(0,1), Position(5, 1), Position(8, 1),
+    Position(0,5), Position(8,5),
+    Position(0,9), Position(5,9), Position(8,9)
+]    
+
+
+broker = Broker("broker", "naive")
+# TODO: Add recruiter
 
 for grid_side in grid_sides:
     for n_chain_agent in n_chain_agents:
@@ -53,13 +70,16 @@ for grid_side in grid_sides:
                     # Environment dimensions
                     grid_height = grid_side
                     grid_width = grid_side
+                    # Starting package point
+                    starting_package_point_pos = Position(grid_height//2, grid_width//2)
+                    starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=package_spawn_interval, n_packages_per_spawn=n_packages_per_spawn)
                     # Agents
                     total_n_agents = n_chain_agent + n_roaming_agent
 
                     agents_configurations = distribute_agents(total_n_agents,
                                                                 {'CommunicationChainAgent' :
                                                                 [
-                                                                    {'id':f'comcha_{i}', 'position':None, 'packages':[], 'perception':Perception(perception_cells), 'goal_package_point_type': PACKAGE_POINT_INTERMEDIATE, 'algorithm_name':movement_algorithm}
+                                                                    {'id':f'comcha_{i}', 'position':starting_package_point_pos, 'packages':[], 'perception':Perception(perception_cells), 'goal_package_point_type': PACKAGE_POINT_INTERMEDIATE, 'algorithm_name':movement_algorithm}
                                                                     for i in range(n_chain_agent)
                                                                 ],
                                                                 'RoamingAgent' :
@@ -71,9 +91,6 @@ for grid_side in grid_sides:
                                                                 n_shuffles
                                                             )
 
-                    # Starting package point
-                    starting_package_point_pos = Position(grid_height//2, grid_width//2)
-                    starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=package_spawn_interval, n_packages_per_spawn=n_packages_per_spawn)
                     # Obstacles
                     obstacle_number = int((grid_height * grid_width) * (n_obstacles_perc/100))
                     obstacle_heights = [random.randint(1,3) for i in range(obstacle_number)]
@@ -83,7 +100,8 @@ for grid_side in grid_sides:
                         for i in range(obstacle_number)
                     ]
                     for agents in agents_configurations:
-                        environment = Environment(grid_height, grid_width, agents, starting_package_point, n_intermediate_package_points, n_ending_package_points, obstacles)
+                        CommunicationLayer.instance(agents, broker)
+                        environment = Environment(grid_height, grid_width, agents, starting_package_point, intermediate_pp_positions, ending_pp_positions, obstacles)
                         # Start experiment
                         m = environment.grid_as_matrix(mode='visualization')
                         for m_i in range(len(m)):
@@ -95,6 +113,7 @@ for grid_side in grid_sides:
                         for n_iteration in range(max_iterations):
                             print(f'Iteration {n_iteration}') 
                             environment.step()
+                            broker.step()
                             m = environment.grid_as_matrix(mode='visualization')
                             for i in range(len(m)):
                                 print(m[i])
