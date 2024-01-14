@@ -129,9 +129,8 @@ class Agent(MesaAgent):
         """        
         # if len(self.package) > 0:
         #     raise Exception(f'The agent is already carrying a package with id: {self.package.id}')
-        
         if package.picked:
-            raise Exception(f'Package {package.id} is already carried by another agent')
+            raise Exception(f'Package {package.id} is already carried by another agent, but agent {self.id} is trying to pick it!')
 
         cell_entities_ids = [cell_entity.id for cell_entity in grid[self.pos.x][self.pos.y]]
         if package.id not in cell_entities_ids:
@@ -143,7 +142,7 @@ class Agent(MesaAgent):
 
         self.append = self.packages.append(package)
         package.picked = True
-        print(f"Agent {self.id}: Picked up package!")
+        print(f"Agent {self.id}: Picked up package with ID {package.id} and position ({package.pos.x}, {package.pos.y})!")
 
 
     def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
@@ -179,7 +178,7 @@ class Agent(MesaAgent):
         else:
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
         
-        print(f"Agent {self.id}: Delivered package {package.id}!")
+        print(f"Agent {self.id}: Delivered package {package.id} to package point of type {package_point.point_type}!")
 
     def receive_message(self, message) -> Message:
         print("AGENT " + f"{self.id}: Received message: {message}")
