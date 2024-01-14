@@ -1,11 +1,12 @@
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
 from pathfinding.finder.dijkstra import DijkstraFinder
+from src.agents.path_algorithms.path_algorithm import PathAlgorithm
 
 from src.utils.position import Position
 
 
-class Dijkstra:
+class Dijkstra(PathAlgorithm):
 
     def get_next_position(self, pos: Position, dest: Position, grid_height: int, grid_width: int, matrix) -> Position:
         """ Constructor.

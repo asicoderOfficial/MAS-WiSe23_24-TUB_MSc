@@ -3,6 +3,8 @@ from copy import deepcopy
 
 from mesa import Agent as MesaAgent
 from mesa.space import MultiGrid
+from src.environment.communication.broker import Broker
+from src.environment.communication.communication_layer import MSG_PICKUP_RESPONSE, MSG_PACKAGE_DELIVERED, CommunicationLayer, Message
 
 from src.agents.path_algorithms.pheromone import PheromonePath
 from src.utils.position import Position
@@ -39,6 +41,7 @@ class Agent(MesaAgent):
         self.packages = packages
         self.perception = perception
         self.algorithm_name = algorithm_name
+        self.goal_package_point_type = None
         if self.algorithm_name == 'dijkstra':
             self.algorithm = Dijkstra()
         elif self.algorithm_name == 'pheromones':
@@ -99,6 +102,16 @@ class Agent(MesaAgent):
         else:
             raise Exception(f'The agent cannot move to the chosen position: {chosen_new_position}')
 
+    def get_next_position(self, grid, destination: Position) -> Position:
+        perception = self.perception.percept(self.pos, grid)
+        if self.algorithm_name == 'dijkstra':
+            chosen_new_position = self.algorithm.get_next_position(self.pos, destination, grid.height, grid.width, convert_grid_to_matrix(grid))
+        elif self.algorithm_name == 'pheromones':
+            chosen_new_position = self.algorithm.get_next_position(self.pos, self.previous_point, self.previous_point_type, destination, self.goal_package_point_type, perception, grid, False, True)
+        else:
+            raise Exception(f"Unknown algorithm: {self.algorithm_name}")
+        return chosen_new_position
+
 
     def pick_package(self, package: Package, grid) -> None:
         """ Action of the agent: pick a package.
@@ -116,9 +129,8 @@ class Agent(MesaAgent):
         """        
         # if len(self.package) > 0:
         #     raise Exception(f'The agent is already carrying a package with id: {self.package.id}')
-        
         if package.picked:
-            raise Exception(f'Package {package.id} is already carried by another agent')
+            raise Exception(f'Package {package.id} is already carried by another agent, but agent {self.id} is trying to pick it!')
 
         cell_entities_ids = [cell_entity.id for cell_entity in grid[self.pos.x][self.pos.y]]
         if package.id not in cell_entities_ids:
@@ -128,9 +140,9 @@ class Agent(MesaAgent):
         if not cell_entities:
             raise Exception(f'The agent cannot pick package with id: {package.id} at position {self.pos} as there are no intermediate or starting points in the cell.')
 
-        self.packages.append(package)
+        self.append = self.packages.append(package)
         package.picked = True
-        print(f"Agent {self.id}: Picked up package!")
+        print(f"Agent {self.id}: Picked up package with ID {package.id} and position ({package.pos.x}, {package.pos.y})!")
 
 
     def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
@@ -157,10 +169,38 @@ class Agent(MesaAgent):
             Save.save_to_csv_package(package)
             grid.remove_agent(package)
             self.packages.remove(package)
+            # self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker", {f"Package: {package.id}, will deliver to the ending point"}))
         elif package_point.point_type == package_point.point_type == PACKAGE_POINT_INTERMEDIATE:
             package.picked = False
             self.packages.remove(package)
+            # self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker",
+            #                                  {f"Package: {package.id}, will deliver to the intermediate point"}))
         else:
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
         
-        print(f"Agent {self.id}: Delivered package {package.id}!")
+        print(f"Agent {self.id}: Delivered package {package.id} to package point of type {package_point.point_type}!")
+
+    def receive_message(self, message) -> Message:
+        print("AGENT " + f"{self.id}: Received message: {message}")
+        #Save.save_to_csv_messages(message, "Agent received message:")
+        # TODO: message logic, what to do when a certain message is received
+        # TODO: let's think about the logic what we should do after parcel was received and brokers knows about it
+        return Message(MSG_PICKUP_RESPONSE, self.id, message.sender_id, {"response": "no"}) # placeholder
+
+    def send_broker_message(self, message: Message):
+        """Send message to a broker
+
+        Args:
+            message (Message): message to be sent
+        """
+        CommunicationLayer.send_to_broker(message)
+
+ #   def send_agent_message(self, destination_agent_id: str, message: Message):
+        """Send message to an agent
+
+        Args:
+            destination_agent_id (str) ID of the destination agent
+            message (Message): message to be sent
+        """
+ #       CommunicationLayer.send_to_agent(destination_agent_id, message)
+        

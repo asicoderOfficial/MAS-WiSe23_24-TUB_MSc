@@ -38,7 +38,7 @@ class Save:
             writer = csv.writer(file)
             if not file_exists:
                 # Header
-                writer.writerow(["PackageID", "PackagePoint X", "PackagePoint Y", "Delayed", "Delivery Time", "Intermediate X", "Intermediate Y"])
+                writer.writerow(["PackageID", "PackagePoint X", "PackagePoint Y", "Delayed", "Delivery Time", "End X", "End Y"])
             # data
             data = [
                 package.id, 
@@ -55,6 +55,25 @@ class Save:
                 data += [package.destination.x, package.destination.y]
             else:
                 data += [None, None]
+            writer.writerow(data)
+
+
+    def save_to_csv_messages(message, print):
+        filename = f"{Save.log_dir}/messages.csv"
+        file_exists = os.path.exists(filename)
+        with open(filename, mode="a") as file:
+            writer = csv.writer(file)
+            if not file_exists:
+                # Header
+                writer.writerow(["Message", "Type", "Sender ID", "Destination ID", "Value"])
+            # data
+            data = [
+                print,
+                message.type,
+                    message.sender_id,
+                    message.destination_id,
+                    message.value,
+            ]
             writer.writerow(data)
 
     def visualize_data():
