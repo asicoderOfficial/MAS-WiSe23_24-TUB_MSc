@@ -62,15 +62,28 @@ class ChainAgent(Agent):
                     package_order = self.get_biggest_package_order(current_packages, self.goal_package_point_type)
                     self.previous_point = self.origin
                     self.previous_point_type = self.origin_point_type
+                    n_picked_packages = 0
                     for package in package_order:
-                        self.pick_package(package, grid)
-                    print("Picked up", len(current_packages), "packages")
+                        n_picked_packages += self.pick_package(package, grid)
+                    print(f'Agent with ID {self.id} picked {n_picked_packages} packages.')
                 else:
-                    print("Agent is at package point, but there are no packages, resting...")
+                    print(f"Agent with ID {self.id} is at package point, but there are no packages, resting...")
             else:
                 # Search for path to origin
                 next_pos = self.get_next_position(grid, self.origin)
                 self.move(next_pos, perception, grid)
+
+
+    def pick_package(self, package: Package, grid) -> int:
+        package_cell = grid._grid[package.pos.x][package.pos.y]
+        for elem in package_cell:
+            elem_name = elem.__class__.__name__
+            if elem_name == 'PackagePoint':
+                if elem.point_type == self.origin_point_type:
+                    # The agent can pick from that type of package point
+                    super().pick_package(package, grid)
+                    return 1
+        return 0
 
     
     def get_biggest_package_order(self, current_packages, goal_package_point) -> List[Package]:
