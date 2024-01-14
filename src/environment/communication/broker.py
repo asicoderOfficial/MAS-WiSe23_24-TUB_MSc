@@ -11,8 +11,8 @@ class Broker:
         self.waiting_packages_id_pos = {}
         
     def step(self):
-        for package_id, package_pos in self.waiting_packages_id_pos.copy().items():
-            found_agent = self.find_delivery_agent(package_id, package_pos)
+        for package_id, package_info in self.waiting_packages_id_pos.copy().items():
+            found_agent = self.find_delivery_agent(package_id, package_info["pos"], package_info["sender_id"])
             if found_agent:
                 del self.waiting_packages_id_pos[package_id]
     
@@ -54,7 +54,10 @@ class Broker:
         if agent_id is None:
             print(f"No agent found to pick up package {package_id}, will repeat in the next step with optimality criteria {self.optimality_criteria}.")
             if new:
-                self.waiting_packages_id_pos[package_id] =  package_pos
+                self.waiting_packages_id_pos[package_id] = {
+                    "pos": package_pos,
+                    "sender_id": sender_id
+                }
             return False
         else:
             print(f"Agent {agent_id} accepted the pickup request according to optimality criteria {self.optimality_criteria}. Assigning task...")
@@ -66,3 +69,4 @@ class Broker:
                 }
             )
             CommunicationLayer.send_to_agent(sender_id, message)
+            return True
