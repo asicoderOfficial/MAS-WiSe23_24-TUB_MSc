@@ -27,24 +27,12 @@ random.seed(1)
 # Agents parameters
 agent_distributions = [
     {
-        "sp_ep_chain_agents": 16,  
-        "sp_ip_chain_agents": 0,  
-        "ip_ep_chain_agents": 0
+        "sp_ip_chain_agents": 3,  
+        "ip_ep_chain_agents": 5
     },
-    # {
-    #     "sp_ep_chain_agents": 24,  
-    #     "sp_ip_chain_agents": 0,  
-    #     "ip_ep_chain_agents": 0
-    # },
-    # {
-    #     "sp_ep_chain_agents": 0,  
-    #     "sp_ip_chain_agents": 4,  
-    #     "ip_ep_chain_agents": 8
-    # },
     {
-        "sp_ep_chain_agents": 0,  
-        "sp_ip_chain_agents": 4,  
-        "ip_ep_chain_agents": 12
+        "sp_ip_chain_agents": 8,  
+        "ip_ep_chain_agents": 16
     }
 ]
 movement_algorithm = 'dijkstra'
@@ -54,8 +42,8 @@ perception_range = 3
 grid_side = 50
 total_iterations = 500
 n_obstacles_perc = 50
-end_pp_num = 16
-intermediate_pp_num = 4
+end_pp_num = 36
+intermediate_pp_num = 9
 
 packages_spawn_interval = 2
 n_packages_per_spawn = 1
@@ -64,22 +52,17 @@ timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
 base_log_dir = "logs"
 
 for agent_distribution in agent_distributions:
-    n_sp_ep_chain_agents = agent_distribution["sp_ep_chain_agents"]
     n_sp_ip_chain_agents = agent_distribution["sp_ip_chain_agents"]
     n_ip_ep_chain_agents = agent_distribution["ip_ep_chain_agents"]
+    total_agents = n_sp_ip_chain_agents + n_ip_ep_chain_agents
     
-    
-    log_dir = f'{base_log_dir}/{timestamp}_g{grid_side}_SPEP{n_sp_ep_chain_agents}_SPIP{n_sp_ip_chain_agents}_IPEP{n_ip_ep_chain_agents}_ob{n_obstacles_perc}'
+    log_dir = f'{base_log_dir}/{timestamp}_g{grid_side}_ca{total_agents}_cca0_ra0_ob{n_obstacles_perc}'
     os.makedirs(log_dir, exist_ok=True)
     Save.log_dir = log_dir
     
     starting_position = Position(grid_side // 2, grid_side // 2)
     starting_pp = PackagePoint("spp", starting_position, PACKAGE_POINT_START, package_spawn_interval=packages_spawn_interval, n_packages_per_spawn=n_packages_per_spawn)
 
-    sp_ep_agents = [
-        ChainAgent(f"comcha_{i}", starting_position, [], Perception(perception_range), PACKAGE_POINT_END, movement_algorithm, PACKAGE_POINT_START) 
-        for i in range(n_sp_ep_chain_agents)
-    ]
     sp_ip_agents = [
         ChainAgent(f"comcha_{i}", starting_position, [], Perception(perception_range), PACKAGE_POINT_INTERMEDIATE, movement_algorithm, PACKAGE_POINT_START) 
         for i in range(n_sp_ip_chain_agents)
@@ -89,7 +72,7 @@ for agent_distribution in agent_distributions:
         for i in range(n_ip_ep_chain_agents)
     ]
     
-    agents = sp_ep_agents + sp_ip_agents + ip_ep_agents
+    agents = sp_ip_agents + ip_ep_agents
     
     obstacle_number = int((grid_side * grid_side) * (n_obstacles_perc/100))
     obstacle_heights = [random.randint(1,3) for i in range(obstacle_number)]
