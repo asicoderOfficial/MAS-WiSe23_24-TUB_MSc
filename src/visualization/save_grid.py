@@ -46,6 +46,7 @@ def save_grid(grid, log_dir):
     # Show the plot
     figure_path = f"{log_dir}/grid.png"
     plt.savefig(figure_path)   
+    plt.close()
     
 def grid_as_matrix(grid, mode:str='dijkstra') -> List[List]:
     """ Convert the grid to a matrix of dimensions self.grid_height x self.grid_width.

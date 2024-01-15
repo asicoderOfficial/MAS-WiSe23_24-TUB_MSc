@@ -5,7 +5,23 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Experiment 1",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/experiments/assignment2/experiment1.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Experiment 2",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/experiments/assignment2/experiment2.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Communication Grid",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/test/communication_grid.py",
