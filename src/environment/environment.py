@@ -4,6 +4,7 @@ from typing import List, Union
 
 from mesa import Model
 from mesa.space import MultiGrid
+from src.environment.communication.recruiter import Recruiter
 from src.environment.communication.broker import Broker
 from src.environment.communication.communication_layer import CommunicationLayer
 from src.agents.strategies.chain_agent import ChainAgent
@@ -14,8 +15,9 @@ from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PackagePoint, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START
 from src.constants.environment import MAX_PERC_PACKAGE_POINTS
 from src.utils.position import Position
-from src.utils.automatic_environment import distribute_package_points
+from src.utils.automatic_environment import ENV_PP_RANDOM_SQUARES, ENV_PP_UNIFORM_SQUARES, distribute_package_points_random_squares, distribute_package_points_uniform_squares
 from src.environment.obstacle import Obstacle, ObstacleCell
+from src.visualization.save import Save
 
 
 
@@ -26,9 +28,12 @@ class Environment(Model):
                  agents:list, 
                  starting_package_point: PackagePoint, 
                  intermediate_package_points: Union[int, List[Position]], 
-                 ending_package_points: int, 
+                 ending_package_points: Union[int, List[Position]], 
                  obstacles: List[Obstacle], 
-                 agents_distribution_strategy:str='strategic'
+                 pp_distribution_strategy:str=ENV_PP_UNIFORM_SQUARES,
+                 agents_distribution_strategy:str='strategic',
+                 broker_optimality_criteria:str='naive',
+                 communication_mechanism:str='broker'
                  ) -> None:
 
         """ Constructor.
@@ -51,28 +56,36 @@ class Environment(Model):
         Returns:
             None
         """        
-        if isinstance(intermediate_package_points, int) and isinstance(ending_package_points, int) and \
-            intermediate_package_points + ending_package_points > grid_height * grid_width * MAX_PERC_PACKAGE_POINTS:
-            raise Exception(f'Too many package points. The maximum number of package points is {grid_height * grid_width * MAX_PERC_PACKAGE_POINTS} for a {grid_height}x{grid_width} grid ({MAX_PERC_PACKAGE_POINTS * 100}% of the grid).')
+        # if isinstance(intermediate_package_points, int) and isinstance(ending_package_points, int) and \
+        #     intermediate_package_points + ending_package_points > grid_height * grid_width * MAX_PERC_PACKAGE_POINTS:
+        #     raise Exception(f'Too many package points. The maximum number of package points is {grid_height * grid_width * MAX_PERC_PACKAGE_POINTS} for a {grid_height}x{grid_width} grid ({MAX_PERC_PACKAGE_POINTS * 100}% of the grid).')
+        
+        # Grid size
         self.grid_height = grid_height
         self.grid_width = grid_width
-        self.agents_distribution_strategy = agents_distribution_strategy
-
-        self.intermediate_package_points = intermediate_package_points
-        self.ending_package_points = ending_package_points
-
-        self.obstacles = obstacles
-        self.agents = agents
-        self.starting_package_point = starting_package_point
-        self.intermediate_package_points_l = []
-        self.ending_package_points_l = []
-
-        self.current_iteration = 0
-
         # Create self.grid with grid_height rows and grid_width columns
         self.grid = MultiGrid(width=self.grid_width, height=self.grid_height, torus=False)
+
+        # Package points
+        self.starting_package_point = starting_package_point
+        self.intermediate_package_points = intermediate_package_points
+        self.ending_package_points = ending_package_points
+        self.agents_distribution_strategy = agents_distribution_strategy
+        self.intermediate_package_points_list = []
+        self.ending_package_points_list = []
+        self.pp_distribution_strategy = pp_distribution_strategy
+        
+        self.agents = agents
+        self.obstacles = obstacles
+
+        # Communication
+        self.communication_mechanism = communication_mechanism
+        self.broker_optimality_criteria = broker_optimality_criteria
+
+        self.current_iteration = 0
         self.init_grid()
         self.init_communication_layer()
+        Save.save_agent_init_state(self.agents)
 
 
     def step(self) -> None:
@@ -85,21 +98,31 @@ class Environment(Model):
             agent.step(self.grid)
             if len(agent.packages) > 0:
                 for package in agent.packages:
-                    # The agent package_id != '', so the agent is carrying the package. So wherever the agent goes, the package goes too.
+                    # Wherever the agent goes, the package goes too.
                     package.step(agent.pos, self.grid)
-            # self.agents.pop(i)
-            # self.agents.append(agent)
+                    
+        for package in self.starting_package_point.packages:    
+            if package.pos is None:
+                del package
+                continue
+            if not package.picked: # Only packages that weren't called in the previous loop
+                package.step(package.pos, self.grid)
         
         for obstacle in self.obstacles:
             obstacle.step(self.current_iteration, self.grid)
             
-        self.starting_package_point.step(self.current_iteration, self.grid, self.intermediate_package_points_l, self.ending_package_points_l)
+        self.starting_package_point.step(self.current_iteration, self.grid, self.intermediate_package_points_list, self.ending_package_points_list)
 
         self.current_iteration += 1
             
     def init_communication_layer(self) -> None:
-        self.broker = Broker("broker")
-        CommunicationLayer.instance(self.agents, self.broker)
+        if self.communication_mechanism == "broker":
+            self.broker = Broker("broker", self.broker_optimality_criteria)
+        elif self.communication_mechanism == "recruiter":
+            self.broker = Recruiter("recruiter", self.broker_optimality_criteria)
+        else:
+            raise ValueError(f"Not a valid communication mechanism: {self.communication_mechanism}")
+        CommunicationLayer.init(self.agents, self.broker)
 
     def init_grid(self) -> None:
         """ Initializes the grid with the static entities (Package Points, Obstacles and Packages).
@@ -109,29 +132,31 @@ class Environment(Model):
         # Starting package point
         self.grid.place_agent(self.starting_package_point, self.starting_package_point.pos) 
 
-        if isinstance(self.intermediate_package_points, int):
+        if self.pp_distribution_strategy == ENV_PP_RANDOM_SQUARES:
             # Intermediate and ending package points automatic placement
             # Place them dynamically according to the starting package point position which is supposed to be in the center of the grid
             # They are created in 'circles', having the most inner circles more probability to have an intermediate package point, and the most outer circles more probability to have an ending package point
-            self.grid, self.intermediate_package_points_l, self.ending_package_points_l = distribute_package_points(self.intermediate_package_points, self.ending_package_points, self.starting_package_point, 
-                                                                                                                    self.grid, self.intermediate_package_points_l, self.ending_package_points_l)
+            self.grid, self.intermediate_package_points_list, self.ending_package_points_list = distribute_package_points_random_squares(self.intermediate_package_points, self.ending_package_points, self.starting_package_point, 
+                                                                                                                    self.grid, self.intermediate_package_points_list, self.ending_package_points_list)
+        elif self.pp_distribution_strategy == ENV_PP_UNIFORM_SQUARES:
+            self.grid, self.intermediate_package_points_list, self.ending_package_points_list = distribute_package_points_uniform_squares(self.grid, self.intermediate_package_points, self.ending_package_points)
         else:
             # Intermediate and ending package points placement determined by the user, fixed
             for i in range(len(self.intermediate_package_points)):
                 pp = PackagePoint(id=f'pp_i{i}', position=self.intermediate_package_points[i], point_type=PACKAGE_POINT_INTERMEDIATE)
                 self.grid.place_agent(pp, pp.pos)
-                self.intermediate_package_points_l.append(pp)
+                self.intermediate_package_points_list.append(pp)
             for i in range(len(self.ending_package_points)):
                 pp = PackagePoint(id=f'pp_e{i}', position=self.ending_package_points[i], point_type=PACKAGE_POINT_END)
                 self.grid.place_agent(pp, pp.pos)
-                self.ending_package_points_l.append(pp)
+                self.ending_package_points_list.append(pp)
 
         # Spawn initial packages
-        self.starting_package_point.step(self.current_iteration, self.grid, self.intermediate_package_points_l, self.ending_package_points_l)
+        self.starting_package_point.step(self.current_iteration, self.grid, self.intermediate_package_points_list, self.ending_package_points_list)
 
         # Agents
         intermediate_package_point_index = 0
-        package_points_by_distance = [(pp, pp.pos.dist_to(self.starting_package_point.pos)) for pp in self.intermediate_package_points_l]
+        package_points_by_distance = [(pp, pp.pos.dist_to(self.starting_package_point.pos)) for pp in self.intermediate_package_points_list]
         package_points_by_distance.sort(key=lambda x: x[1])
         package_points_by_distance = [pp[0] for pp in package_points_by_distance]
         agents_updated = []
@@ -139,7 +164,7 @@ class Environment(Model):
             if agent.pos is None:
                 if self.agents_distribution_strategy == 'random':
                     # Place it in a random intermediate package point, as the position has not been specified (and we assume it will be the starting package point position)
-                    random_pos = random.choice([pp.pos for pp in self.intermediate_package_points_l])
+                    random_pos = random.choice([pp.pos for pp in self.intermediate_package_points_list])
                     agent.pos = random_pos
                     agent.origin = random_pos
                 elif self.agents_distribution_strategy == 'strategic':

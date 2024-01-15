@@ -30,6 +30,7 @@ class PackagePoint:
         self.previous_package_generation_step = -1
         self.n_packages_per_spawn = n_packages_per_spawn
         self.assign_intermediate = assign_intermediate
+        self.packages = [] # only generated packages
 
     def step(self, current_iteration:int, grid, intermediate_package_points, ending_package_points) -> None:
         if self.point_type == PACKAGE_POINT_START and self.package_spawn_interval is not None and current_iteration % self.package_spawn_interval == 0:
@@ -50,5 +51,6 @@ class PackagePoint:
                 package.intermediate_point_pos = intermediate_point.pos
                 
             grid.place_agent(package, package.pos)
+            self.packages.append(package)
             print(f'Generated package with id {package.id} at position {package.pos.x}, {package.pos.y}')
             Save.save_to_csv_package(package, False)

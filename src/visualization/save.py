@@ -1,24 +1,25 @@
 import csv
-from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
 class Save:
     log_dir = None
-    # def save_to_csv(agent_data, filename="agent_data.csv"):
-    #     with open(filename, mode="w", newline="") as file:
-    #         writer = csv.writer(file)
-    #         # Header
-    #         writer.writerow(["AgentID", "PackageID", "PackagePoint X", "PackagePoint Y", "Delayed", "OriginPackage X", "OriginPackage Y"])
-    #         # data
-    #         for agent in agent_data:
-    #             writer.writerow([agent.id, agent.package.id, agent.package.destination.x, agent.package.destination.y, agent.package.is_delayed, agent.package.pos.x, agent.package.pos.y])
+    
+    def save_agent_init_state(agents, filename="agent_data_init.csv"):
+        file_path = f"{Save.log_dir}/{filename}" 
+        with open(file_path, mode="w", newline="") as file:
+            writer = csv.writer(file)
+            # Header
+            writer.writerow(["AgentID","x","y","algorithm", "goal_package_point_type"])
+            for agent in agents:
+                writer.writerow([agent.id, agent.pos.x, agent.pos.y, agent.algorithm_name, agent.goal_package_point_type])
+        
 
     def save_agent_data(agent, iteration_num=None, filename="agent_data.csv"):
-        filename = f"{Save.log_dir}/{filename}"
-        file_exists = os.path.exists(filename)
-        with open(filename, mode="a", newline="") as file:
+        file_path = f"{Save.log_dir}/{filename}"
+        file_exists = os.path.exists(file_path)
+        with open(file_path, mode="a", newline="") as file:
             writer = csv.writer(file)
             if not file_exists:
                 # Header
@@ -58,21 +59,21 @@ class Save:
             writer.writerow(data)
 
 
-    def save_to_csv_messages(message, print):
+    def save_to_csv_messages(message, comment):
         filename = f"{Save.log_dir}/messages.csv"
         file_exists = os.path.exists(filename)
         with open(filename, mode="a") as file:
             writer = csv.writer(file)
             if not file_exists:
                 # Header
-                writer.writerow(["Message", "Type", "Sender ID", "Destination ID", "Value"])
+                writer.writerow(["Type", "Sender ID", "Destination ID", "Value", "Comment"])
             # data
             data = [
-                print,
                 message.type,
                     message.sender_id,
                     message.destination_id,
                     message.value,
+                comment
             ]
             writer.writerow(data)
 

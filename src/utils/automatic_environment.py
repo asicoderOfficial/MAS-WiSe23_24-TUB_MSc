@@ -6,6 +6,10 @@ from src.agents.strategies.roaming_agent import RoamingAgent
 from src.utils.position import Position
 from src.environment.package_point import PACKAGE_POINT_END, PackagePoint, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START
 
+ENV_PP_UNIFORM_SQUARES = "uniform_squares"
+ENV_PP_RANDOM_SQUARES = "random_squares"
+ENV_PP_MANUAL = None
+
 
 def generate_random_strategy_allocation(total_n_agents, n_strategies_to_test):
     # Initialize the array with zeros
@@ -78,7 +82,7 @@ def distribute_agents(total_n_agents: int, strategies_to_test: list, n_configura
     return agents_distribution
 
 
-def distribute_package_points(intermediate_package_points, ending_package_points, starting_package_point, 
+def distribute_package_points_random_squares(intermediate_package_points, ending_package_points, starting_package_point, 
                               grid, intermediate_package_points_l, ending_package_points_l):
     n_subrectangles = int(math.ceil((intermediate_package_points + ending_package_points) / 8))
 
@@ -178,3 +182,41 @@ def distribute_package_points(intermediate_package_points, ending_package_points
                 ending_package_points_l.append(pp)
 
     return grid, intermediate_package_points_l, ending_package_points_l
+
+def distribute_package_points_uniform_squares(grid, intermediate_pp_num, ending_pp_num):
+    center = grid.width // 2
+    outer_points_per_side = math.ceil(math.sqrt(ending_pp_num))
+    inner_points_per_side = math.ceil(math.sqrt(intermediate_pp_num))
+
+    # Calculate distances for inner and outer squares
+    outer_distance = center - 1  # One unit away from the edge
+    inner_distance = outer_distance // 2
+
+    def get_square_points(center, distance, points_per_side):
+        points = []
+        for i in range(points_per_side):
+            offset = i * (distance * 2) // (points_per_side - 1) - distance
+            points.append(Position(center + offset, center - distance))  # Top side
+            points.append(Position(center + offset, center + distance))  # Bottom side
+            if i != 0 and i != points_per_side - 1:  # Avoid duplicating corners
+                points.append(Position(center - distance, center + offset))  # Left side
+                points.append(Position(center + distance, center + offset))  # Right side
+        return points
+
+    # Generate points for the outer and inner squares
+    outer_square_points = get_square_points(center, outer_distance, outer_points_per_side)
+    inner_square_points = get_square_points(center, inner_distance, inner_points_per_side)
+
+    ending_pps = []
+    for i, point in enumerate(outer_square_points):
+        pp = PackagePoint(id=f'pp_ep_{i}', position=point, point_type=PACKAGE_POINT_END)
+        grid.place_agent(pp, pp.pos)
+        ending_pps.append(pp)
+        
+    intermediate_pps = []
+    for i, point in enumerate(inner_square_points):
+        pp = PackagePoint(id=f'pp_ip_{i}', position=point, point_type=PACKAGE_POINT_INTERMEDIATE)
+        grid.place_agent(pp, pp.pos)
+        intermediate_pps.append(pp)
+
+    return grid, intermediate_pps, ending_pps

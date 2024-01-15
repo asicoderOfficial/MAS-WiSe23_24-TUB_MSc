@@ -30,15 +30,19 @@ class CommunicationLayer:
     @classmethod
     def instance(cls, agents=[], broker=None):
         if cls._instance is None:
-            cls._instance = cls.__new__(cls)
-            cls.agents = agents
-            cls.broker = broker
+            cls.init(agents, broker)
         return cls._instance
+    
+    @classmethod
+    def init(cls, agents=[], broker=None):
+        cls._instance = cls.__new__(cls)
+        cls.agents = agents
+        cls.broker = broker
 
     @classmethod
     def send_to_broker(cls, message: Message):
-        cls.broker.receive_message(message)
         Save.save_to_csv_messages(message, "Message to broker:")
+        cls.broker.receive_message(message)
 
     @classmethod
     def send_to_agent(cls, agent_id, message: Message):

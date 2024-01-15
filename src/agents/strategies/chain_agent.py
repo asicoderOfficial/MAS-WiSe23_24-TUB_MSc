@@ -9,7 +9,7 @@ from src.utils.grid2matrix import convert_grid_to_matrix
 
 
 class ChainAgent(Agent):
-    def __init__(self, id: str, position: Position, package: List[Package], perception: Perception, goal_package_point_type: str, algorithm_name: str) -> None:
+    def __init__(self, id: str, position: Position, package: List[Package], perception: Perception, goal_package_point_type: str, algorithm_name: str, origin_package_point_type: str = None) -> None:
         """Chain Agent delivers package only to specific package point type and returns to origin position after delivering package.
 
         Args:
@@ -24,10 +24,14 @@ class ChainAgent(Agent):
         super().__init__(id, position, package, perception, algorithm_name)
         self.goal_package_point_type = goal_package_point_type
         self.previous_point = None
-        if goal_package_point_type == PACKAGE_POINT_INTERMEDIATE:
-            self.origin_point_type = PACKAGE_POINT_START
-        elif goal_package_point_type == PACKAGE_POINT_END:
-            self.origin_point_type = PACKAGE_POINT_INTERMEDIATE
+        
+        if origin_package_point_type == None:
+            if goal_package_point_type == PACKAGE_POINT_INTERMEDIATE:
+                self.origin_point_type = PACKAGE_POINT_START
+            elif goal_package_point_type == PACKAGE_POINT_END:
+                self.origin_point_type = PACKAGE_POINT_INTERMEDIATE
+        else:
+            self.origin_point_type = origin_package_point_type
         
     def step(self, grid) -> None:
         perception = self.perception.percept(self.pos, grid)
