@@ -39,7 +39,7 @@ movement_algorithm = 'dijkstra'
 n_shuffles = 1
 perception_range = 3
 
-grid_side = 50
+grid_sides = [10, 25, 50]
 total_iterations = 500
 n_obstacles_perc = 50
 end_pp_num = 36
@@ -51,52 +51,53 @@ n_packages_per_spawn = 1
 timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
 base_log_dir = "logs"
 
-for agent_distribution in agent_distributions:
-    n_sp_ip_chain_agents = agent_distribution["sp_ip_chain_agents"]
-    n_ip_ep_chain_agents = agent_distribution["ip_ep_chain_agents"]
-    total_agents = n_sp_ip_chain_agents + n_ip_ep_chain_agents
-    
-    log_dir = f'{base_log_dir}/{timestamp}_g{grid_side}_ca{total_agents}_cca0_ra0_ob{n_obstacles_perc}'
-    os.makedirs(log_dir, exist_ok=True)
-    Save.log_dir = log_dir
-    
-    starting_position = Position(grid_side // 2, grid_side // 2)
-    starting_pp = PackagePoint("spp", starting_position, PACKAGE_POINT_START, package_spawn_interval=packages_spawn_interval, n_packages_per_spawn=n_packages_per_spawn)
+for grid_side in grid_sides:
+    for agent_distribution in agent_distributions:
+        n_sp_ip_chain_agents = agent_distribution["sp_ip_chain_agents"]
+        n_ip_ep_chain_agents = agent_distribution["ip_ep_chain_agents"]
+        total_agents = n_sp_ip_chain_agents + n_ip_ep_chain_agents
+        
+        log_dir = f'{base_log_dir}/{timestamp}_g{grid_side}_ca{total_agents}_cca0_ra0_ob{n_obstacles_perc}'
+        os.makedirs(log_dir, exist_ok=True)
+        Save.log_dir = log_dir
+        
+        starting_position = Position(grid_side // 2, grid_side // 2)
+        starting_pp = PackagePoint("spp", starting_position, PACKAGE_POINT_START, package_spawn_interval=packages_spawn_interval, n_packages_per_spawn=n_packages_per_spawn)
 
-    sp_ip_agents = [
-        ChainAgent(f"comcha_{i}", starting_position, [], Perception(perception_range), PACKAGE_POINT_INTERMEDIATE, movement_algorithm, PACKAGE_POINT_START) 
-        for i in range(n_sp_ip_chain_agents)
-    ]
-    ip_ep_agents = [
-        ChainAgent(f"comcha_{i}", None, [], Perception(perception_range), PACKAGE_POINT_END, movement_algorithm, PACKAGE_POINT_INTERMEDIATE) 
-        for i in range(n_ip_ep_chain_agents)
-    ]
-    
-    agents = sp_ip_agents + ip_ep_agents
-    
-    obstacle_number = int((grid_side * grid_side) * (n_obstacles_perc/100))
-    obstacle_heights = [random.randint(1,3) for i in range(obstacle_number)]
-    obstacle_widths = list(map(lambda x: x[1] if obstacle_heights[x[0]] == 1 else 1, enumerate([random.randint(1,3) for i in range(obstacle_number)])))
-    obstacles = [
-        Obstacle(f'o{i}', Position(random.randint(0, grid_side-1), random.randint(0,grid_side-1)), width=obstacle_widths[i], height=obstacle_heights[i], starting_iteration=random.randint(1,total_iterations-1), duration=random.randint(1,5))
-        for i in range(obstacle_number)
-    ]
-    environment = Environment(grid_side, grid_side, agents, starting_pp, intermediate_pp_num, end_pp_num, [], pp_distribution_strategy=ENV_PP_UNIFORM_SQUARES)
-    save_grid(environment.grid, Save.log_dir)
+        sp_ip_agents = [
+            ChainAgent(f"comcha_{i}", starting_position, [], Perception(perception_range), PACKAGE_POINT_INTERMEDIATE, movement_algorithm, PACKAGE_POINT_START) 
+            for i in range(n_sp_ip_chain_agents)
+        ]
+        ip_ep_agents = [
+            ChainAgent(f"comcha_{i}", None, [], Perception(perception_range), PACKAGE_POINT_END, movement_algorithm, PACKAGE_POINT_INTERMEDIATE) 
+            for i in range(n_ip_ep_chain_agents)
+        ]
+        
+        agents = sp_ip_agents + ip_ep_agents
+        
+        obstacle_number = int((grid_side * grid_side) * (n_obstacles_perc/100))
+        obstacle_heights = [random.randint(1,3) for i in range(obstacle_number)]
+        obstacle_widths = list(map(lambda x: x[1] if obstacle_heights[x[0]] == 1 else 1, enumerate([random.randint(1,3) for i in range(obstacle_number)])))
+        obstacles = [
+            Obstacle(f'o{i}', Position(random.randint(0, grid_side-1), random.randint(0,grid_side-1)), width=obstacle_widths[i], height=obstacle_heights[i], starting_iteration=random.randint(1,total_iterations-1), duration=random.randint(1,5))
+            for i in range(obstacle_number)
+        ]
+        environment = Environment(grid_side, grid_side, agents, starting_pp, intermediate_pp_num, end_pp_num, [], pp_distribution_strategy=ENV_PP_UNIFORM_SQUARES)
+        save_grid(environment.grid, Save.log_dir)
 
-    m = environment.grid_as_matrix()
-    print('Initial state')
-    for i in range(len(m)):
-        print(m[i])
-    print()
-
-    for n_iteration in tqdm(range(total_iterations)):
-        print(f'Iteration {n_iteration}') 
-        environment.step()
-        m = environment.grid_as_matrix(mode='visualization')
+        m = environment.grid_as_matrix()
+        print('Initial state')
         for i in range(len(m)):
             print(m[i])
         print()
-        print()
-        
-        
+
+        for n_iteration in tqdm(range(total_iterations)):
+            print(f'Iteration {n_iteration}') 
+            environment.step()
+            m = environment.grid_as_matrix(mode='visualization')
+            for i in range(len(m)):
+                print(m[i])
+            print()
+            print()
+            
+            
