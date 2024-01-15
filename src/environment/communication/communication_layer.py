@@ -41,8 +41,8 @@ class CommunicationLayer:
 
     @classmethod
     def send_to_broker(cls, message: Message):
-        cls.broker.receive_message(message)
         Save.save_to_csv_messages(message, "Message to broker:")
+        cls.broker.receive_message(message)
 
     @classmethod
     def send_to_agent(cls, agent_id, message: Message):
