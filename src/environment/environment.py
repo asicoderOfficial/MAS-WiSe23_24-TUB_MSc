@@ -75,7 +75,7 @@ class Environment(Model):
         self.ending_package_points_list = []
         self.pp_distribution_strategy = pp_distribution_strategy
         
-        self.agents = agents
+        self.agents_l = agents
         self.obstacles = obstacles
 
         # Communication
@@ -85,7 +85,7 @@ class Environment(Model):
         self.current_iteration = 0
         self.init_grid()
         self.init_communication_layer()
-        Save.save_agent_init_state(self.agents)
+        Save.save_agent_init_state(self.agents_l)
 
 
     def step(self) -> None:
@@ -94,7 +94,7 @@ class Environment(Model):
         Returns:
             None 
         """        
-        for i, agent in enumerate(self.agents):
+        for i, agent in enumerate(self.agents_l):
             agent.step(self.grid)
             if len(agent.packages) > 0:
                 for package in agent.packages:
@@ -122,7 +122,7 @@ class Environment(Model):
             self.broker = Recruiter("recruiter", self.broker_optimality_criteria)
         else:
             raise ValueError(f"Not a valid communication mechanism: {self.communication_mechanism}")
-        CommunicationLayer.init(self.agents, self.broker)
+        CommunicationLayer.init(self.agents_l, self.broker)
 
     def init_grid(self) -> None:
         """ Initializes the grid with the static entities (Package Points, Obstacles and Packages).
@@ -160,7 +160,7 @@ class Environment(Model):
         package_points_by_distance.sort(key=lambda x: x[1])
         package_points_by_distance = [pp[0] for pp in package_points_by_distance]
         agents_updated = []
-        for agent in self.agents:
+        for agent in self.agents_l:
             if agent.pos is None:
                 if self.agents_distribution_strategy == 'random':
                     # Place it in a random intermediate package point, as the position has not been specified (and we assume it will be the starting package point position)
@@ -177,7 +177,7 @@ class Environment(Model):
                     intermediate_package_point_index += 1
             self.grid.place_agent(agent, agent.pos)
             agents_updated.append(agent)
-        self.agents = agents_updated
+        self.agents_l = agents_updated
 
         # Place dynamic objects for the first time
         for obstacle in self.obstacles:
