@@ -91,9 +91,6 @@ class Obstacle:
         Returns:
             Position: The position of the obstacle in the environment.
         """        
-        if self.pos.x < 0 or self.pos.x + self.width > grid.width or self.pos.y < 0 or self.pos.y + self.height > grid.height:
-            raise Exception(f'The obstacle won\'t fit in the environment ever, as its width and height are {self.width} and {self.height}, respectively, and x and y are {self.pos.x} and {self.pos.y}, respectively, which exceed the grid dimensions, or has a <= 0 value in its dimensions.')
-
         if not self._is_position_valid(grid, self.pos.x, self.pos.y):
             if self.pos_determination == 'random':
                 is_position_valid = False
