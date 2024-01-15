@@ -1,0 +1,9 @@
+AgentID,x,y,algorithm,goal_package_point_type
+comcha_0,5,5,dijkstra,pp-intermediate
+comcha_1,5,5,dijkstra,pp-intermediate
+comcha_2,5,5,dijkstra,pp-intermediate
+comcha_0,5,3,dijkstra,pp-end
+comcha_1,5,7,dijkstra,pp-end
+comcha_2,3,5,dijkstra,pp-end
+comcha_3,7,5,dijkstra,pp-end
+comcha_4,3,3,dijkstra,pp-end
