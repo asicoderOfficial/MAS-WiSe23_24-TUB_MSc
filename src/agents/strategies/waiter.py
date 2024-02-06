@@ -15,7 +15,7 @@ class Waiter(Agent):
     def __init__(self, id: str, position: Position, package: List[Package], perception: Perception, movement_algorithm: str, utility_function:str, max_packages:int=3, utility_kwargs:dict={}) -> None:
         super().__init__(id, position, package, perception, movement_algorithm)
         self.max_packages = max_packages
-        self.speed = self.max_packages
+        self.speed = self.max_packages + 1
         self.utility_function = utility_function
         self.utility_function_kwargs = utility_kwargs
         self.current_action = ()
@@ -77,21 +77,28 @@ class Waiter(Agent):
         # Perform the best action
         if best_action[0] == 'pick':
             super().pick_package(best_action[1], grid)
+            self.speed -= 1
             self.current_action = ()
         elif best_action[0] == 'deliver':
             super().deliver_package(best_action[2], best_action[1], grid)
+            self.speed += 1
             self.current_action = ()
-        elif best_action[0] == 'go-random':
-            super().move(best_action[1], perception, grid)
-            self.current_action = ()
-        elif 'go' in best_action[0]:
-            next_position = super().get_next_position(grid, best_action[1])
-            super().move(next_position, perception, grid)
-            if self.pos.x == next_position.x and self.pos.y == next_position.y:
-                self.current_action = ()
-            else:
-                # Continue moving towards the goal
-                self.current_action = best_action
+        else:
+            steps_left = self.speed
+            while steps_left > 0:
+                if best_action[0] == 'go-random':
+                    super().move(best_action[1], perception, grid)
+                    self.current_action = ()
+                elif 'go' in best_action[0] and (best_action[1].x, best_action[1].y) != (self.pos.x, self.pos.y):
+                    next_position = super().get_next_position(grid, best_action[1])
+                    super().move(next_position, perception, grid)
+                    if self.pos.x == best_action[1].x and self.pos.y == best_action[1].y:
+                        steps_left = 0
+                    else:
+                        # Continue moving towards the goal
+                        self.current_action = best_action
+                
+                steps_left -= 1
 
 
     def is_action_completed(self) -> bool:
