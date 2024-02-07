@@ -12,13 +12,15 @@ from src.constants.utility_functions import UTILITY_FUNCTIONS
 
 
 class Waiter(Agent):
-    def __init__(self, id: str, position: Position, package: List[Package], perception: Perception, movement_algorithm: str, utility_function:str, max_packages:int=3, utility_kwargs:dict={}) -> None:
+    def __init__(self, id: str, position: Position, package: List[Package], perception: Perception, movement_algorithm: str, utility_function:str, tips_function, max_packages:int=3, utility_kwargs:dict={}) -> None:
         super().__init__(id, position, package, perception, movement_algorithm)
         self.max_packages = max_packages
         self.speed = self.max_packages + 1
         self.utility_function = utility_function
         self.utility_function_kwargs = utility_kwargs
         self.current_action = ()
+        self.collected_tips = 0
+        self.tips_function = tips_function
 
     
     def step(self, grid) -> None:
@@ -80,7 +82,7 @@ class Waiter(Agent):
             self.speed -= 1
             self.current_action = ()
         elif best_action[0] == 'deliver':
-            super().deliver_package(best_action[2], best_action[1], grid)
+            self.deliver_package(best_action[2], best_action[1], grid)
             self.speed += 1
             self.current_action = ()
         else:
@@ -99,7 +101,13 @@ class Waiter(Agent):
                         self.current_action = best_action
                 
                 steps_left -= 1
-
+                
+                
+    def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
+        super().deliver_package(package, package_point, grid)
+        
+        # Collect tips
+        self.collected_tips += self.tips_function(package)
 
     def is_action_completed(self) -> bool:
         if self.pos.x == self.current_action[1].x and self.pos.y == self.current_action[1].y:

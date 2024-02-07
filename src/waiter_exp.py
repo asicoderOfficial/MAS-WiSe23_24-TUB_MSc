@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+from src.agents.tips_functions import linear_decreasing_time_tips
 from src.agents.strategies.chain_agent import ChainAgent
 from src.agents.strategies.waiter import Waiter
 from src.agents.perception import Perception
@@ -32,7 +33,7 @@ ending_package_points = [Position(0, 0) for i in range(1)]
 total_iterations = 20
 
 # Agents
-agents = [Waiter('w1', Position(7, 7), [], Perception(3), 'dijkstra', 'naive')]
+agents = [Waiter('w1', Position(7, 7), [], Perception(3), 'dijkstra', 'naive', linear_decreasing_time_tips)]
 
 
 environment = Environment(grid_height, grid_width, agents, starting_package_point, [], ending_package_points, [], pp_distribution_strategy='')
@@ -54,4 +55,7 @@ for iteration in range(1, total_iterations+1):
     m = environment.grid_as_matrix(mode='visualization')
     for i in range(len(m)):
         print(m[i])
+    print()
+    for agent in agents:
+        print(f"Agent {agent.id} tips: {agent.collected_tips}")
     print()

@@ -4,6 +4,7 @@ from typing import List, Union
 
 from mesa import Model
 from mesa.space import MultiGrid
+from src.agents.strategies.waiter import Waiter
 from src.environment.communication.recruiter import Recruiter
 from src.environment.communication.broker import Broker
 from src.environment.communication.communication_layer import CommunicationLayer
@@ -240,6 +241,8 @@ class Environment(Model):
                             # Obstacles
                             if isinstance(entity, ObstacleCell):
                                 cell += 'o'
+                            if isinstance(entity, Waiter):
+                                cell += 'w'
                         column.append(cell)
                     else:
                         column.append(' ')
