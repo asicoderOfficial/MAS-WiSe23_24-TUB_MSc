@@ -22,12 +22,12 @@ class Waiter(Agent):
         self.current_action = ()
         self.collected_tips = 0
         self.tips_function = tips_function
+        self.starting_package_point_pos = starting_package_point_pos
 
     
     def step(self, grid) -> None:
-        perception = self.perception.percept(self.pos, grid)
         if self.current_action:
-            self.perform_action(self.current_action, grid, perception)
+            self.perform_action(self.current_action, grid)
             action_completed = self.is_action_completed()
             if self.current_action[0] == 'pick' and not action_completed:
                 # Corner case: the agent performed the pick action, but the package was already picked up by another agent just before, in the same iteration
@@ -39,7 +39,8 @@ class Waiter(Agent):
             possible_actions = []
 
             # If the agent is not carrying the maximum number of packages and there are packages in the environment
-            for cell, entities in perception.items():
+            perception = self.perception.percept(self.pos, grid)
+            for _, entities in perception.items():
                 for entity in entities:
                     if entity.pos.x == self.pos.x and entity.pos.y == self.pos.y:
                         if isinstance(entity, Package) and not entity.picked and len(self.packages) < self.max_packages and entity not in self.packages:
@@ -51,19 +52,16 @@ class Waiter(Agent):
                                 if package.destination == entity.pos:
                                     # The agent can deliver a package to the package point
                                     possible_actions.append(('deliver', entity, package))
-                    else:
-                        if isinstance(entity, PackagePoint) and entity.point_type == PACKAGE_POINT_START:
-                            # The agent can move to the starting point
-                            possible_actions.append(('go-start', Position(cell[0], cell[1])))
-                        elif isinstance(entity, PackagePoint) and entity.point_type == PACKAGE_POINT_END:
-                            # The agent can move to the ending point
-                            possible_actions.append(('go-end', Position(cell[0], cell[1])))
 
             # If the agent is carrying packages, it can move to the delivery point
             if self.packages:
                 for package in self.packages:
                     if package.destination.x != self.pos.x and package.destination.y != self.pos.y:
                         possible_actions.append(('go-deliver', package.destination)) 
+
+            # If the agent is not at the starting package point where packages spawn, it can move to it
+            if self.pos.x != self.starting_package_point_pos.x and self.pos.y != self.starting_package_point_pos.y:
+                possible_actions.append(('go-start', self.starting_package_point_pos))
 
             if not possible_actions:
                 possible_directions = self.algorithm.get_available_directions(self.pos, perception, grid)
@@ -75,14 +73,14 @@ class Waiter(Agent):
                 best_action = self.evaluate_actions(possible_actions, grid)
 
             # Perform the best action
-            self.perform_action(best_action, grid, perception)
+            self.perform_action(best_action, grid)
     
 
     def evaluate_actions(self, possible_actions: List, grid) -> tuple:
         return max([(action, UTILITY_FUNCTIONS[self.utility_function](action, grid, self)) for action in possible_actions], key=lambda x: x[1])[0]
 
 
-    def perform_action(self, best_action: tuple, grid, perception:Perception) -> None:
+    def perform_action(self, best_action: tuple, grid) -> None:
         # Perform the best action
         if best_action[0] == 'pick':
             super().pick_package(best_action[1], grid)
@@ -95,6 +93,7 @@ class Waiter(Agent):
         else:
             steps_left = self.speed
             while steps_left > 0:
+                perception = self.perception.percept(self.pos, grid)
                 if best_action[0] == 'go-random':
                     super().move(best_action[1], perception, grid)
                     self.current_action = ()
@@ -108,7 +107,6 @@ class Waiter(Agent):
                         self.current_action = best_action
                 
                 steps_left -= 1
-                
                 
     def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
         super().deliver_package(package, package_point, grid)
