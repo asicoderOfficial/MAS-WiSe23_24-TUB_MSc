@@ -10,6 +10,7 @@ from src.environment.communication.communication_layer import CommunicationLayer
 from src.agents.strategies.chain_agent import ChainAgent
 from src.agents.strategies.greedy_agent import GreedyAgent
 from src.agents.strategies.roaming_agent import RoamingAgent
+from src.agents.strategies.waiter import Waiter
 
 from src.environment.package import Package
 from src.environment.package_point import PACKAGE_POINT_END, PackagePoint, PACKAGE_POINT_INTERMEDIATE, PACKAGE_POINT_START
@@ -234,6 +235,8 @@ class Environment(Model):
                                 cell += 'g'
                             if isinstance(entity, RoamingAgent):
                                 cell += 'r'
+                            if isinstance(entity, Waiter):
+                                cell += 'w'
                             # Obstacles
                             if isinstance(entity, ObstacleCell):
                                 cell += 'o'
