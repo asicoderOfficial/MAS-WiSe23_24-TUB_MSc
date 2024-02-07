@@ -1,4 +1,4 @@
-from environment.package import Package
+from src.environment.package import Package
 
 
 def constant_tips(package: Package):
