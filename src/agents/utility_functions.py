@@ -13,6 +13,8 @@ def naive(action:tuple, grid, self):
             return 1
         elif action[0] == 'go-end':
             return 2
+        elif action[0] == 'go-deliver':
+            return 5
     else:
         return self.utility_function_kwargs[action[0]]
 

@@ -12,7 +12,8 @@ from src.constants.utility_functions import UTILITY_FUNCTIONS
 
 
 class Waiter(Agent):
-    def __init__(self, id: str, position: Position, package: List[Package], perception: Perception, movement_algorithm: str, utility_function:str, tips_function, max_packages:int=3, utility_kwargs:dict={}) -> None:
+    def __init__(self, id: str, position: Position, package: List[Package], perception: Perception, movement_algorithm: str, 
+                 utility_function:str, tips_function, starting_package_point_pos:Position, max_packages:int=3, utility_kwargs:dict={}) -> None:
         super().__init__(id, position, package, perception, movement_algorithm)
         self.max_packages = max_packages
         self.speed = self.max_packages + 1
@@ -57,7 +58,13 @@ class Waiter(Agent):
                         elif isinstance(entity, PackagePoint) and entity.point_type == PACKAGE_POINT_END:
                             # The agent can move to the ending point
                             possible_actions.append(('go-end', Position(cell[0], cell[1])))
-            
+
+            # If the agent is carrying packages, it can move to the delivery point
+            if self.packages:
+                for package in self.packages:
+                    if package.destination.x != self.pos.x and package.destination.y != self.pos.y:
+                        possible_actions.append(('go-deliver', package.destination)) 
+
             if not possible_actions:
                 possible_directions = self.algorithm.get_available_directions(self.pos, perception, grid)
                 possible_positions = [self.pos + direction for direction in possible_directions]
