@@ -26,14 +26,14 @@ grid_height = 10
 grid_width = 10
 # Starting package point
 starting_package_point_pos = Position(4, 4)
-starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=5, n_packages_per_spawn=1, assign_intermediate=False)
+starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=10, n_packages_per_spawn=2, assign_intermediate=False)
 # Ending package points
 ending_package_points = [Position(0, 0) for i in range(1)]
 
-total_iterations = 20
+total_iterations = 10
 
 # Agents
-agents = [Waiter('w1', Position(7, 7), [], Perception(3), 'dijkstra', 'naive', linear_decreasing_time_tips)]
+agents = [Waiter('w1', Position(7, 7), [], Perception(3), 'dijkstra', 'refined_greedy', linear_decreasing_time_tips, starting_package_point_pos)]
 
 
 environment = Environment(grid_height, grid_width, agents, starting_package_point, [], ending_package_points, [], pp_distribution_strategy='')

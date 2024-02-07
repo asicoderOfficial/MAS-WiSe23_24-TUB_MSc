@@ -7,8 +7,7 @@ from src.agents.perception import Perception
 from src.environment.package import Package
 from src.environment.package_point import PackagePoint
 from src.utils.position import Position
-from src.environment.package_point import PACKAGE_POINT_END, PACKAGE_POINT_START
-from src.constants.utility_functions import UTILITY_FUNCTIONS
+from src.constants.utility_functions import UTILITY_FUNCTIONS, UTILITY_FUNCTIONS_WITH_ONLY_ONE_ACTION, UTILITY_FUNCTIONS_WITH_ALL_POSSIBLE_ACTIONS
 
 
 class Waiter(Agent):
@@ -77,10 +76,19 @@ class Waiter(Agent):
     
 
     def evaluate_actions(self, possible_actions: List, grid) -> tuple:
-        return max([(action, UTILITY_FUNCTIONS[self.utility_function](action, grid, self)) for action in possible_actions], key=lambda x: x[1])[0]
+        if self.utility_function in UTILITY_FUNCTIONS_WITH_ONLY_ONE_ACTION:
+            return max([(action, UTILITY_FUNCTIONS[self.utility_function](action, grid, self)) for action in possible_actions], key=lambda x: x[1])[0]
+        else:
+            return max(UTILITY_FUNCTIONS[self.utility_function](possible_actions, grid, self), key=lambda x: x[0])
 
 
     def perform_action(self, best_action: tuple, grid) -> None:
+        print(best_action)
+        if len(best_action) == 3 and best_action[0] != 'deliver':
+            best_action = (best_action[1], best_action[2])
+        elif len(best_action) == 4:
+            best_action = (best_action[1], best_action[2], best_action[3])
+        print('best action', best_action)
         # Perform the best action
         if best_action[0] == 'pick':
             super().pick_package(best_action[1], grid)
