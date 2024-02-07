@@ -41,7 +41,8 @@ class PackagePoint:
         for i in range(self.n_packages_per_spawn):
             # Choose random destination
             destination = random.choice([pp for pp in ending_package_points])
-            max_iterations_to_deliver = random.randint(1, 20)
+            # max_iterations_to_deliver = random.randint(1, 20)
+            max_iterations_to_deliver = 5
             
             # Create package and place it on grid
             package = Package(f'p_it{current_iteration}_{i}', self.pos, destination.pos, max_iterations_to_deliver)
