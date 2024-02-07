@@ -241,8 +241,6 @@ class Environment(Model):
                             # Obstacles
                             if isinstance(entity, ObstacleCell):
                                 cell += 'o'
-                            if isinstance(entity, Waiter):
-                                cell += 'w'
                         column.append(cell)
                     else:
                         column.append(' ')

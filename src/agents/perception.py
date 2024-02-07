@@ -24,7 +24,7 @@ class Perception:
         self.visible_package_points = []
     
 
-    def percept(self, agent_position: Position, grid) -> List[List]:
+    def percept(self, agent_position: Position, grid) -> dict:
         """ The agent perceives the environment.
 
         Args:

@@ -59,8 +59,7 @@ class Agent(MesaAgent):
         Returns:
             None 
         """
-
-        perception = self.perception.percept(self.pos, grid)
+        pass
     
 
     def can_move_to(self, chosen_new_position: Position, perception: List[List], grid_width: int, grid_height: int) -> bool:
@@ -142,7 +141,7 @@ class Agent(MesaAgent):
 
         self.append = self.packages.append(package)
         package.picked = True
-        print(f"Agent {self.id}: Picked up package with ID {package.id} and position ({package.pos.x}, {package.pos.y})!")
+        #printf"Agent {self.id}: Picked up package with ID {package.id} and position ({package.pos.x}, {package.pos.y})!")
 
 
     def deliver_package(self, package: Package, package_point: PackagePoint, grid) -> None:
@@ -178,10 +177,10 @@ class Agent(MesaAgent):
         else:
             raise Exception(f'The agent cannot deliver package with id: {package.id} with position {package.pos}, which is not an intermediate or ending point.')
         
-        print(f"Agent {self.id}: Delivered package {package.id} to package point of type {package_point.point_type}!")
+        #printf"Agent {self.id}: Delivered package {package.id} to package point of type {package_point.point_type}!")
 
     def receive_message(self, message) -> Message:
-        print("AGENT " + f"{self.id}: Received message: {message}")
+        #print"AGENT " + f"{self.id}: Received message: {message}")
         #Save.save_to_csv_messages(message, "Agent received message:")
         # TODO: message logic, what to do when a certain message is received
         # TODO: let's think about the logic what we should do after parcel was received and brokers knows about it
