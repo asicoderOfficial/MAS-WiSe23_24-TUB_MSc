@@ -215,8 +215,8 @@ def distribute_package_points_uniform_squares(grid, intermediate_pp_num, ending_
         
     intermediate_pps = []
     for i, point in enumerate(inner_square_points):
-        pp = PackagePoint(id=f'pp_ip_{i}', position=point, point_type=PACKAGE_POINT_INTERMEDIATE)
+        pp = PackagePoint(id=f'pp_ip_{i}', position=point, point_type=PACKAGE_POINT_END)
         grid.place_agent(pp, pp.pos)
-        intermediate_pps.append(pp)
+        ending_pps.append(pp)
 
     return grid, intermediate_pps, ending_pps

@@ -6,7 +6,7 @@ import os
 class Save:
     log_dir = None
     
-    def save_agent_init_state(agents, filename="agent_data_init.csv"):
+    def save_agent_init_state(agents, filename):
         file_path = f"{Save.log_dir}/{filename}" 
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)

@@ -1,0 +1,16 @@
+AgentID,x,y,algorithm,goal_package_point_type,utility_function,total_tips,total_table_served
+naive_fast1,17,5,dijkstra,,naive_fast,320.0,62
+naive_fast2,11,10,dijkstra,,naive_fast,295.99999999999994,59
+naive_fast3,17,1,dijkstra,,naive_fast,292.0,57
+naive_fast4,10,8,dijkstra,,naive_fast,262.6666666666667,54
+naive_fast5,11,7,dijkstra,,naive_fast,310.66666666666663,61
+naive_fast6,10,10,dijkstra,,naive_fast,296.66666666666674,65
+naive_fast7,8,10,dijkstra,,naive_fast,278.66666666666663,52
+naive_fast8,10,9,dijkstra,,naive_fast,266.66666666666663,49
+naive_fast9,10,10,dijkstra,,naive_fast,259.3333333333333,49
+naive_fast10,10,9,dijkstra,,naive_fast,282.66666666666663,55
+naive_fast11,10,10,dijkstra,,naive_fast,270.6666666666668,50
+naive_fast12,10,8,dijkstra,,naive_fast,268.66666666666674,49
+naive_fast13,7,1,dijkstra,,naive_fast,226.00000000000003,42
+naive_fast14,9,11,dijkstra,,naive_fast,274.0,48
+naive_fast15,10,10,dijkstra,,naive_fast,251.33333333333334,42
