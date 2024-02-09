@@ -1,5 +1,10 @@
 from datetime import datetime
 import os
+
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+
 from src.agents.tips_functions import constant_tips, linear_decreasing_time_tips
 from src.agents.strategies.chain_agent import ChainAgent
 from src.agents.strategies.waiter import Waiter
@@ -18,7 +23,7 @@ from utils.automatic_environment import ENV_PP_UNIFORM_SQUARES
 random.seed(1)
 
 timestamp = datetime.now()
-log_dir = f"logs/{timestamp}"
+log_dir = r"logs/{timestamp}"
 os.makedirs(log_dir, exist_ok=True)
 Save.log_dir = log_dir
 
@@ -34,15 +39,14 @@ ending_package_points = [Position(0, 0)]
 total_iterations = 100
 
 # Agents
-agents = [Waiter('w1', Position(7, 7), [], Perception(3), 'dijkstra', 'refined_greedy', linear_decreasing_time_tips, starting_package_point_pos)]
+agents = [Waiter('refine', Position(7, 7), [], Perception(3), 'dijkstra', 'refined_greedy', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_greedy', Position(6, 6), [], Perception(3), 'dijkstra', 'naive_greedy', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast', Position(7, 6), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos)]
 
 
 environment = Environment(grid_height, grid_width, agents, starting_package_point, 0, 10, [], pp_distribution_strategy=ENV_PP_UNIFORM_SQUARES)
 
 m = environment.grid_as_matrix(mode='visualization')
-
-for agent in agents:
-    Save.save_agent_data(agent, 0, "init_agent_data.csv")
 
 m = environment.grid_as_matrix(mode='visualization')
 print('Initial grid:')
@@ -60,3 +64,45 @@ for iteration in range(1, total_iterations+1):
     for agent in agents:
         print(f"Agent {agent.id} tips: {agent.collected_tips}")
     print()
+
+Save.save_agent_init_state(agents)
+
+#for agent in agents:
+    #Save.save_agent_init_state(agents)
+    #Save.save_agent_data(agent, 0, "init_agent_data.csv")
+
+
+
+df = pd.read_csv("logs/{timestamp}/agent_data_init.csv")
+
+
+grouped_data = df.groupby("AgentID")
+
+
+agents = df["AgentID"].unique()
+
+bar_width = 0.35
+
+fig, ax1 = plt.subplots()
+
+fig, ax2 = plt.subplots()
+
+
+for i, (agent_id, agent_data) in enumerate(grouped_data):
+
+    ax1.bar(agent_id, agent_data["total_tips"], label=agent_id)
+
+    ax2.bar(agent_id, agent_data["total_table_served"], label=agent_id)
+
+ax1.set_xlabel('Agents')
+ax1.set_ylabel('Total Tips')
+ax1.set_title('Comparison of Total Tips Received by Agents')
+
+ax2.set_xlabel('Agents')
+ax2.set_ylabel('Total Tables Served')
+ax2.set_title('Comparison of Total Tables Served by Agents')
+
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+#plt.savefig("agents_comparison_chart.png")

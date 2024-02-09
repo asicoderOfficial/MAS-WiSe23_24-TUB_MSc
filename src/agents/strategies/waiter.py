@@ -20,6 +20,7 @@ class Waiter(Agent):
         self.utility_function_kwargs = utility_kwargs
         self.current_action = ()
         self.collected_tips = 0
+        self.table_served = 0
         self.tips_function = tips_function
         self.starting_package_point_pos = starting_package_point_pos
 
@@ -121,6 +122,7 @@ class Waiter(Agent):
         
         # Collect tips
         self.collected_tips += self.tips_function(package)
+        self.table_served += 1
 
     def is_action_completed(self) -> bool:
         if self.pos.x == self.current_action[1].x and self.pos.y == self.current_action[1].y:
