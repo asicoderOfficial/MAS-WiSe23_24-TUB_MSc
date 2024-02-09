@@ -65,3 +65,4 @@ for iteration in range(1, total_iterations+1):
         print(f"Agent {agent.id} tips: {agent.collected_tips}")
     print()
     
+Save.save_agent_final_state(agents, "final_agent_data_cnp.csv")

@@ -14,7 +14,16 @@ class Save:
             writer.writerow(["AgentID","x","y","algorithm", "goal_package_point_type"])
             for agent in agents:
                 writer.writerow([agent.id, agent.pos.x, agent.pos.y, agent.algorithm_name, agent.goal_package_point_type])
-        
+    
+    def save_agent_final_state(agents, filename):
+        file_path = f"{Save.log_dir}/{filename}" 
+        with open(file_path, mode="w", newline="") as file:
+            writer = csv.writer(file)
+            # Header
+            writer.writerow(["AgentID","x","y","algorithm", "goal_package_point_type", "utility_function", "total_tips", "total_table_served"])
+            for agent in agents:
+                writer.writerow([agent.id, agent.pos.x, agent.pos.y, agent.algorithm_name, agent.goal_package_point_type, agent.utility_function, agent.collected_tips, agent.table_served])
+
 
     def save_agent_data(agent, iteration_num=None, filename="agent_data.csv"):
         file_path = f"{Save.log_dir}/{filename}"

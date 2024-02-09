@@ -32,7 +32,7 @@
             "name": "Waiter Experiment",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/src/waiter_exp.py",
+            "program": "${workspaceFolder}/src/waiter_exp_cnp.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }

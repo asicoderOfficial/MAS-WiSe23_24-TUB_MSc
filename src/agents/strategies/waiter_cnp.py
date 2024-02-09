@@ -28,6 +28,7 @@ class WaiterCNP(Agent):
         # self.current_action = ()
         self.scheduled_actions_queue = []
         self.collected_tips = 0
+        self.table_served = 0
         self.tips_function = tips_function
         self.starting_package_point_pos = starting_package_point_pos
         self.bidded_pickups = [] 
@@ -167,6 +168,7 @@ class WaiterCNP(Agent):
         super().deliver_package(package, package_point, grid)
         
         # Collect tips
+        self.table_served += 1
         self.collected_tips += self.tips_function(package)
 
     def is_action_completed(self, action) -> bool:
