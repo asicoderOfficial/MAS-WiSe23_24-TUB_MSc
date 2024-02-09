@@ -4,6 +4,8 @@ from typing import List, Union
 
 from mesa import Model
 from mesa.space import MultiGrid
+from src.agents.strategies.waiter_cnp import WaiterCNP
+from src.environment.kitchen import KitchenInitiator
 from src.agents.strategies.waiter import Waiter
 from src.environment.communication.recruiter import Recruiter
 from src.environment.communication.broker import Broker
@@ -35,7 +37,8 @@ class Environment(Model):
                  pp_distribution_strategy:str=ENV_PP_UNIFORM_SQUARES,
                  agents_distribution_strategy:str='strategic',
                  broker_optimality_criteria:str='naive',
-                 communication_mechanism:str='broker'
+                 communication_mechanism:str='broker',
+                 initiator: KitchenInitiator=None
                  ) -> None:
 
         """ Constructor.
@@ -69,6 +72,7 @@ class Environment(Model):
         self.grid = MultiGrid(width=self.grid_width, height=self.grid_height, torus=False)
 
         # Package points
+        self.initiator = initiator
         self.starting_package_point = starting_package_point
         self.intermediate_package_points = intermediate_package_points
         self.ending_package_points = ending_package_points
@@ -114,6 +118,9 @@ class Environment(Model):
             obstacle.step(self.current_iteration, self.grid)
             
         self.starting_package_point.step(self.current_iteration, self.grid, self.intermediate_package_points_list, self.ending_package_points_list)
+
+        if self.initiator:
+            self.initiator.step()
 
         self.current_iteration += 1
             
@@ -236,7 +243,7 @@ class Environment(Model):
                                 cell += 'g'
                             if isinstance(entity, RoamingAgent):
                                 cell += 'r'
-                            if isinstance(entity, Waiter):
+                            if isinstance(entity, Waiter) or isinstance(entity, WaiterCNP):
                                 cell += 'w'
                             # Obstacles
                             if isinstance(entity, ObstacleCell):

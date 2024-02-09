@@ -1,5 +1,6 @@
 from typing import List, Union
 import random
+from src.environment.kitchen import KitchenInitiator
 
 from src.utils.position import Position
 from src.environment.package import Package
@@ -12,7 +13,7 @@ PACKAGE_POINT_END = 'pp-end'
 class PackagePoint:
     """ A point where the agent can leave a package, or pick up from."""
     def __init__(self, id: str, position: Position, point_type: str, max_simultaneous_packages_storage:float=float('inf'), 
-                 package_spawn_interval:Union[int, None]=None, n_packages_per_spawn:int=0, assign_intermediate=True) -> None:
+                 package_spawn_interval:Union[int, None]=None, n_packages_per_spawn:int=0, assign_intermediate=True, kitchen_initiator: KitchenInitiator=None) -> None:
         """ Constructor.
 
         Args:
@@ -31,6 +32,7 @@ class PackagePoint:
         self.n_packages_per_spawn = n_packages_per_spawn
         self.assign_intermediate = assign_intermediate
         self.packages = [] # only generated packages
+        self.announcer = kitchen_initiator
 
     def step(self, current_iteration:int, grid, intermediate_package_points, ending_package_points) -> None:
         if self.point_type == PACKAGE_POINT_START and self.package_spawn_interval is not None and current_iteration % self.package_spawn_interval == 0:
@@ -42,10 +44,10 @@ class PackagePoint:
             # Choose random destination
             destination = random.choice([pp for pp in ending_package_points])
             # max_iterations_to_deliver = random.randint(1, 20)
-            max_iterations_to_deliver = 10
+            max_iterations_to_deliver = 15
             
             # Create package and place it on grid
-            package = Package(f'p_it{current_iteration}_{i}', self.pos, destination.pos, max_iterations_to_deliver)
+            package = Package(f'p_it{current_iteration}_{i}', self.pos, destination.pos, max_iterations_to_deliver, destination_pp=destination)
             if self.assign_intermediate:
                 # find intermediate point, that is the nearest to the destination
                 intermediate_point = min(intermediate_package_points, key=lambda pp: pp.pos.dist_to(destination.pos))
@@ -53,5 +55,9 @@ class PackagePoint:
                 
             grid.place_agent(package, package.pos)
             self.packages.append(package)
+            
+            if self.announcer:
+                self.announcer.add_package(package)
+                
             print(f'Generated package with id {package.id} at position {package.pos.x}, {package.pos.y}')
             Save.save_to_csv_package(package, False)

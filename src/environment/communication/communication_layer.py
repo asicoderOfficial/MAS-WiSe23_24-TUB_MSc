@@ -4,11 +4,18 @@ from typing import Dict
 
 from src.visualization.save import Save
 
+# Broker
 MSG_PICKUP_RESPONSE = "pickup_response"
 MSG_PICKUP_REQUEST = "pickup_request"
 MSG_DELIVERY_NOTIFY = "delivery_notify"
 MSG_DELIVERY_ACCEPTED = "delivery_accepted"
 MSG_PACKAGE_DELIVERED = "package_delivered"
+
+# Contract Network Protocol
+MSG_DELIVERY_ANNOUNCE = "delivery_announce"
+MSG_PLACE_BID = "place_bid"
+MSG_BID_ACCEPT = "bid_accept"
+MSG_BID_REJECT = "bid_reject"
 
 class Message:
     def __init__(self, type: str, sender_id: str, destination_id: str, value: Dict) -> None:

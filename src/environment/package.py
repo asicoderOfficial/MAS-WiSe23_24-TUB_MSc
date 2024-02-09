@@ -2,7 +2,7 @@ from src.utils.position import Position
 
 class Package:
     """ A package that the agent can carry, or that can be stored in the PackagePoint."""
-    def __init__(self, id: str, position: Position, destination: Position, max_iterations_to_deliver: int, intermediate_point: Position =None) -> None:
+    def __init__(self, id: str, position: Position, destination: Position, max_iterations_to_deliver: int, intermediate_point: Position =None, destination_pp = None) -> None:
         """ Constructor.
 
         Args:
@@ -17,6 +17,7 @@ class Package:
         self.id = id
         self.pos = position
         self.destination = destination
+        self.destination_pp = destination_pp
         self.max_iterations_to_deliver = max_iterations_to_deliver
         self.iterations = 0
         self.is_delayed = False
@@ -33,7 +34,7 @@ class Package:
         Returns:
             None
         """        
-        grid.move_agent(self, new_position)
+        # grid.move_agent(self, new_position)
         self.iterations += 1
         if self.iterations >= self.max_iterations_to_deliver:
             self.is_delayed = True

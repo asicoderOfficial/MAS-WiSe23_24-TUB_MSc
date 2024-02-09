@@ -166,7 +166,7 @@ class Agent(MesaAgent):
             # Therefore, now the agent is not carrying any package and the package has to disappear from the environment (so it is not visible anymore).
             package.picked = False
             Save.save_to_csv_package(package)
-            grid.remove_agent(package)
+            # grid.remove_agent(package)
             self.packages.remove(package)
             # self.send_broker_message(Message(MSG_PACKAGE_DELIVERED, self.id, "broker", {f"Package: {package.id}, will deliver to the ending point"}))
         elif package_point.point_type == package_point.point_type == PACKAGE_POINT_INTERMEDIATE:

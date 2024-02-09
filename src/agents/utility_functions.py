@@ -8,6 +8,9 @@ Possible actions:
 - go-random
 """
 
+from agents.tips_functions import linear_decreasing_time_tips
+
+
 def naive(action:tuple, grid, self):
     """
     Simply return a number, depending on the kwargs.

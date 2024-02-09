@@ -10,3 +10,4 @@ UTILITY_FUNCTIONS = {
 
 UTILITY_FUNCTIONS_WITH_ONLY_ONE_ACTION = ['naive', 'naive_greedy', 'naive_fast']
 UTILITY_FUNCTIONS_WITH_ALL_POSSIBLE_ACTIONS = ['refined_greedy']
+UTILITY_FUNCTIONS_UNIVERSAL = ['minimal_time_delivery']
