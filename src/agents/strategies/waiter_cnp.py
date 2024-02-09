@@ -6,8 +6,8 @@ from queue import Queue
 import random
 
 from typing import List
-from agents.tips_functions import linear_decreasing_time_tips
-from environment.communication.communication_layer import MSG_BID_ACCEPT, MSG_BID_REJECT, MSG_DELIVERY_ANNOUNCE, MSG_PLACE_BID, CommunicationLayer, Message
+from src.agents.tips_functions import linear_decreasing_time_tips
+from src.environment.communication.communication_layer import MSG_BID_ACCEPT, MSG_BID_REJECT, MSG_DELIVERY_ANNOUNCE, MSG_PLACE_BID, CommunicationLayer, Message
 from src.agents.agent import Agent
 from src.agents.agent import Agent
 from src.agents.perception import Perception

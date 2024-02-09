@@ -8,7 +8,7 @@ Possible actions:
 - go-random
 """
 
-from agents.tips_functions import linear_decreasing_time_tips
+from src.agents.tips_functions import linear_decreasing_time_tips
 
 
 def naive(action:tuple, grid, self):

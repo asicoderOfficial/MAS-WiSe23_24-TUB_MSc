@@ -1,7 +1,10 @@
-import os
 from datetime import datetime
-from src.agents.strategies.waiter_cnp import WaiterCNP
-from src.environment.kitchen import KitchenInitiator
+import os
+
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+
 from src.agents.tips_functions import constant_tips, linear_decreasing_time_tips
 from src.agents.strategies.chain_agent import ChainAgent
 from src.agents.strategies.waiter import Waiter
@@ -20,7 +23,7 @@ from utils.automatic_environment import ENV_PP_UNIFORM_SQUARES
 random.seed(1)
 
 timestamp = datetime.now()
-log_dir = f"logs/{timestamp}"
+log_dir = r"logs/{timestamp}"
 os.makedirs(log_dir, exist_ok=True)
 Save.log_dir = log_dir
 
@@ -28,25 +31,21 @@ Save.log_dir = log_dir
 grid_height = 20
 grid_width = 20
 # Starting package point
-kitchen_initiator = KitchenInitiator("kitchen")
 starting_package_point_pos = Position(10, 10)
-starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=5, n_packages_per_spawn=4, assign_intermediate=False, kitchen_initiator=kitchen_initiator)
-# starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=2, n_packages_per_spawn=1, assign_intermediate=False, kitchen_initiator=kitchen_initiator)
+starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=5, n_packages_per_spawn=4, assign_intermediate=False)
 # Ending package points
 ending_package_points = [Position(0, 0)]
 
 total_iterations = 1000
 
 # Agents
-agents = [WaiterCNP(f'w{i}', starting_package_point_pos, [], Perception(3), 'dijkstra', 'refined_greedy', linear_decreasing_time_tips, starting_package_point_pos) for i in range(15)]
+# Create 15 agents
+agents = [Waiter(f'refined_greedy{i}', Position(10, 10), [], Perception(3), 'dijkstra', 'refined_greedy', linear_decreasing_time_tips, starting_package_point_pos) for i in range(15)]
 
 
-environment = Environment(grid_height, grid_width, agents, starting_package_point, 9, 25, [], pp_distribution_strategy=ENV_PP_UNIFORM_SQUARES, initiator=kitchen_initiator)
+environment = Environment(grid_height, grid_width, agents, starting_package_point, 9, 25, [], pp_distribution_strategy=ENV_PP_UNIFORM_SQUARES)
 
 m = environment.grid_as_matrix(mode='visualization')
-
-for agent in agents:
-    Save.save_agent_data(agent, 0, "init_agent_data.csv")
 
 m = environment.grid_as_matrix(mode='visualization')
 print('Initial grid:')
@@ -55,7 +54,7 @@ for m_i in range(len(m)):
 print()
 
 for iteration in range(1, total_iterations+1):
-    print(f'Iteration {iteration}')
+    #printf'Iteration {iteration}')
     environment.step()
     m = environment.grid_as_matrix(mode='visualization')
     for i in range(len(m)):
@@ -64,5 +63,5 @@ for iteration in range(1, total_iterations+1):
     for agent in agents:
         print(f"Agent {agent.id} tips: {agent.collected_tips}")
     print()
-    
-Save.save_agent_final_state(agents, "final_agent_data_cnp.csv")
+
+Save.save_agent_final_state(agents, "naive_fast_agents_data.csv")
