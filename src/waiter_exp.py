@@ -1,6 +1,6 @@
 from datetime import datetime
 import os
-from src.agents.tips_functions import linear_decreasing_time_tips
+from src.agents.tips_functions import constant_tips, linear_decreasing_time_tips
 from src.agents.strategies.chain_agent import ChainAgent
 from src.agents.strategies.waiter import Waiter
 from src.agents.perception import Perception
@@ -12,6 +12,7 @@ from src.environment.environment import Environment
 from src.agents.strategies.greedy_agent import GreedyAgent
 import random
 from src.visualization.save import Save
+from utils.automatic_environment import ENV_PP_UNIFORM_SQUARES
 
 # Define seed for reproducibility, this will be used for the whole program
 random.seed(1)
@@ -28,15 +29,15 @@ grid_width = 10
 starting_package_point_pos = Position(4, 4)
 starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=10, n_packages_per_spawn=2, assign_intermediate=False)
 # Ending package points
-ending_package_points = [Position(0, 0) for i in range(1)]
+ending_package_points = [Position(0, 0)]
 
-total_iterations = 10
+total_iterations = 100
 
 # Agents
 agents = [Waiter('w1', Position(7, 7), [], Perception(3), 'dijkstra', 'refined_greedy', linear_decreasing_time_tips, starting_package_point_pos)]
 
 
-environment = Environment(grid_height, grid_width, agents, starting_package_point, [], ending_package_points, [], pp_distribution_strategy='')
+environment = Environment(grid_height, grid_width, agents, starting_package_point, 0, 10, [], pp_distribution_strategy=ENV_PP_UNIFORM_SQUARES)
 
 m = environment.grid_as_matrix(mode='visualization')
 

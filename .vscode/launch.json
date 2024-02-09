@@ -27,6 +27,14 @@
             "program": "${workspaceFolder}/test/communication_grid.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Waiter Experiment",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/waiter_exp.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }
