@@ -1,0 +1,16 @@
+AgentID,x,y,algorithm,goal_package_point_type,utility_function,total_tips,total_table_served
+naive_greedy1,10,11,dijkstra,,naive_greedy,233.99999999999997,67
+naive_greedy2,10,10,dijkstra,,naive_greedy,256.00000000000006,64
+naive_greedy3,10,10,dijkstra,,naive_greedy,250.66666666666666,58
+naive_greedy4,6,14,dijkstra,,naive_greedy,216.66666666666669,56
+naive_greedy5,10,9,dijkstra,,naive_greedy,294.00000000000006,67
+naive_greedy6,10,10,dijkstra,,naive_greedy,255.33333333333337,56
+naive_greedy7,11,10,dijkstra,,naive_greedy,250.00000000000003,55
+naive_greedy8,10,7,dijkstra,,naive_greedy,260.66666666666674,54
+naive_greedy9,10,19,dijkstra,,naive_greedy,206.00000000000003,44
+naive_greedy10,11,10,dijkstra,,naive_greedy,270.00000000000006,52
+naive_greedy11,9,9,dijkstra,,naive_greedy,209.33333333333337,42
+naive_greedy12,8,10,dijkstra,,naive_greedy,264.66666666666663,51
+naive_greedy13,10,10,dijkstra,,naive_greedy,258.00000000000006,49
+naive_greedy14,5,11,dijkstra,,naive_greedy,235.3333333333334,41
+naive_greedy15,10,10,dijkstra,,naive_greedy,231.33333333333334,39

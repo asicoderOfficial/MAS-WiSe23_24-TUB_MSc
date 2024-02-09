@@ -1,5 +1,10 @@
 from datetime import datetime
 import os
+
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+
 from src.agents.tips_functions import constant_tips, linear_decreasing_time_tips
 from src.agents.strategies.chain_agent import ChainAgent
 from src.agents.strategies.waiter import Waiter
@@ -18,31 +23,43 @@ from utils.automatic_environment import ENV_PP_UNIFORM_SQUARES
 random.seed(1)
 
 timestamp = datetime.now()
-log_dir = f"logs/{timestamp}"
+log_dir = r"logs/{timestamp}"
 os.makedirs(log_dir, exist_ok=True)
 Save.log_dir = log_dir
 
 # Grid dimensions
-grid_height = 10
-grid_width = 10
+grid_height = 20
+grid_width = 20
 # Starting package point
-starting_package_point_pos = Position(4, 4)
-starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=10, n_packages_per_spawn=2, assign_intermediate=False)
+starting_package_point_pos = Position(10, 10)
+starting_package_point = PackagePoint('spp', starting_package_point_pos, PACKAGE_POINT_START, package_spawn_interval=5, n_packages_per_spawn=4, assign_intermediate=False)
 # Ending package points
 ending_package_points = [Position(0, 0)]
 
-total_iterations = 100
+total_iterations = 1000
 
 # Agents
-agents = [Waiter('w1', Position(7, 7), [], Perception(3), 'dijkstra', 'refined_greedy', linear_decreasing_time_tips, starting_package_point_pos)]
+# Create 15 agents
+agents = [Waiter('naive_fast1', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast2', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast3', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast4', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast5', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast6', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast7', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast8', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast9', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast10', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast11', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast12', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast13', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast14', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos),
+          Waiter('naive_fast15', Position(10, 10), [], Perception(3), 'dijkstra', 'naive_fast', linear_decreasing_time_tips, starting_package_point_pos)]
 
 
-environment = Environment(grid_height, grid_width, agents, starting_package_point, 0, 10, [], pp_distribution_strategy=ENV_PP_UNIFORM_SQUARES)
+environment = Environment(grid_height, grid_width, agents, starting_package_point, 9, 25, [], pp_distribution_strategy=ENV_PP_UNIFORM_SQUARES)
 
 m = environment.grid_as_matrix(mode='visualization')
-
-for agent in agents:
-    Save.save_agent_data(agent, 0, "init_agent_data.csv")
 
 m = environment.grid_as_matrix(mode='visualization')
 print('Initial grid:')
@@ -60,3 +77,5 @@ for iteration in range(1, total_iterations+1):
     for agent in agents:
         print(f"Agent {agent.id} tips: {agent.collected_tips}")
     print()
+
+Save.save_agent_final_state(agents, "naive_fast_agents_data.csv")

@@ -91,7 +91,7 @@ class Environment(Model):
         self.current_iteration = 0
         self.init_grid()
         self.init_communication_layer()
-        Save.save_agent_init_state(self.agents_l)
+        #Save.save_agent_init_state(self.agents_l)
 
 
     def step(self) -> None:

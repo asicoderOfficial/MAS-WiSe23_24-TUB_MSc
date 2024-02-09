@@ -123,6 +123,7 @@ class Waiter(Agent):
         # Collect tips
         self.table_served += 1
         self.collected_tips += self.tips_function(package)
+        self.table_served += 1
 
     def is_action_completed(self) -> bool:
         if self.pos.x == self.current_action[1].x and self.pos.y == self.current_action[1].y:

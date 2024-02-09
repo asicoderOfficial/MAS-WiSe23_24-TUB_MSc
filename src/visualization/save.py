@@ -6,12 +6,12 @@ import os
 class Save:
     log_dir = None
     
-    def save_agent_init_state(agents, filename="agent_data_init.csv"):
+    def save_agent_init_state(agents, filename):
         file_path = f"{Save.log_dir}/{filename}" 
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             # Header
-            writer.writerow(["AgentID","x","y","algorithm", "goal_package_point_type"])
+            writer.writerow(["AgentID","x","y","algorithm", "goal_package_point_type", "utility_function", "total_tips", "total_table_served"])
             for agent in agents:
                 writer.writerow([agent.id, agent.pos.x, agent.pos.y, agent.algorithm_name, agent.goal_package_point_type])
     
